@@ -6,6 +6,9 @@
     "categories": "Categories",
     "transactions": "Transactions",
     "reports": "Reports",
+    "year": "Year",
+    "month": "Month",
+    "netWorth": "Net Worth",
     "import": "Import",
     "settings": "Settings",
     "backup": "Backups",
@@ -181,6 +184,37 @@
     "active": "active",
     "inactive": "deactivated",
     "actions": "Actions"
+  },
+  "yearView": {
+    "title": "Year Overview",
+    "category": "Category",
+    "noData": "No data for this year"
+  },
+  "monthView": {
+    "title": "Month Overview",
+    "soll": "Budget",
+    "ist": "Actual",
+    "diff": "Difference",
+    "pct": "%",
+    "income": "Income",
+    "fixed": "Fixed Expenses",
+    "variable": "Variable Expenses",
+    "savingsRate": "Savings Rate",
+    "balance": "Balance",
+    "gesamt": "Total"
+  },
+  "netWorth": {
+    "title": "Net Worth",
+    "newSnapshot": "New Snapshot",
+    "totalAssets": "Assets",
+    "totalLiabilities": "Liabilities",
+    "netWorth": "Net Worth",
+    "notes": "Notes",
+    "date": "Date",
+    "delete": "Delete",
+    "confirmDelete": "Really delete this snapshot?",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "backup": {
     "title": "Backups",

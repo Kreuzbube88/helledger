@@ -6,6 +6,9 @@
     "categories": "Kategorien",
     "transactions": "Transaktionen",
     "reports": "Berichte",
+    "year": "Jahr",
+    "month": "Monat",
+    "netWorth": "Vermögen",
     "import": "Import",
     "settings": "Einstellungen",
     "backup": "Backups",
@@ -181,6 +184,37 @@
     "active": "aktiv",
     "inactive": "gesperrt",
     "actions": "Aktionen"
+  },
+  "yearView": {
+    "title": "Jahresübersicht",
+    "category": "Kategorie",
+    "noData": "Keine Daten für dieses Jahr"
+  },
+  "monthView": {
+    "title": "Monatsübersicht",
+    "soll": "Soll",
+    "ist": "Ist",
+    "diff": "Differenz",
+    "pct": "%",
+    "income": "Einnahmen",
+    "fixed": "Fixkosten",
+    "variable": "Variable Ausgaben",
+    "savingsRate": "Sparquote",
+    "balance": "Bilanz",
+    "gesamt": "Gesamt"
+  },
+  "netWorth": {
+    "title": "Nettovermögen",
+    "newSnapshot": "Neuer Snapshot",
+    "totalAssets": "Aktiva",
+    "totalLiabilities": "Passiva",
+    "netWorth": "Nettovermögen",
+    "notes": "Notizen",
+    "date": "Datum",
+    "delete": "Löschen",
+    "confirmDelete": "Snapshot wirklich löschen?",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
   },
   "backup": {
     "title": "Backups",

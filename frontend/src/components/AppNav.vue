@@ -35,6 +35,9 @@ const navItems = computed(() => {
     { key: 'categories', path: '/categories' },
     { key: 'transactions', path: '/transactions' },
     { key: 'reports', path: '/reports' },
+    { key: 'year', path: '/year' },
+    { key: 'month', path: '/month' },
+    { key: 'netWorth', path: '/net-worth' },
     { key: 'import', path: '/import' },
     { key: 'settings', path: '/settings' },
   ]
