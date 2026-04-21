@@ -201,7 +201,9 @@
     "variable": "Variable Ausgaben",
     "savingsRate": "Sparquote",
     "balance": "Bilanz",
-    "gesamt": "Gesamt"
+    "gesamt": "Gesamt",
+    "months": ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
+    "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
   },
   "netWorth": {
     "title": "Nettovermögen",

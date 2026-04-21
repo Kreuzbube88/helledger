@@ -11,8 +11,6 @@ const api = useApi()
 const year = ref(String(new Date().getFullYear()))
 const data = ref(null)
 
-const MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']
-
 async function load() {
   const r = await api.get(`/dashboard/year?year=${year.value}`)
   if (r.ok) data.value = await r.json()
@@ -40,7 +38,7 @@ onMounted(load)
           <thead>
             <tr class="border-b">
               <th class="text-left py-2 pr-4">{{ $t('yearView.category') }}</th>
-              <th v-for="m in MONTHS" :key="m" class="text-right py-2 px-2 min-w-16">{{ m }}</th>
+              <th v-for="m in $tm('monthView.months')" :key="m" class="text-right py-2 px-2 min-w-16">{{ m }}</th>
             </tr>
           </thead>
           <tbody>

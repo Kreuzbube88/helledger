@@ -30,8 +30,6 @@ async function load() {
 watch([year, month], load)
 onMounted(load)
 
-const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
-
 function pctColor(pct, type) {
   if (type === 'income') return pct >= 100 ? 'text-emerald-500' : 'text-rose-500'
   if (pct <= 80) return 'text-emerald-500'
@@ -44,7 +42,7 @@ function pctColor(pct, type) {
   <div class="container mx-auto py-6 space-y-4">
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="prevMonth">&#8249;</Button>
-      <h1 class="text-2xl font-bold">{{ MONTH_NAMES[month - 1] }} {{ year }}</h1>
+      <h1 class="text-2xl font-bold">{{ $tm('monthView.monthsFull')[month - 1] }} {{ year }}</h1>
       <Button variant="ghost" size="icon" @click="nextMonth">&#8250;</Button>
     </div>
 

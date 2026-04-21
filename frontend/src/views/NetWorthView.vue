@@ -37,7 +37,8 @@ async function save() {
 
 async function deleteSnapshot(id) {
   if (!confirm(t('netWorth.confirmDelete'))) return
-  await api.delete(`/net-worth/${id}`)
+  const r = await api.delete(`/net-worth/${id}`)
+  if (!r.ok) return
   await load()
 }
 
