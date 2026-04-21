@@ -3,6 +3,8 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi.responses import Response
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
@@ -14,8 +16,10 @@ from app.schemas.import_ import (
     ConfirmRequest, ConfirmResponse, DuplicateEntry, ErrorEntry, ParseResponse,
 )
 from app.services.import_parser import apply_csv_mapping, parse_csv, parse_ofx
+from app.services.excel_io import import_excel, export_excel
 
 router = APIRouter(prefix="/import", tags=["import"])
+export_router = APIRouter(prefix="/export", tags=["export"])
 
 _sessions: dict[str, dict] = {}
 _SESSION_TTL = 600  # 10 minutes
@@ -182,3 +186,42 @@ async def confirm_import(
     _sessions.pop(body.session_token, None)
 
     return ConfirmResponse(imported=imported, duplicates=duplicates, errors=errors)
+
+
+@router.post("/excel")
+async def import_excel_route(
+    file: UploadFile,
+    account_id: int = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    if not user.active_household_id:
+        raise HTTPException(status_code=400, detail="no_active_household")
+    content = await file.read()
+    result = import_excel(content, account_id, user.active_household_id, db)
+    return result
+
+
+@export_router.get("/excel")
+def export_excel_route(
+    year: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    if not user.active_household_id:
+        raise HTTPException(status_code=400, detail="no_active_household")
+    txs = (
+        db.query(Transaction)
+        .filter(
+            Transaction.household_id == user.active_household_id,
+            func.strftime("%Y", Transaction.date) == str(year),
+        )
+        .order_by(Transaction.date)
+        .all()
+    )
+    xlsx_bytes = export_excel(txs)
+    return Response(
+        content=xlsx_bytes,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=helledger-{year}.xlsx"},
+    )
