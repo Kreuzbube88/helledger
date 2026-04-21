@@ -1,0 +1,18 @@
+services:
+  helledger:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: helledger-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - SECRET_KEY=dev-secret-key-change-in-production!!
+      - DATABASE_PATH=/data/helledger.db
+      - TZ=Europe/Berlin
+      - DEFAULT_LANGUAGE=de
+      - ALLOW_REGISTRATION=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./data:/data

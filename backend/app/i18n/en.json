@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "registration_disabled": "Registration is disabled.",
+    "email_taken": "This email address is already taken.",
+    "invalid_credentials": "Invalid email or password.",
+    "invalid_token": "Invalid or expired token.",
+    "user_not_found": "User not found.",
+    "missing_refresh_token": "No refresh token provided.",
+    "invalid_refresh_token": "Invalid or expired refresh token."
+  }
+}

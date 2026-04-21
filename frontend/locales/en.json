@@ -1,0 +1,159 @@
+{
+  "app": { "name": "HELLEDGER", "tagline": "Your personal finance tracker" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "categories": "Categories",
+    "transactions": "Transactions",
+    "reports": "Reports",
+    "settings": "Settings",
+    "backup": "Backups",
+    "logout": "Sign Out"
+  },
+  "auth": {
+    "login": "Sign In", "register": "Create Account",
+    "email": "Email address", "password": "Password",
+    "name": "Full name", "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginTitle": "Welcome back",
+    "registerTitle": "Create your account",
+    "passwordHint": "At least 12 characters",
+    "switchToRegister": "Create account",
+    "switchToLogin": "Sign in"
+  },
+  "errors": {
+    "email_taken": "This email address is already taken.",
+    "invalid_credentials": "Invalid email or password.",
+    "registration_disabled": "Registration is currently disabled.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "empty": "Your dashboard is empty.",
+    "income": "Income",
+    "expenses": "Expenses",
+    "balance": "Balance",
+    "sollIst": "Budget vs. Actual",
+    "accounts": "Account Balances",
+    "noData": "No data for this month.",
+    "addTransaction": "Add Transaction",
+    "soll": "Budget",
+    "ist": "Actual",
+    "diff": "Difference"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "add": "Add Transaction",
+    "addTransfer": "Transfer",
+    "date": "Date",
+    "description": "Description",
+    "account": "Account",
+    "category": "Category",
+    "amount": "Amount",
+    "type": "Type",
+    "income": "Income",
+    "expense": "Expense",
+    "transfer": "Transfer",
+    "fromAccount": "From Account",
+    "toAccount": "To Account",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this transaction?",
+    "noData": "No transactions found.",
+    "filterAccount": "Account (all)",
+    "filterCategory": "Category (all)"
+  },
+  "accounts": {
+    "title": "Accounts", "add": "Add Account",
+    "name": "Name", "type": "Type", "balance": "Initial Balance",
+    "currency": "Currency", "status": "Status",
+    "active": "Active", "archived": "Archived",
+    "archive": "Archive", "edit": "Edit",
+    "save": "Save", "cancel": "Cancel",
+    "types": { "checking": "Checking", "savings": "Savings", "credit": "Credit" }
+  },
+  "categories": {
+    "title": "Categories", "add": "Add Category", "addSub": "Sub-Category",
+    "name": "Name", "type": "Type", "color": "Color",
+    "archive": "Archive", "edit": "Edit",
+    "save": "Save", "cancel": "Cancel",
+    "expectedValue": "Expected Value", "budget": "Budget",
+    "newExpectedValue": "Set New Expected Value", "newBudget": "Set New Budget",
+    "amount": "Amount", "validFrom": "Valid From", "noLimit": "No Limit",
+    "sections": { "income": "Income", "fixed": "Fixed Costs", "variable": "Variable Expenses" },
+    "types": { "income": "Income", "fixed": "Fixed", "variable": "Variable" }
+  },
+  "settings": {
+    "title": "Settings", "household": "Household",
+    "householdName": "Household Name", "members": "Members",
+    "addMember": "Add Member", "memberEmail": "Email address",
+    "add": "Add", "remove": "Remove",
+    "roles": { "owner": "Owner", "member": "Member" },
+    "save": "Save"
+  },
+  "lang": { "de": "Deutsch", "en": "English" },
+  "import": {
+    "title": "Import Transactions",
+    "step": { "upload": "Select File", "mapping": "Map Columns", "result": "Result" },
+    "dropzone": "Drop CSV, OFX or QFX here or click to browse",
+    "account": "Account",
+    "field": {
+      "date": "Date",
+      "amount": "Amount",
+      "description": "Description",
+      "category": "Default Category (optional)",
+      "dateFormat": "Date Format",
+      "decimal": "Decimal Separator"
+    },
+    "decimal": { "comma": "Comma (,)", "dot": "Dot (.)" },
+    "result": {
+      "imported": "transactions imported",
+      "duplicates": "duplicates found",
+      "errors": "errors"
+    },
+    "btn": {
+      "import": "Import",
+      "restart": "Start New Import",
+      "toTransactions": "Go to Transactions"
+    },
+    "warn": {
+      "duplicates": "Some transactions were already imported.",
+      "sessionExpired": "Session expired — please re-upload the file."
+    },
+    "error": { "parseError": "Could not read the file." },
+    "noHousehold": "No active household. Please select one in Settings first."
+  },
+  "reports": {
+    "title": "Reports",
+    "period": { "month": "Month", "year": "Year", "custom": "Custom" },
+    "filter": { "allAccounts": "All Accounts" },
+    "chart": {
+      "expensesByCategory": "Expenses by Category",
+      "monthlyTrend": "Income & Expenses",
+      "balanceHistory": "Balance History",
+      "sollIst": "Budget vs. Actual"
+    },
+    "export": { "png": "Download PNG", "csv": "Download CSV", "all": "All Charts (PNG)" },
+    "noData": "No data for this period",
+    "selectAccount": "Please select an account"
+  },
+  "backup": {
+    "title": "Backups",
+    "settings": "Settings",
+    "retentionDays": "Retention (days)",
+    "save": "Save",
+    "saved": "Settings saved",
+    "triggerBtn": "Create backup now",
+    "triggerSuccess": "Backup created",
+    "list": "Existing backups",
+    "filename": "Filename",
+    "size": "Size",
+    "createdAt": "Date",
+    "download": "Download",
+    "delete": "Delete",
+    "deleteConfirm": "Really delete this backup?",
+    "empty": "No backups yet"
+  }
+}

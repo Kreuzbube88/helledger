@@ -1,0 +1,11 @@
+{
+  "errors": {
+    "registration_disabled": "Registrierung ist deaktiviert.",
+    "email_taken": "Diese E-Mail-Adresse ist bereits vergeben.",
+    "invalid_credentials": "E-Mail oder Passwort falsch.",
+    "invalid_token": "Ungültiges oder abgelaufenes Token.",
+    "user_not_found": "Benutzer nicht gefunden.",
+    "missing_refresh_token": "Kein Refresh-Token vorhanden.",
+    "invalid_refresh_token": "Ungültiges oder abgelaufenes Refresh-Token."
+  }
+}

@@ -1,0 +1,16 @@
+services:
+  helledger:
+    image: ghcr.io/kreuzbube88/helledger:latest
+    container_name: helledger
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_PATH=/data/helledger.db
+      - TZ=Europe/Berlin
+      - DEFAULT_LANGUAGE=de
+      - ALLOW_REGISTRATION=true
+    volumes:
+      - ./data:/data
+      - ./backups:/backups
