@@ -13,7 +13,9 @@
     "settings": "Settings",
     "backup": "Backups",
     "admin": "Admin",
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "more": "More",
+    "menu": "Menu"
   },
   "auth": {
     "login": "Sign In", "register": "Create Account",
@@ -117,6 +119,7 @@
     "passwordChanged": "Password changed"
   },
   "lang": { "de": "Deutsch", "en": "English" },
+  "theme": { "light": "Light", "dark": "Dark" },
   "import": {
     "title": "Import Transactions",
     "step": { "upload": "Select File", "mapping": "Map Columns", "result": "Result" },

@@ -178,7 +178,7 @@ onMounted(loadHouseholds)
         >
           <Sun v-if="theme.isDark" class="h-3.5 w-3.5" />
           <Moon v-else class="h-3.5 w-3.5" />
-          {{ theme.isDark ? 'Light' : 'Dark' }}
+          {{ theme.isDark ? t('theme.light') : t('theme.dark') }}
         </button>
         <button
           @click="handleLogout"
@@ -225,7 +225,7 @@ onMounted(loadHouseholds)
         :class="moreOpen ? (theme.isDark ? 'text-emerald-400' : 'text-emerald-600') : ''"
       >
         <MoreHorizontal class="h-5 w-5" />
-        <span class="text-[9px] font-medium">More</span>
+        <span class="text-[9px] font-medium">{{ t('nav.more') }}</span>
       </button>
     </div>
   </nav>
@@ -250,7 +250,7 @@ onMounted(loadHouseholds)
         <div class="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
 
         <div class="flex items-center justify-between mb-4">
-          <span class="text-sm font-semibold">Menu</span>
+          <span class="text-sm font-semibold">{{ t('nav.menu') }}</span>
           <button
             @click="moreOpen = false"
             class="p-1.5 rounded-lg transition-colors"

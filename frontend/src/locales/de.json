@@ -13,7 +13,9 @@
     "settings": "Einstellungen",
     "backup": "Backups",
     "admin": "Admin",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "more": "Mehr",
+    "menu": "Menü"
   },
   "auth": {
     "login": "Anmelden", "register": "Registrieren",
@@ -117,6 +119,7 @@
     "passwordChanged": "Passwort geändert"
   },
   "lang": { "de": "Deutsch", "en": "English" },
+  "theme": { "light": "Hell", "dark": "Dunkel" },
   "import": {
     "title": "Transaktionen importieren",
     "step": { "upload": "Datei auswählen", "mapping": "Spalten zuordnen", "result": "Ergebnis" },
