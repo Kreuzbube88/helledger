@@ -1,5 +1,7 @@
+from datetime import date as date_type
+
 from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
@@ -32,7 +34,7 @@ def get_year_view(
         db.query(Category)
         .filter(
             Category.household_id == user.active_household_id,
-            Category.archived == False,
+            Category.archived.is_(False),
         )
         .all()
     )
@@ -127,11 +129,14 @@ def get_month_view(
 
     cats = db.query(Category).filter(
         Category.household_id == hh_id,
-        Category.archived == False,
+        Category.archived.is_(False),
     ).all()
 
+    first_day = date_type(year, month, 1)
     evs = db.query(ExpectedValue).filter(
         ExpectedValue.household_id == hh_id,
+        ExpectedValue.valid_from <= first_day,
+        or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= first_day),
     ).all()
     ev_map = {ev.category_id: float(ev.amount) for ev in evs}
 

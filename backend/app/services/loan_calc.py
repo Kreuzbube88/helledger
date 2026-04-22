@@ -34,6 +34,8 @@ def calc_principal(monthly_payment: float, annual_rate: float, term_months: int)
 def calc_rate_newton(principal: float, monthly_payment: float, term_months: int) -> float:
     """P, PMT, n → annual_rate% via Newton-Raphson"""
     P, PMT, n = float(principal), float(monthly_payment), term_months
+    if P <= 0 or PMT <= 0:
+        raise ValueError("payment_too_low")
     r = PMT / P  # initial guess
     for _ in range(200):
         h = r * 1e-6 if r > 0 else 1e-9
@@ -181,10 +183,12 @@ def calc_stats(
     payoff_date = rows[-1]["date"] if rows else None
 
     today = date.today()
-    current_balance = 0.0
+    current_balance = principal
     for row in rows:
-        if date.fromisoformat(row["date"]) >= today:
+        row_date = date.fromisoformat(row["date"])
+        if row_date < today:
             current_balance = row["balance"]
+        else:
             break
 
     return {
