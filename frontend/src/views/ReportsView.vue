@@ -71,8 +71,8 @@ async function loadData() {
   if (!from || !to || from > to) return
   const [catRes, trendRes, siRes] = await Promise.all([
     api.get(`/reports/expenses-by-category?${buildQs()}`),
-    api.get(`/reports/monthly-trend?from_date=${from}&to_date=${to}`),
-    api.get(`/reports/soll-ist?from_date=${from}&to_date=${to}`),
+    api.get(`/reports/monthly-trend?${buildQs()}`),
+    api.get(`/reports/soll-ist?${buildQs()}`),
   ])
   if (catRes.ok) catData.value = await catRes.json()
   if (trendRes.ok) trendData.value = await trendRes.json()

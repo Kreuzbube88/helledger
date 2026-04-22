@@ -45,7 +45,7 @@ onMounted(load)
             <tr v-for="cat in data.categories" :key="cat.id" class="border-b hover:bg-muted/50">
               <td class="py-1 pr-4 font-medium">{{ cat.name }}</td>
               <td v-for="(val, i) in cat.months" :key="i" class="text-right py-1 px-2 tabular-nums"
-                  :class="val > 0 ? 'text-rose-500' : 'text-muted-foreground'">
+                  :class="val > 0 ? (cat.type === 'income' ? 'text-emerald-500' : 'text-rose-500') : 'text-muted-foreground'">
                 {{ val > 0 ? val.toFixed(0) : '—' }}
               </td>
             </tr>
