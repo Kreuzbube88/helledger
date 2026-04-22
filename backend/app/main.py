@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 
 import alembic.command
@@ -48,8 +49,9 @@ async def lifespan(app: FastAPI):
             _run_migrations()
             asyncio.get_event_loop().create_task(_backup_loop())
         logger.info("HELLEDGER started")
-    except Exception:
+    except BaseException:
         logger.exception("Startup failed")
+        sys.stderr.flush()
         raise
     yield
 
