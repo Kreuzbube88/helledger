@@ -352,8 +352,8 @@ async def add_extra_payment(
 
     # If reduce_payment: recalculate monthly_payment and update ExpectedValue
     if body.effect == "reduce_payment" and loan.category_id:
+        # db.flush() already made ep queryable — no append needed
         all_eps = _extra_payments_for(loan_id, db)
-        all_eps.append({"payment_date": body.payment_date, "amount": float(body.amount), "effect": body.effect})
         monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
         rows = calc_amortization(
             float(loan.principal), float(loan.interest_rate),

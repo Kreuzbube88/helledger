@@ -104,10 +104,11 @@ def calc_amortization(
                 balance = Decimal("0")
                 break
             if next_ep["effect"] == "shorten_term" and r > 0:
-                remaining_months = math.ceil(
-                    -math.log(1 - float(new_bal * r / current_payment))
-                    / math.log(1 + float(r))
-                )
+                ratio = float(new_bal * r / current_payment)
+                if ratio < 1:  # guard: payment must exceed interest on remaining balance
+                    remaining_months = math.ceil(
+                        -math.log(1 - ratio) / math.log(1 + float(r))
+                    )
             elif next_ep["effect"] == "reduce_payment":
                 if r > 0 and remaining_months > 0:
                     rp = float(r)

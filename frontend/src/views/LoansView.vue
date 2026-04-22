@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
@@ -43,9 +43,6 @@ const lockedField = ref(null) // 'principal' | 'interest_rate' | 'monthly_paymen
 
 const fields4 = ['principal', 'interest_rate', 'monthly_payment', 'term_months']
 
-const filledCount = computed(() =>
-  fields4.filter(f => form.value[f] !== '' && form.value[f] !== null).length
-)
 
 function setLocked(field) {
   if (lockedField.value === field) {
@@ -104,7 +101,8 @@ async function save() {
     body[f] = form.value[f] !== '' ? (f === 'term_months' ? parseInt(form.value[f]) : parseFloat(form.value[f])) : null
   }
 
-  if (body.principal !== null && body.interest_rate !== null && body.monthly_payment !== null && body.term_months !== null) {
+  const nullCount = fields4.filter(f => body[f] === null).length
+  if (nullCount !== 1) {
     toast.error(t('loans.provide3of4'))
     return
   }
