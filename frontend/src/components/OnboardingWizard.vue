@@ -98,7 +98,6 @@ async function next() {
       if (!res.ok) { toast.error(t('errors.generic')); return }
       const hh = await res.json()
       await api.post(`/households/${hh.id}/activate`, {})
-      await auth.fetchUser()
       step.value = 2
     } finally { loading.value = false }
     return

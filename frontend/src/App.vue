@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toaster } from 'vue-sonner'
 import AppNav from '@/components/AppNav.vue'
@@ -10,24 +10,19 @@ const route = useRoute()
 const auth = useAuthStore()
 
 const showNav = computed(() => !!route.meta?.requiresAuth && auth.isAuthenticated)
-
-const wizardActive = ref(false)
-watch(
-  () => auth.user,
-  (user) => { if (user && !user.active_household_id) wizardActive.value = true },
-  { immediate: true },
-)
-const showWizard = computed(() => showNav.value && wizardActive.value)
-function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
+const showWizard = computed(() => showNav.value && !!auth.user && !auth.user.active_household_id)
+function onWizardDone() { auth.fetchUser() }
 </script>
 
 <template>
-  <!-- Ambient floating orbs — visible only in dark mode via CSS -->
+  <!-- Ambient layers — visible only in dark mode via CSS -->
   <div aria-hidden="true">
     <div class="ambient-orb ambient-orb-1" />
     <div class="ambient-orb ambient-orb-2" />
     <div class="ambient-orb ambient-orb-3" />
     <div class="ambient-orb ambient-orb-4" />
+    <div class="aurora-sweep" />
+    <div class="scan-line" />
   </div>
 
   <AppNav v-if="showNav" />
