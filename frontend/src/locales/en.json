@@ -17,7 +17,8 @@
     "more": "More",
     "menu": "Menu",
     "loans": "Loans",
-    "recurring": "Recurring"
+    "recurring": "Recurring",
+    "goals": "Goals"
   },
   "auth": {
     "login": "Sign In", "register": "Create Account",
@@ -303,6 +304,24 @@
     "triggered": "Bookings created",
     "reserve": "Monthly Reserve (irregular costs)",
     "noData": "No templates found."
+  },
+  "goals": {
+    "title": "Savings Goals",
+    "add": "Add Goal",
+    "edit": "Edit Goal",
+    "name": "Name",
+    "targetAmount": "Target Amount",
+    "targetDate": "Target Date",
+    "account": "Linked Account",
+    "noAccount": "– No Account –",
+    "color": "Color",
+    "notes": "Notes",
+    "progress": "Progress",
+    "of": "of",
+    "achieved": "Achieved",
+    "noData": "No savings goals yet.",
+    "allGoals": "→ All Goals",
+    "confirmDelete": "Delete this savings goal?"
   },
   "loans": {
     "title": "Loans",

@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Wallet, Tag, ArrowLeftRight, BarChart3,
   CalendarDays, CalendarRange, TrendingUp, Upload, Settings,
   HardDrive, Shield, LogOut, MoreHorizontal, Sun, Moon, X,
-  ChevronDown, Landmark, RefreshCw,
+  ChevronDown, Landmark, RefreshCw, Target,
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
@@ -38,6 +38,7 @@ const allNavItems = computed(() => {
     { key: 'year',         path: '/year',         icon: CalendarDays },
     { key: 'month',        path: '/month',        icon: CalendarRange },
     { key: 'netWorth',     path: '/net-worth',    icon: TrendingUp },
+    { key: 'goals',        path: '/goals',        icon: Target },
     { key: 'import',       path: '/import',       icon: Upload },
     { key: 'settings',     path: '/settings',     icon: Settings },
   ]

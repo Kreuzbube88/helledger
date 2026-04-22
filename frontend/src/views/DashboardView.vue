@@ -3,7 +3,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Doughnut } from 'vue-chartjs'
-import { TrendingUp, TrendingDown, Plus, ArrowRight } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Plus, ArrowRight, Target } from 'lucide-vue-next'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { useApi } from '@/lib/api'
 import { useRouter } from 'vue-router'
@@ -32,6 +32,7 @@ const loaded   = ref(false)
 const expiringCats = ref([])
 const monthlyReserve = ref(null)
 const reserveOpen = ref(false)
+const topGoals = ref([])
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, balance: 0 })
@@ -126,6 +127,17 @@ async function loadMonthlyReserve() {
   if (res.ok) monthlyReserve.value = await res.json()
 }
 
+async function loadGoals() {
+  const res = await api.get('/goals')
+  if (res.ok) {
+    const all = await res.json()
+    topGoals.value = all
+      .filter((g) => !g.is_achieved)
+      .sort((a, b) => b.progress_pct - a.progress_pct)
+      .slice(0, 3)
+  }
+}
+
 async function load() {
   loaded.value = false
   const [sumRes, siRes, balRes] = await Promise.all([
@@ -153,7 +165,7 @@ function fmt(val) {
 const balancePositive = computed(() => display.balance >= 0)
 
 // Load once a household is active; also re-runs after wizard sets active_household_id
-watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring(); loadMonthlyReserve() } }, { immediate: true })
+watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring(); loadMonthlyReserve(); loadGoals() } }, { immediate: true })
 
 onMounted(() => {
   // fire-and-forget auto-book
@@ -384,6 +396,54 @@ onMounted(() => {
           >
             {{ parseFloat(acc.balance) >= 0 ? '+' : '' }}{{ parseFloat(acc.balance).toFixed(2).replace('.', ',') }} €
           </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Savings goals widget ─────────────────────────────────── -->
+    <div v-if="topGoals.length > 0" class="anim-fade-up delay-350">
+      <div
+        class="rounded-2xl border overflow-hidden"
+        :class="theme.isDark
+          ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]'
+          : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <div class="px-5 py-4 border-b flex items-center justify-between"
+             :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-50'">
+          <div class="flex items-center gap-2">
+            <Target class="h-4 w-4 text-emerald-400" />
+            <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {{ t('goals.title') }}
+            </h2>
+          </div>
+          <button
+            @click="router.push('/goals')"
+            class="text-xs text-muted-foreground hover:text-emerald-400 transition-colors"
+          >
+            {{ t('goals.allGoals') }}
+          </button>
+        </div>
+        <div class="divide-y" :class="theme.isDark ? 'divide-white/[0.04]' : 'divide-gray-50'">
+          <div
+            v-for="goal in topGoals"
+            :key="goal.id"
+            class="px-5 py-3 flex items-center gap-4"
+          >
+            <span class="text-sm flex-1 min-w-0 truncate">{{ goal.name }}</span>
+            <div class="w-28 h-1.5 rounded-full bg-muted overflow-hidden shrink-0">
+              <div
+                class="h-full rounded-full"
+                :style="{
+                  width: goal.progress_pct + '%',
+                  background: goal.color || '#10b981',
+                  transition: 'width 0.8s ease',
+                }"
+              />
+            </div>
+            <span class="text-xs tabular-nums text-muted-foreground shrink-0 w-28 text-right">
+              {{ fmt(goal.current_amount) }} / {{ fmt(goal.target_amount) }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

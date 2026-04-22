@@ -17,7 +17,8 @@
     "more": "Mehr",
     "menu": "Menü",
     "loans": "Kredite",
-    "recurring": "Wiederk. Buchungen"
+    "recurring": "Wiederk. Buchungen",
+    "goals": "Sparziele"
   },
   "auth": {
     "login": "Anmelden", "register": "Registrieren",
@@ -303,6 +304,24 @@
     "triggered": "Buchungen erstellt",
     "reserve": "Monatliche Reserve (unregelmäßige Kosten)",
     "noData": "Keine Vorlagen vorhanden."
+  },
+  "goals": {
+    "title": "Sparziele",
+    "add": "Sparziel hinzufügen",
+    "edit": "Sparziel bearbeiten",
+    "name": "Name",
+    "targetAmount": "Zielbetrag",
+    "targetDate": "Zieldatum",
+    "account": "Verknüpftes Konto",
+    "noAccount": "– Kein Konto –",
+    "color": "Farbe",
+    "notes": "Notizen",
+    "progress": "Fortschritt",
+    "of": "von",
+    "achieved": "Erreicht",
+    "noData": "Keine Sparziele vorhanden.",
+    "allGoals": "→ Alle Sparziele",
+    "confirmDelete": "Sparziel wirklich löschen?"
   },
   "loans": {
     "title": "Kredite",
