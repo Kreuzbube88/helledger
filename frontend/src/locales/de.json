@@ -17,7 +17,7 @@
     "more": "Mehr",
     "menu": "Menü",
     "loans": "Kredite",
-    "fixedCosts": "Fixposten",
+    "fixedCosts": "Fixkosten",
     "goals": "Sparziele"
   },
   "auth": {
@@ -297,9 +297,9 @@
     "empty": "Keine Backups vorhanden"
   },
   "fixedCosts": {
-    "title": "Fixposten",
-    "add": "Fixposten hinzufügen",
-    "edit": "Fixposten bearbeiten",
+    "title": "Fixkosten",
+    "add": "Fixkosten hinzufügen",
+    "edit": "Fixkosten bearbeiten",
     "changeAmount": "Betrag ändern",
     "validFrom": "Gültig ab",
     "newAmount": "Neuer Betrag",
@@ -316,9 +316,9 @@
     "reserve": "Rücklagen-Übersicht",
     "reserveTotal": "Monatlich zurücklegen",
     "managedByLoan": "Verwaltet auf Kredite-Seite",
-    "noData": "Keine Fixposten angelegt",
-    "confirmDeactivate": "Fixposten deaktivieren?",
-    "deactivated": "Fixposten deaktiviert",
+    "noData": "Keine Fixkosten angelegt",
+    "confirmDeactivate": "Fixkosten deaktivieren?",
+    "deactivated": "Fixkosten deaktiviert",
     "type": "Typ",
     "income": "Einnahme",
     "expense": "Ausgabe",

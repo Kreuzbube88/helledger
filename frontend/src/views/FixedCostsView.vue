@@ -27,8 +27,8 @@ const editingId = ref(null)
 const form = ref({
   name: '',
   cost_type: 'expense',
-  category_id: '',
-  account_id: '',
+  category_id: '__none__',
+  account_id: '__none__',
   amount: '',
   interval_months: '1',
   show_split: false,
@@ -98,8 +98,8 @@ function openCreate() {
   form.value = {
     name: '',
     cost_type: 'expense',
-    category_id: '',
-    account_id: '',
+    category_id: '__none__',
+    account_id: '__none__',
     amount: '',
     interval_months: '1',
     show_split: false,
@@ -114,8 +114,8 @@ function openEdit(fc) {
   form.value = {
     name: fc.name,
     cost_type: fc.cost_type,
-    category_id: fc.category_id ? String(fc.category_id) : '',
-    account_id: fc.account_id ? String(fc.account_id) : '',
+    category_id: fc.category_id ? String(fc.category_id) : '__none__',
+    account_id: fc.account_id ? String(fc.account_id) : '__none__',
     amount: String(parseFloat(fc.amount)),
     interval_months: String(fc.interval_months),
     show_split: fc.show_split,
@@ -134,8 +134,8 @@ async function save() {
     show_split: form.value.show_split,
     start_date: form.value.start_date,
     end_date: form.value.end_date || null,
-    category_id: form.value.category_id ? parseInt(form.value.category_id) : null,
-    account_id: form.value.account_id ? parseInt(form.value.account_id) : null,
+    category_id: form.value.category_id && form.value.category_id !== '__none__' ? parseInt(form.value.category_id) : null,
+    account_id: form.value.account_id && form.value.account_id !== '__none__' ? parseInt(form.value.account_id) : null,
   }
   const res = editingId.value
     ? await api.patch(`/fixed-costs/${editingId.value}`, body)
@@ -372,7 +372,7 @@ async function saveAmount() {
             <Select v-model="form.category_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">—</SelectItem>
+                <SelectItem value="__none__">—</SelectItem>
                 <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
               </SelectContent>
             </Select>
@@ -382,7 +382,7 @@ async function saveAmount() {
             <Select v-model="form.account_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">—</SelectItem>
+                <SelectItem value="__none__">—</SelectItem>
                 <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
               </SelectContent>
             </Select>

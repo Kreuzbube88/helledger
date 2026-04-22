@@ -80,7 +80,7 @@ const TOUR = [
   {
     icon: RefreshCw,
     color: '#14b8a6',
-    nav: { de: 'Fixposten', en: 'Fixed Costs' },
+    nav: { de: 'Fixkosten', en: 'Fixed Costs' },
     title: { de: 'Fixposten & Automatikbuchungen', en: 'Fixed Costs & Auto-Bookings' },
     bullets: [
       { de: 'Gehalt, Miete, Versicherungen — alles als Fixposten mit Intervall hinterlegen', en: 'Salary, rent, insurance — set up everything as fixed costs with an interval' },
