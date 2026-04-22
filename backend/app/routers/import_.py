@@ -52,7 +52,13 @@ async def parse_import(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    _require_active_hh(user)
+    hh_id = _require_active_hh(user)
+    account = db.query(Account).filter(
+        Account.id == account_id,
+        Account.household_id == hh_id,
+    ).first()
+    if account is None:
+        raise HTTPException(status_code=403, detail="forbidden")
 
     filename = (file.filename or "").lower()
     if not (filename.endswith(".csv") or filename.endswith(".ofx") or filename.endswith(".qfx")):

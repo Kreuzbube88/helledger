@@ -308,7 +308,8 @@
     "triggerNow": "Book due items now",
     "triggered": "Bookings created",
     "reserve": "Monthly Reserve (irregular costs)",
-    "noData": "No templates found."
+    "noData": "No templates found.",
+    "confirmDelete": "Delete this template?"
   },
   "goals": {
     "title": "Savings Goals",

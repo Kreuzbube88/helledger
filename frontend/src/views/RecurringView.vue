@@ -105,14 +105,14 @@ async function save() {
   if (res.ok) {
     showDialog.value = false
     await load()
-    toast.success(t('common.actions'))
+    toast.success(t('transactions.save'))
   } else {
     toast.error(t('errors.generic'))
   }
 }
 
 async function remove(id) {
-  if (!confirm(t('recurring.noData'))) return
+  if (!confirm(t('recurring.confirmDelete'))) return
   const res = await api.delete(`/recurring/${id}`)
   if (res.ok) { await load() }
   else toast.error(t('errors.generic'))

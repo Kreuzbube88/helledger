@@ -383,7 +383,7 @@ onMounted(() => {
           </span>
           <div class="flex items-center gap-3">
             <span class="text-sm font-bold tabular-nums">
-              {{ monthlyReserve.total.toFixed(2).replace('.', ',') }} € / {{ t('month.label', 'Monat') }}
+              {{ monthlyReserve.total.toFixed(2).replace('.', ',') }} € / {{ t('reports.period.month') }}
             </span>
             <span class="text-muted-foreground text-xs">{{ reserveOpen ? '▲' : '▼' }}</span>
           </div>

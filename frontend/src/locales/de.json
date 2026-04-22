@@ -308,7 +308,8 @@
     "triggerNow": "Fällige Buchungen jetzt ausführen",
     "triggered": "Buchungen erstellt",
     "reserve": "Monatliche Reserve (unregelmäßige Kosten)",
-    "noData": "Keine Vorlagen vorhanden."
+    "noData": "Keine Vorlagen vorhanden.",
+    "confirmDelete": "Vorlage wirklich löschen?"
   },
   "goals": {
     "title": "Sparziele",

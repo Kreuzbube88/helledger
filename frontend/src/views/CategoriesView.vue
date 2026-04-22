@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const api = useApi()
 
 const categories = ref([])
@@ -61,7 +61,7 @@ async function deleteEv(catId, evId) {
   const res = await api.delete(`/expected-values/${evId}`)
   if (res.ok) {
     evState.value[catId].entries = evState.value[catId].entries.filter(e => e.id !== evId)
-    toast.success(t('categories.archive'))
+    toast.success(t('transactions.delete'))
   } else {
     toast.error(t('errors.generic'))
   }
@@ -70,7 +70,7 @@ async function deleteEv(catId, evId) {
 function fmtDate(dateStr) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return d.toLocaleDateString(locale.value === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function fmtAmount(val) {

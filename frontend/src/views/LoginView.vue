@@ -28,8 +28,8 @@ onMounted(async () => {
       fetch('/api/auth/oidc/enabled'),
       fetch('/api/auth/setup-status'),
     ])
-    oidcEnabled.value = (await oidcRes.json()).enabled
-    needsSetup.value = (await setupRes.json()).needs_setup
+    if (oidcRes.ok) oidcEnabled.value = (await oidcRes.json()).enabled
+    if (setupRes.ok) needsSetup.value = (await setupRes.json()).needs_setup
   } catch {}
 })
 

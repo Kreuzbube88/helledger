@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.household import Category, ExpectedValue, Account
-from app.models.loan import Loan
+from app.models.loan import Loan, LoanExtraPayment
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -192,14 +192,20 @@ def get_month_view(
         Loan.household_id == hh_id,
         Loan.status == "active",
     ).all()
+    loan_ids = [l.id for l in active_loans]
+    eps_map: dict[int, list[dict]] = {}
+    if loan_ids:
+        for ep in db.query(LoanExtraPayment).filter(LoanExtraPayment.loan_id.in_(loan_ids)).all():
+            eps_map.setdefault(ep.loan_id, []).append(
+                {"payment_date": ep.payment_date, "amount": float(ep.amount), "effect": ep.effect}
+            )
     total_debt = 0.0
     for loan in active_loans:
-        extra_payments = []
         monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
         stats = calc_stats(
             float(loan.principal), float(loan.interest_rate),
             float(loan.monthly_payment), loan.term_months,
-            loan.start_date, extra_payments, monthly_extra,
+            loan.start_date, eps_map.get(loan.id, []), monthly_extra,
         )
         total_debt += stats["current_balance"]
     debt_to_income = (total_debt / total_income * 100) if total_income > 0 else 0.0
