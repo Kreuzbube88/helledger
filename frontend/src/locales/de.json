@@ -90,7 +90,7 @@
     "active": "Aktiv", "archived": "Archiviert",
     "archive": "Archivieren", "edit": "Bearbeiten",
     "save": "Speichern", "cancel": "Abbrechen",
-    "types": { "checking": "Girokonto", "savings": "Sparkonto", "credit": "Kreditkonto" }
+    "types": { "checking": "Girokonto", "savings": "Sparkonto", "credit_card": "Kreditkarte" }
   },
   "categories": {
     "title": "Kategorien", "add": "Kategorie hinzufügen", "addSub": "Sub-Kategorie",
@@ -101,7 +101,15 @@
     "newExpectedValue": "Neuen Sollwert setzen", "newBudget": "Neues Budget setzen",
     "amount": "Betrag", "validFrom": "Gültig ab", "noLimit": "Unbegrenzt",
     "sections": { "income": "Einnahmen", "fixed": "Fixkosten", "variable": "Variable Ausgaben" },
-    "types": { "income": "Einnahme", "fixed": "Fixkosten", "variable": "Variable" }
+    "types": { "income": "Einnahme", "fixed": "Fixkosten", "variable": "Variable" },
+    "evHistory": "Betragsverlauf",
+    "adjustAmount": "Betrag anpassen ab…",
+    "setExpiry": "Ablaufdatum setzen",
+    "autoBookAccount": "Konto für Auto-Buchung",
+    "noAccount": "– Kein Konto –",
+    "active": "aktiv",
+    "expiringWarning": "{n} Fixkosten laufen in den nächsten 30 Tagen ab",
+    "goToCategories": "→ Kategorien"
   },
   "settings": {
     "title": "Einstellungen", "household": "Haushalt",

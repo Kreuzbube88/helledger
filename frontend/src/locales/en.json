@@ -90,7 +90,7 @@
     "active": "Active", "archived": "Archived",
     "archive": "Archive", "edit": "Edit",
     "save": "Save", "cancel": "Cancel",
-    "types": { "checking": "Checking", "savings": "Savings", "credit": "Credit" }
+    "types": { "checking": "Checking", "savings": "Savings", "credit_card": "Credit Card" }
   },
   "categories": {
     "title": "Categories", "add": "Add Category", "addSub": "Sub-Category",
@@ -101,7 +101,15 @@
     "newExpectedValue": "Set New Expected Value", "newBudget": "Set New Budget",
     "amount": "Amount", "validFrom": "Valid From", "noLimit": "No Limit",
     "sections": { "income": "Income", "fixed": "Fixed Costs", "variable": "Variable Expenses" },
-    "types": { "income": "Income", "fixed": "Fixed", "variable": "Variable" }
+    "types": { "income": "Income", "fixed": "Fixed", "variable": "Variable" },
+    "evHistory": "Amount History",
+    "adjustAmount": "Adjust amount from…",
+    "setExpiry": "Set expiry date",
+    "autoBookAccount": "Account for auto-booking",
+    "noAccount": "– No Account –",
+    "active": "active",
+    "expiringWarning": "{n} fixed costs expiring in the next 30 days",
+    "goToCategories": "→ Categories"
   },
   "settings": {
     "title": "Settings", "household": "Household",

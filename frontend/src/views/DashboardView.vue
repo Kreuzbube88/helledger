@@ -29,6 +29,7 @@ const summary  = ref({ income: 0, expenses: 0, balance: 0 })
 const sollIst  = ref([])
 const balances = ref([])
 const loaded   = ref(false)
+const expiringCats = ref([])
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, balance: 0 })
@@ -113,6 +114,11 @@ const donutOptions = computed(() => ({
 }))
 
 // ── Data loading ───────────────────────────────────────────────────
+async function loadExpiring() {
+  const res = await api.get('/categories/expiring-soon?days=30')
+  if (res.ok) expiringCats.value = await res.json()
+}
+
 async function load() {
   loaded.value = false
   const [sumRes, siRes, balRes] = await Promise.all([
@@ -140,11 +146,35 @@ function fmt(val) {
 const balancePositive = computed(() => display.balance >= 0)
 
 // Load once a household is active; also re-runs after wizard sets active_household_id
-watch(() => auth.user?.active_household_id, (id) => { if (id) load() }, { immediate: true })
+watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring() } }, { immediate: true })
 </script>
 
 <template>
   <main class="max-w-screen-lg mx-auto px-4 py-6 space-y-5">
+
+    <!-- ── Expiring fixed costs banner ────────────────────────── -->
+    <div
+      v-if="expiringCats.length > 0"
+      class="rounded-xl border border-amber-400/40 bg-amber-50 dark:bg-amber-500/10 px-4 py-3 flex items-start gap-3"
+    >
+      <span class="text-amber-500 mt-0.5 shrink-0">⚠</span>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-amber-800 dark:text-amber-300">
+          {{ t('categories.expiringWarning', { n: expiringCats.length }) }}
+        </p>
+        <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5 truncate">
+          <span v-for="(cat, i) in expiringCats" :key="cat.id">
+            <span v-if="i > 0"> · </span>{{ cat.name }} ({{ t('dashboard.diff') }}: {{ cat.days_remaining }}d)
+          </span>
+        </p>
+      </div>
+      <button
+        @click="router.push('/categories')"
+        class="text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline shrink-0 mt-0.5"
+      >
+        {{ t('categories.goToCategories') }}
+      </button>
+    </div>
 
     <!-- ── Hero header ─────────────────────────────────────────── -->
     <div class="anim-fade-up flex items-start justify-between pt-2 pb-1">
