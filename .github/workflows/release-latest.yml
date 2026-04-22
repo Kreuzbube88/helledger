@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version (e.g. 0.1.0)"
+        description: "Version (e.g. 1.0.0)"
         required: true
 
 jobs:
@@ -13,14 +13,31 @@ jobs:
     permissions:
       contents: write
       packages: write
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Bump version
+        run: |
+          sed -i 's/version="[0-9]*\.[0-9]*\.[0-9]*"/version="${{ inputs.version }}"/' backend/app/main.py
+          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ inputs.version }}"/' frontend/package.json
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/app/main.py frontend/package.json
+          git commit -m "chore: bump version to ${{ inputs.version }}"
+          git tag v${{ inputs.version }}
+          git push origin main --tags
 
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-qemu-action@v3
 
       - uses: docker/setup-buildx-action@v3
 
@@ -30,16 +47,20 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/kreuzbube88/helledger:${{ github.event.inputs.version }}
+            ghcr.io/kreuzbube88/helledger:${{ inputs.version }}
             ghcr.io/kreuzbube88/helledger:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: v${{ github.event.inputs.version }}
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
           body: |
-            Docker image: `ghcr.io/kreuzbube88/helledger:${{ github.event.inputs.version }}`
+            Docker image: `ghcr.io/kreuzbube88/helledger:${{ inputs.version }}`
+
+      - name: Summary
+        run: |
+          echo "### Release published" >> $GITHUB_STEP_SUMMARY
+          echo "Version: \`${{ inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Image: \`ghcr.io/kreuzbube88/helledger:${{ inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
