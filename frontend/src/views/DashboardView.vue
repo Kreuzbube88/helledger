@@ -168,11 +168,12 @@ function fmt(val) {
 const balancePositive = computed(() => display.balance >= 0)
 
 // Load once a household is active; also re-runs after wizard sets active_household_id
-watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring(); loadMonthlyReserve(); loadGoals() } }, { immediate: true })
-
-onMounted(() => {
-  api.post('/recurring/trigger', {}).catch(() => {})
-})
+watch(() => auth.user?.active_household_id, (id) => {
+  if (id) {
+    load(); loadExpiring(); loadMonthlyReserve(); loadGoals()
+    api.post('/recurring/trigger', {}).catch(() => {})
+  }
+}, { immediate: true })
 </script>
 
 <template>
