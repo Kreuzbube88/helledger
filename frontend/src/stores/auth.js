@@ -3,6 +3,16 @@ import { ref, computed } from 'vue'
 
 const TOKEN_KEY = 'helledger_token'
 
+function _isTokenExpired(token) {
+  try {
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const { exp } = JSON.parse(atob(b64))
+    return typeof exp === 'number' && exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY))
   const user = ref(null)
@@ -69,8 +79,8 @@ export const useAuthStore = defineStore('auth', () => {
       headers: { Authorization: `Bearer ${t}` },
       credentials: 'include',
     })
-    if (res.status === 401) {
-      // Access token expired — try refreshing before giving up
+    if (res.status === 401 && _isTokenExpired(t)) {
+      // Token expired — try refreshing before giving up
       const refreshRes = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',
