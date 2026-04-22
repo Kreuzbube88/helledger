@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const retentionDays = ref('7')
@@ -77,7 +79,7 @@ function downloadBackup(filename) {
 }
 
 async function deleteBackup(filename) {
-  if (!confirm(t('backup.deleteConfirm'))) return
+  if (!await confirm(t('backup.deleteConfirm'))) return
   const res = await api.delete(`/backup/${filename}`)
   if (res.ok) { await loadBackups(); toast.success(t('backup.delete')) }
   else toast.error(t('errors.generic'))

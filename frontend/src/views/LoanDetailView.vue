@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement,
@@ -21,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 const route = useRoute()
 const router = useRouter()
@@ -91,14 +93,14 @@ async function addExtraPayment() {
 }
 
 async function removeExtraPayment(epId) {
-  if (!confirm(t('loans.delete') + '?')) return
+  if (!await confirm(t('loans.delete') + '?')) return
   const res = await api.delete(`/loans/${loanId}/extra-payments/${epId}`)
   if (res.ok) { await load(); toast.success(t('loans.delete')) }
   else toast.error(t('errors.generic'))
 }
 
 async function markPaidOff() {
-  if (!confirm(t('loans.confirmPaidOff'))) return
+  if (!await confirm(t('loans.confirmPaidOff'))) return
   const res = await api.patch(`/loans/${loanId}/mark-paid-off`, {})
   if (res.ok) {
     await load()

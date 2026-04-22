@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { RefreshCw } from 'lucide-vue-next'
 import { useApi } from '@/lib/api'
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const year = ref(new Date().getFullYear())
@@ -157,7 +159,7 @@ async function save() {
 }
 
 async function remove(id) {
-  if (!confirm(t('transactions.confirmDelete'))) return
+  if (!await confirm(t('transactions.confirmDelete'))) return
   const res = await api.delete(`/transactions/${id}`)
   if (res.ok) { await load(); toast.success(t('transactions.delete')) }
   else toast.error(t('errors.generic'))

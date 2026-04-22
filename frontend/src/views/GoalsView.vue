@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { CheckCircle, Pencil, Trash2 } from 'lucide-vue-next'
 import { useApi } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/select'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const goals = ref([])
@@ -82,7 +84,7 @@ async function save() {
 }
 
 async function remove(id) {
-  if (!confirm(t('goals.confirmDelete'))) return
+  if (!await confirm(t('goals.confirmDelete'))) return
   const r = await api.delete(`/goals/${id}`)
   if (r.ok) await load()
 }

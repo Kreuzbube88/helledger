@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -12,6 +13,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const categories = ref([])
@@ -168,7 +170,7 @@ async function save() {
 }
 
 async function archive(id) {
-  if (!confirm(t('categories.archive') + '?')) return
+  if (!await confirm(t('categories.archive') + '?')) return
   const res = await api.delete(`/categories/${id}`)
   if (res.ok) { await load(); toast.success(t('categories.archive')) }
   else toast.error(t('errors.generic'))

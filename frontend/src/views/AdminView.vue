@@ -2,6 +2,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const users = ref([])
@@ -43,7 +45,7 @@ async function toggleUser(user) {
 }
 
 async function deleteUser(user) {
-  if (!confirm(t('admin.confirmDelete'))) return
+  if (!await confirm(t('admin.confirmDelete'))) return
   await api.delete(`/users/${user.id}`)
   await loadUsers()
 }

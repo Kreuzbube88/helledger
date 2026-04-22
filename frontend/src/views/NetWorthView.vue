@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { useApi } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const snapshots = ref([])
@@ -51,7 +53,7 @@ async function save() {
 }
 
 async function deleteSnapshot(id) {
-  if (!confirm(t('netWorth.confirmDelete'))) return
+  if (!await confirm(t('netWorth.confirmDelete'))) return
   const r = await api.delete(`/net-worth/${id}`)
   if (!r.ok) return
   await load()

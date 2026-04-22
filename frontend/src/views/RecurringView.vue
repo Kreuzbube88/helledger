@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { RefreshCw } from 'lucide-vue-next'
 import { useApi } from '@/lib/api'
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 
 const templates = ref([])
@@ -112,7 +114,7 @@ async function save() {
 }
 
 async function remove(id) {
-  if (!confirm(t('recurring.confirmDelete'))) return
+  if (!await confirm(t('recurring.confirmDelete'))) return
   const res = await api.delete(`/recurring/${id}`)
   if (res.ok) { await load() }
   else toast.error(t('errors.generic'))

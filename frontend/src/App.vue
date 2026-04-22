@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Toaster } from 'vue-sonner'
 import AppNav from '@/components/AppNav.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import OnboardingWizard from '@/components/OnboardingWizard.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -50,5 +51,6 @@ function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
     <RouterView />
   </div>
   <OnboardingWizard v-if="showWizard" @done="onWizardDone" />
+  <ConfirmDialog />
   <Toaster rich-colors position="top-right" />
 </template>

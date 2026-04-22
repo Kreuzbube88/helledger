@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
@@ -13,6 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const { t } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 const router = useRouter()
 
@@ -133,7 +135,7 @@ async function save() {
 }
 
 async function remove(id) {
-  if (!confirm(t('loans.delete') + '?')) return
+  if (!await confirm(t('loans.delete') + '?')) return
   const res = await api.delete(`/loans/${id}`)
   if (res.ok) { await load(); toast.success(t('loans.delete')) }
   else toast.error(t('errors.generic'))

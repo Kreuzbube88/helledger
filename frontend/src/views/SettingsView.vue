@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
@@ -13,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 const { t, locale } = useI18n()
+const { confirm } = useConfirm()
 const api = useApi()
 const auth = useAuthStore()
 
@@ -92,7 +94,7 @@ async function addMember() {
 
 async function removeMember(userId) {
   if (!activeHhId.value) return
-  if (!confirm(t('settings.remove') + '?')) return
+  if (!await confirm(t('settings.remove') + '?')) return
   const res = await api.delete(`/households/${activeHhId.value}/members/${userId}`)
   if (res.ok) { await load(); toast.success(t('settings.remove')) }
   else toast.error(t('errors.generic'))

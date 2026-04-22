@@ -135,7 +135,7 @@
     "changePassword": "Passwort ändern",
     "passwordChanged": "Passwort geändert"
   },
-  "common": { "actions": "Aktionen" },
+  "common": { "actions": "Aktionen", "confirm": "Bestätigen", "cancel": "Abbrechen" },
   "lang": { "de": "Deutsch", "en": "English" },
   "theme": { "light": "Hell", "dark": "Dunkel" },
   "import": {
