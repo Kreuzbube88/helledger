@@ -28,7 +28,7 @@
 [b]Documentation:[/b] https://github.com/Kreuzbube88/helledger/tree/main/docs</Overview>
   <Category>Productivity: Tools:</Category>
   <WebUI>http://[IP]:[PORT:3000]</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/Kreuzbube88/helledger/main/helledger.xml</TemplateURL>
+  <TemplateURL>https://raw.githubusercontent.com/Kreuzbube88/heltemplates/main/helledger.xml</TemplateURL>
   <Icon>https://github.com/Kreuzbube88/helledger/blob/main/frontend/public/favicon.png?raw=true</Icon>
   <ExtraParams/>
   <PostArgs/>
