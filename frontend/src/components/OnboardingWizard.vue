@@ -51,20 +51,43 @@ const accountsValid = computed(() =>
 
 // ── Step 3: Categories ────────────────────────────────────────────────
 const DEFAULT_CATS = [
-  { de: 'Gehalt',           en: 'Salary',          type: 'income',   color: '#10b981' },
-  { de: 'Nebeneinkommen',   en: 'Side Income',      type: 'income',   color: '#34d399' },
-  { de: 'Sonstige Einnahmen', en: 'Other Income',   type: 'income',   color: '#6ee7b7' },
-  { de: 'Miete',            en: 'Rent',             type: 'fixed',    color: '#8b5cf6' },
-  { de: 'Strom & Gas',      en: 'Electricity',      type: 'fixed',    color: '#a78bfa' },
-  { de: 'Internet',         en: 'Internet',         type: 'fixed',    color: '#c4b5fd' },
-  { de: 'Versicherungen',   en: 'Insurance',        type: 'fixed',    color: '#7c3aed' },
-  { de: 'Abonnements',      en: 'Subscriptions',    type: 'fixed',    color: '#6d28d9' },
-  { de: 'Lebensmittel',     en: 'Groceries',        type: 'variable', color: '#3b82f6' },
-  { de: 'Restaurants',      en: 'Restaurants',      type: 'variable', color: '#60a5fa' },
-  { de: 'Freizeit',         en: 'Leisure',          type: 'variable', color: '#f59e0b' },
-  { de: 'Kleidung',         en: 'Clothing',         type: 'variable', color: '#f97316' },
-  { de: 'Transport',        en: 'Transport',        type: 'variable', color: '#06b6d4' },
-  { de: 'Gesundheit',       en: 'Health',           type: 'variable', color: '#ec4899' },
+  // Income
+  { de: 'Gehalt',              en: 'Salary',              type: 'income',   color: '#10b981' },
+  { de: 'Nebeneinkommen',      en: 'Side Income',         type: 'income',   color: '#34d399' },
+  { de: 'Sonstige Einnahmen',  en: 'Other Income',        type: 'income',   color: '#6ee7b7' },
+  // Fixed
+  { de: 'Miete',               en: 'Rent',                type: 'fixed',    color: '#8b5cf6' },
+  { de: 'Strom',               en: 'Electricity',         type: 'fixed',    color: '#7c3aed' },
+  { de: 'Gas & Heizung',       en: 'Gas & Heating',       type: 'fixed',    color: '#6d28d9' },
+  { de: 'Wasser',              en: 'Water',               type: 'fixed',    color: '#4f46e5' },
+  { de: 'Internet',            en: 'Internet',            type: 'fixed',    color: '#a78bfa' },
+  { de: 'Telefon & Handy',     en: 'Phone & Mobile',      type: 'fixed',    color: '#c4b5fd' },
+  { de: 'Rundfunk (GEZ)',      en: 'Broadcasting Fee',    type: 'fixed',    color: '#818cf8' },
+  { de: 'Versicherungen',      en: 'Insurance',           type: 'fixed',    color: '#9333ea' },
+  { de: 'Abonnements',         en: 'Subscriptions',       type: 'fixed',    color: '#7e22ce' },
+  { de: 'Kreditrate',          en: 'Loan Payment',        type: 'fixed',    color: '#5b21b6' },
+  { de: 'Kita & Schule',       en: 'Childcare & School',  type: 'fixed',    color: '#6366f1' },
+  { de: 'Sparen & Vorsorge',   en: 'Savings & Pension',   type: 'fixed',    color: '#4338ca' },
+  // Variable
+  { de: 'Lebensmittel',        en: 'Groceries',           type: 'variable', color: '#3b82f6' },
+  { de: 'Drogerie & Haushalt', en: 'Drugstore & Home',    type: 'variable', color: '#60a5fa' },
+  { de: 'Restaurants',         en: 'Restaurants',         type: 'variable', color: '#2563eb' },
+  { de: 'Kaffee & Snacks',     en: 'Coffee & Snacks',     type: 'variable', color: '#93c5fd' },
+  { de: 'Kleidung',            en: 'Clothing',            type: 'variable', color: '#f97316' },
+  { de: 'Transport & ÖPNV',    en: 'Transport & Transit', type: 'variable', color: '#fb923c' },
+  { de: 'Auto & Kraftstoff',   en: 'Car & Fuel',          type: 'variable', color: '#ea580c' },
+  { de: 'Gesundheit & Arzt',   en: 'Health & Doctor',     type: 'variable', color: '#ec4899' },
+  { de: 'Apotheke',            en: 'Pharmacy',            type: 'variable', color: '#f472b6' },
+  { de: 'Freizeit & Kultur',   en: 'Leisure & Culture',   type: 'variable', color: '#f59e0b' },
+  { de: 'Sport & Fitness',     en: 'Sports & Fitness',    type: 'variable', color: '#14b8a6' },
+  { de: 'Hobbys',              en: 'Hobbies',             type: 'variable', color: '#fbbf24' },
+  { de: 'Urlaub & Reisen',     en: 'Travel & Vacation',   type: 'variable', color: '#d97706' },
+  { de: 'Elektronik',          en: 'Electronics',         type: 'variable', color: '#06b6d4' },
+  { de: 'Bildung',             en: 'Education',           type: 'variable', color: '#0ea5e9' },
+  { de: 'Kinder',              en: 'Children',            type: 'variable', color: '#0284c7' },
+  { de: 'Haustiere',           en: 'Pets',                type: 'variable', color: '#16a34a' },
+  { de: 'Geschenke & Spenden', en: 'Gifts & Donations',   type: 'variable', color: '#d946ef' },
+  { de: 'Sonstiges',           en: 'Miscellaneous',       type: 'variable', color: '#94a3b8' },
 ]
 
 const selectedCats = ref(new Set(DEFAULT_CATS.map((_, i) => i)))
@@ -156,14 +179,8 @@ function skipCategories() {
   finish()
 }
 
-const GROUP_LABELS = {
-  income:   { de: 'Einnahmen',  en: 'Income' },
-  fixed:    { de: 'Fixkosten',  en: 'Fixed' },
-  variable: { de: 'Variable',   en: 'Variable' },
-}
 function groupLabel(type) {
-  const g = GROUP_LABELS[type]
-  return g ? (locale.value === 'de' ? g.de : g.en) : type
+  return t(`categories.types.${type}`) || type
 }
 </script>
 

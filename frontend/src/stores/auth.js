@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
     if (res.ok) user.value = await res.json()
-    else setToken(null)
+    else { setToken(null); user.value = null }
   }
 
   function logout() {

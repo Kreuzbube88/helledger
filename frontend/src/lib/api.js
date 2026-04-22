@@ -1,8 +1,17 @@
 const API_BASE = '/api'
 const TOKEN_KEY = 'helledger_token'
 
+function _clearSession() {
+  localStorage.removeItem(TOKEN_KEY)
+  sessionStorage.removeItem(TOKEN_KEY)
+  // Redirect to login; let the router guard clean up auth state
+  if (!window.location.hash.startsWith('#/login')) {
+    window.location.hash = '/login'
+  }
+}
+
 async function _request(method, path, body, retry = true) {
-  const token = localStorage.getItem(TOKEN_KEY)
+  const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
   const headers = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
@@ -16,6 +25,7 @@ async function _request(method, path, body, retry = true) {
   if (res.status === 401 && retry) {
     const ok = await _tryRefresh()
     if (ok) return _request(method, path, body, false)
+    _clearSession()
   }
   return res
 }
@@ -43,7 +53,7 @@ export function useApi() {
     patch: (path, body) => _request('PATCH', path, body),
     delete: (path) => _request('DELETE', path, null),
     upload: (path, formData) => {
-      const token = localStorage.getItem(TOKEN_KEY)
+      const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
       const headers = {}
       if (token) headers['Authorization'] = `Bearer ${token}`
       return fetch(`${API_BASE}${path}`, {
