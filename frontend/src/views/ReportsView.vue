@@ -59,7 +59,7 @@ const dateRange = computed(() => {
 
 function buildQs() {
   const p = new URLSearchParams({ from_date: dateRange.value.from, to_date: dateRange.value.to })
-  if (accountId.value) p.set('account_id', accountId.value)
+  if (accountId.value && accountId.value !== '__all__') p.set('account_id', accountId.value)
   return p.toString()
 }
 
@@ -75,7 +75,7 @@ async function loadData() {
   if (trendRes.ok) trendData.value = await trendRes.json()
   if (siRes.ok) sollIstData.value = await siRes.json()
 
-  if (accountId.value) {
+  if (accountId.value && accountId.value !== '__all__') {
     const balRes = await api.get(`/reports/balance-history?from_date=${from}&to_date=${to}&account_id=${accountId.value}`)
     if (balRes.ok) balanceData.value = await balRes.json()
   } else {
@@ -255,7 +255,7 @@ onMounted(async () => {
           <Select v-model="accountId" class="ml-auto" @update:modelValue="loadData">
             <SelectTrigger class="w-44"><SelectValue :placeholder="t('reports.filter.allAccounts')" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{{ t('reports.filter.allAccounts') }}</SelectItem>
+              <SelectItem value="__all__">{{ t('reports.filter.allAccounts') }}</SelectItem>
               <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
             </SelectContent>
           </Select>

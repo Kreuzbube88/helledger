@@ -66,8 +66,8 @@ function categoryName(id) {
 
 async function load() {
   const params = new URLSearchParams({ year: year.value, month: month.value })
-  if (filterAccountId.value) params.set('account_id', filterAccountId.value)
-  if (filterCategoryId.value) params.set('category_id', filterCategoryId.value)
+  if (filterAccountId.value && filterAccountId.value !== '__all__') params.set('account_id', filterAccountId.value)
+  if (filterCategoryId.value && filterCategoryId.value !== '__all__') params.set('category_id', filterCategoryId.value)
   const res = await api.get(`/transactions?${params}`)
   if (res.ok) transactions.value = await res.json()
 }
@@ -115,7 +115,7 @@ function openEdit(tx) {
     description: tx.description,
     amount: String(Math.abs(parseFloat(tx.amount))),
     account_id: tx.account_id ? String(tx.account_id) : '',
-    category_id: tx.category_id ? String(tx.category_id) : '',
+    category_id: tx.category_id ? String(tx.category_id) : '__none__',
     from_account_id: tx.from_account_id ? String(tx.from_account_id) : '',
     to_account_id: tx.to_account_id ? String(tx.to_account_id) : '',
   }
@@ -140,7 +140,7 @@ async function save() {
       description: form.value.description,
       amount: parseFloat(form.value.amount),
       account_id: parseInt(form.value.account_id),
-      category_id: form.value.category_id ? parseInt(form.value.category_id) : null,
+      category_id: (form.value.category_id && form.value.category_id !== '__none__') ? parseInt(form.value.category_id) : null,
     }
   }
   const res = editingId.value
@@ -190,7 +190,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
             <SelectValue :placeholder="t('transactions.filterAccount')" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{{ t('transactions.filterAccount') }}</SelectItem>
+            <SelectItem value="__all__">{{ t('transactions.filterAccount') }}</SelectItem>
             <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
           </SelectContent>
         </Select>
@@ -199,7 +199,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
             <SelectValue :placeholder="t('transactions.filterCategory')" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{{ t('transactions.filterCategory') }}</SelectItem>
+            <SelectItem value="__all__">{{ t('transactions.filterCategory') }}</SelectItem>
             <SelectItem v-for="cat in flatCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
           </SelectContent>
         </Select>
@@ -239,7 +239,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
                 :class="tx.transaction_type === 'income' ? 'text-emerald-500' : tx.transaction_type === 'transfer' ? 'text-violet-500' : 'text-rose-500'">
                 {{ fmtAmount(tx) }}
               </TableCell>
-              <TableCell class="text-right space-x-1">
+              <TableCell class="text-right space-x-1 whitespace-nowrap">
                 <Button variant="ghost" size="sm" @click="openEdit(tx)">{{ t('transactions.edit') }}</Button>
                 <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="remove(tx.id)">
                   {{ t('transactions.delete') }}
@@ -316,7 +316,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
               <Select v-model="form.category_id">
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">—</SelectItem>
+                  <SelectItem value="__none__">—</SelectItem>
                   <SelectItem v-for="cat in flatCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
                 </SelectContent>
               </Select>

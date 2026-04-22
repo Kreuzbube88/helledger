@@ -52,14 +52,14 @@ function pctColor(pct, type) {
           <CardTitle>{{ $t(`monthView.${section.type}`) }}</CardTitle>
         </CardHeader>
         <CardContent>
-          <table class="w-full text-sm">
+          <table class="w-full text-sm table-fixed">
             <thead>
               <tr class="border-b text-muted-foreground">
                 <th class="text-left py-1">{{ $t('yearView.category') }}</th>
-                <th class="text-right py-1">{{ $t('monthView.soll') }}</th>
-                <th class="text-right py-1">{{ $t('monthView.ist') }}</th>
-                <th class="text-right py-1">{{ $t('monthView.diff') }}</th>
-                <th class="text-right py-1 w-32">{{ $t('monthView.pct') }}</th>
+                <th class="text-right py-1 w-24">{{ $t('monthView.soll') }}</th>
+                <th class="text-right py-1 w-24">{{ $t('monthView.ist') }}</th>
+                <th class="text-right py-1 w-24">{{ $t('monthView.diff') }}</th>
+                <th class="text-right py-1 w-16">{{ $t('monthView.pct') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -88,24 +88,26 @@ function pctColor(pct, type) {
       </Card>
 
       <Card>
-        <CardContent class="pt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="space-y-1">
-            <p class="text-sm text-muted-foreground">{{ $t('dashboard.income') }}</p>
-            <p class="text-xl font-bold text-emerald-500">{{ data.summary.total_income.toFixed(2) }}</p>
-          </div>
-          <div class="space-y-1">
-            <p class="text-sm text-muted-foreground">{{ $t('dashboard.expenses') }}</p>
-            <p class="text-xl font-bold text-rose-500">{{ data.summary.total_expense.toFixed(2) }}</p>
-          </div>
-          <div class="space-y-1">
-            <p class="text-sm text-muted-foreground">{{ $t('monthView.balance') }}</p>
-            <p class="text-xl font-bold" :class="data.summary.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'">
-              {{ data.summary.balance.toFixed(2) }}
-            </p>
-          </div>
-          <div class="space-y-1">
-            <p class="text-sm text-muted-foreground">{{ $t('monthView.savingsRate') }}</p>
-            <p class="text-xl font-bold text-indigo-500">{{ data.summary.savings_rate.toFixed(1) }}%</p>
+        <CardContent class="pt-4 pb-4">
+          <div class="flex divide-x">
+            <div class="flex-1 text-center px-4 space-y-1">
+              <p class="text-sm text-muted-foreground">{{ $t('dashboard.income') }}</p>
+              <p class="text-xl font-bold text-emerald-500">{{ data.summary.total_income.toFixed(2) }}</p>
+            </div>
+            <div class="flex-1 text-center px-4 space-y-1">
+              <p class="text-sm text-muted-foreground">{{ $t('dashboard.expenses') }}</p>
+              <p class="text-xl font-bold text-rose-500">{{ data.summary.total_expense.toFixed(2) }}</p>
+            </div>
+            <div class="flex-1 text-center px-4 space-y-1">
+              <p class="text-sm text-muted-foreground">{{ $t('monthView.balance') }}</p>
+              <p class="text-xl font-bold" :class="data.summary.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'">
+                {{ data.summary.balance.toFixed(2) }}
+              </p>
+            </div>
+            <div class="flex-1 text-center px-4 space-y-1">
+              <p class="text-sm text-muted-foreground">{{ $t('monthView.savingsRate') }}</p>
+              <p class="text-xl font-bold text-indigo-500">{{ data.summary.savings_rate.toFixed(1) }}%</p>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -99,7 +99,7 @@ onMounted(load)
                   {{ acc.archived ? t('accounts.archived') : t('accounts.active') }}
                 </Badge>
               </TableCell>
-              <TableCell class="text-right space-x-1">
+              <TableCell class="text-right space-x-1 whitespace-nowrap">
                 <Button variant="ghost" size="sm" @click="openEdit(acc)">{{ t('accounts.edit') }}</Button>
                 <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="archive(acc.id)">
                   {{ t('accounts.archive') }}

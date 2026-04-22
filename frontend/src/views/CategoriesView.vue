@@ -99,7 +99,7 @@ onMounted(load)
                   <TableCell>
                     <Badge :variant="TYPE_COLORS[cat.category_type]">{{ t(`categories.types.${cat.category_type}`) }}</Badge>
                   </TableCell>
-                  <TableCell class="text-right space-x-1">
+                  <TableCell class="text-right space-x-1 whitespace-nowrap">
                     <Button variant="ghost" size="sm" @click="openCreate(cat.id, cat.category_type)">
                       {{ t('categories.addSub') }}
                     </Button>
@@ -120,7 +120,7 @@ onMounted(load)
                   <TableCell>
                     <Badge :variant="TYPE_COLORS[child.category_type]">{{ t(`categories.types.${child.category_type}`) }}</Badge>
                   </TableCell>
-                  <TableCell class="text-right space-x-1">
+                  <TableCell class="text-right space-x-1 whitespace-nowrap">
                     <Button variant="ghost" size="sm" @click="openEdit(child)">{{ t('categories.edit') }}</Button>
                     <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="archive(child.id)">
                       {{ t('categories.archive') }}
