@@ -48,11 +48,11 @@ const TOUR = [
     icon: CalendarDays,
     color: '#f59e0b',
     nav: { de: 'Monatsübersicht', en: 'Month Overview' },
-    title: { de: 'Soll-Ist-Vergleich', en: 'Budget vs. Actual' },
+    title: { de: 'Monatsübersicht', en: 'Month Overview' },
     bullets: [
-      { de: 'Für jede Kategorie: Geplant (Soll), Ist-Ausgaben und Differenz', en: 'Per category: planned (budget), actual spending, and difference' },
-      { de: 'Soll-Wert einfach anklicken → direkt bearbeiten, sofort gespeichert', en: 'Click any budget value → edit inline, saved immediately' },
-      { de: 'Summen je Abschnitt (Einnahmen / Fixkosten / Variable)', en: 'Totals per section (income / fixed / variable)' },
+      { de: 'Alle Buchungen des Monats gruppiert nach Einnahmen, Fixkosten und variablen Ausgaben', en: 'All bookings of the month grouped by income, fixed costs, and variable expenses' },
+      { de: 'Summen je Abschnitt und Gesamtsaldo auf einen Blick', en: 'Totals per section and overall balance at a glance' },
+      { de: 'Sparquote wird automatisch aus Einnahmen und Ausgaben berechnet', en: 'Savings rate is calculated automatically from income and expenses' },
     ],
   },
   {
@@ -74,18 +74,18 @@ const TOUR = [
     bullets: [
       { de: 'Drei Typen: Einnahmen, Fixkosten, Variable Ausgaben', en: 'Three types: income, fixed costs, variable expenses' },
       { de: 'Unterkategorien möglich — z.B. "Wohnen → Miete, Strom, Wasser"', en: 'Sub-categories supported — e.g. "Housing → Rent, Electricity, Water"' },
-      { de: 'Bei Fixkosten: Ablaufdatum setzen wenn ein Vertrag endet', en: 'For fixed costs: set an expiry date when a contract ends' },
+      { de: 'Kategorien archivieren wenn sie nicht mehr benötigt werden', en: 'Archive categories when they are no longer needed' },
     ],
   },
   {
     icon: RefreshCw,
     color: '#14b8a6',
-    nav: { de: 'Wiederk. Buchungen', en: 'Recurring' },
-    title: { de: 'Automatische Buchungen', en: 'Automatic Bookings' },
+    nav: { de: 'Fixposten', en: 'Fixed Costs' },
+    title: { de: 'Fixposten & Automatikbuchungen', en: 'Fixed Costs & Auto-Bookings' },
     bullets: [
-      { de: 'Template anlegen: Name, Betrag, Konto, Kategorie, Intervall', en: 'Create a template: name, amount, account, category, interval' },
-      { de: 'Beim Dashboard-Aufruf werden fällige Templates automatisch gebucht', en: 'Due templates are booked automatically when opening the dashboard' },
-      { de: 'Monatliche Reserve für quartals-/jahresweise Kosten (z.B. Versicherung)', en: 'Monthly reserve for quarterly/annual costs (e.g. insurance)' },
+      { de: 'Gehalt, Miete, Versicherungen — alles als Fixposten mit Intervall hinterlegen', en: 'Salary, rent, insurance — set up everything as fixed costs with an interval' },
+      { de: 'Beim Dashboard-Aufruf werden fällige Fixposten automatisch gebucht', en: 'Due fixed costs are booked automatically when opening the dashboard' },
+      { de: 'Rücklagen-Übersicht: monatlicher Anteil für quartals-/jahresweise Kosten', en: 'Reserve overview: monthly share for quarterly/annual costs' },
     ],
   },
   {
