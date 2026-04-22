@@ -8,6 +8,7 @@ from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.household import Category, ExpectedValue, Account
 from app.models.loan import Loan, LoanExtraPayment
+from app.models.recurring import RecurringTemplate
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -32,10 +33,15 @@ def get_year_view(
     if not user.active_household_id:
         raise HTTPException(status_code=400, detail="no_active_household")
 
+    hh_id = user.active_household_id
+    today = date_type.today()
+    current_month = today.month if year == today.year else (12 if year < today.year else 0)
+    planned_from = current_month + 1 if year == today.year else (1 if year > today.year else 13)
+
     cats = (
         db.query(Category)
         .filter(
-            Category.household_id == user.active_household_id,
+            Category.household_id == hh_id,
             Category.archived.is_(False),
         )
         .all()
@@ -51,7 +57,7 @@ def get_year_view(
             func.sum(func.abs(Transaction.amount)),
         )
         .filter(
-            Transaction.household_id == user.active_household_id,
+            Transaction.household_id == hh_id,
             year_col == str(year),
             Transaction.transaction_type.in_(["expense", "income"]),
         )
@@ -64,13 +70,28 @@ def get_year_view(
         if cat_id is not None:
             agg.setdefault(cat_id, {})[int(month_str)] = float(total or 0)
 
+    # Build EV map and template-soll map for future months
+    cat_ids = [c.id for c in cats]
+    template_soll: dict[int, float] = {}
+    if cat_ids:
+        templates = (
+            db.query(RecurringTemplate)
+            .filter(
+                RecurringTemplate.household_id == hh_id,
+                RecurringTemplate.is_active.is_(True),
+                RecurringTemplate.category_id.isnot(None),
+            )
+            .all()
+        )
+        template_soll = {t.category_id: float(t.amount) for t in templates}
+
     monthly_income = [0.0] * 12
     monthly_expense = [0.0] * 12
 
     inc_rows = (
         db.query(month_col, func.sum(Transaction.amount))
         .filter(
-            Transaction.household_id == user.active_household_id,
+            Transaction.household_id == hh_id,
             year_col == str(year),
             Transaction.transaction_type == "income",
         )
@@ -83,7 +104,7 @@ def get_year_view(
     exp_rows = (
         db.query(month_col, func.sum(func.abs(Transaction.amount)))
         .filter(
-            Transaction.household_id == user.active_household_id,
+            Transaction.household_id == hh_id,
             year_col == str(year),
             Transaction.transaction_type == "expense",
         )
@@ -95,16 +116,43 @@ def get_year_view(
 
     monthly_balance = [monthly_income[i] - monthly_expense[i] for i in range(12)]
 
-    category_rows = [
-        YearCategoryRow(
+    category_rows = []
+    for cat in cats:
+        months_vals = []
+        is_planned_flags = []
+        for m in range(1, 13):
+            is_future = m >= planned_from
+            if not is_future:
+                val = float(agg.get(cat.id, {}).get(m, 0))
+                months_vals.append(val)
+                is_planned_flags.append(False)
+            else:
+                first_of_month = date_type(year, m, 1)
+                ev = (
+                    db.query(ExpectedValue)
+                    .filter(
+                        ExpectedValue.household_id == hh_id,
+                        ExpectedValue.category_id == cat.id,
+                        ExpectedValue.valid_from <= first_of_month,
+                        or_(
+                            ExpectedValue.valid_until.is_(None),
+                            ExpectedValue.valid_until >= first_of_month,
+                        ),
+                    )
+                    .order_by(ExpectedValue.valid_from.desc())
+                    .first()
+                )
+                soll = float(ev.amount) if ev else template_soll.get(cat.id, 0.0)
+                months_vals.append(soll)
+                is_planned_flags.append(True)
+        category_rows.append(YearCategoryRow(
             id=cat.id,
             name=cat.name,
             type=cat.category_type,
             color=cat.color,
-            months=[float(agg.get(cat.id, {}).get(m, 0)) for m in range(1, 13)],
-        )
-        for cat in cats
-    ]
+            months=months_vals,
+            is_planned=is_planned_flags,
+        ))
 
     return YearViewResponse(
         year=year,
@@ -112,6 +160,7 @@ def get_year_view(
         monthly_income=monthly_income,
         monthly_expense=monthly_expense,
         monthly_balance=monthly_balance,
+        planned_from=planned_from,
     )
 
 
@@ -142,6 +191,13 @@ def get_month_view(
     ).all()
     ev_map = {ev.category_id: float(ev.amount) for ev in evs}
 
+    templates = db.query(RecurringTemplate).filter(
+        RecurringTemplate.household_id == hh_id,
+        RecurringTemplate.is_active.is_(True),
+        RecurringTemplate.category_id.isnot(None),
+    ).all()
+    template_soll = {t.category_id: float(t.amount) for t in templates}
+
     tx_rows = (
         db.query(Transaction.category_id, func.sum(func.abs(Transaction.amount)))
         .filter(
@@ -159,7 +215,7 @@ def get_month_view(
         section_cats = [c for c in cats if c.category_type == section_type]
         rows = []
         for cat in section_cats:
-            soll = ev_map.get(cat.id, 0.0)
+            soll = ev_map.get(cat.id) or template_soll.get(cat.id, 0.0)
             ist = tx_map.get(cat.id, 0.0)
             diff = ist - soll
             pct = (ist / soll * 100) if soll > 0 else 0.0

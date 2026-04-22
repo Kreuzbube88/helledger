@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.user import User
-from app.models.household import Category, ExpectedValue, Budget
+from app.models.household import Category, ExpectedValue
 from app.models.transaction import Transaction
 from app.schemas.categories import (
     CategoryCreate, CategoryUpdate, CategoryResponse, CategoryTreeNode
@@ -127,13 +127,6 @@ async def get_soll_ist(
     ).all()
     ev_map: dict[int, Decimal] = {ev.category_id: ev.amount for ev in ev_rows}
 
-    budget_rows = db.query(Budget).filter(
-        Budget.category_id.in_(cat_ids),
-        Budget.valid_from <= first_day,
-        or_(Budget.valid_until.is_(None), Budget.valid_until >= first_day),
-    ).all()
-    budget_map: dict[int, Decimal] = {b.category_id: b.amount for b in budget_rows}
-
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
         for cat in cats:
@@ -143,7 +136,7 @@ async def get_soll_ist(
             ist_self = tx_map.get(cat.id, Decimal("0"))
             ist_children = sum(Decimal(c.ist) for c in children)
             ist = ist_self + ist_children
-            soll_self = ev_map.get(cat.id) or budget_map.get(cat.id) or Decimal("0")
+            soll_self = ev_map.get(cat.id) or Decimal("0")
             soll_children = sum(Decimal(c.soll) for c in children)
             soll = soll_self if soll_self > Decimal("0") else soll_children
             result.append(SollIstNode(

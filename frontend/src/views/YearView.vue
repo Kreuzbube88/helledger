@@ -38,15 +38,30 @@ onMounted(load)
           <thead>
             <tr class="border-b">
               <th class="text-left py-2 pr-4">{{ $t('yearView.category') }}</th>
-              <th v-for="m in $tm('monthView.months')" :key="m" class="text-right py-2 px-2 min-w-16">{{ m }}</th>
+              <th
+                v-for="(m, i) in $tm('monthView.months')"
+                :key="m"
+                class="text-right py-2 px-2 min-w-16"
+                :class="data.planned_from <= i + 1 ? 'text-muted-foreground italic' : ''"
+              >{{ m }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="cat in data.categories" :key="cat.id" class="border-b hover:bg-muted/50">
               <td class="py-1 pr-4 font-medium">{{ cat.name }}</td>
-              <td v-for="(val, i) in cat.months" :key="i" class="text-right py-1 px-2 tabular-nums"
-                  :class="val > 0 ? (cat.type === 'income' ? 'text-emerald-500' : 'text-rose-500') : 'text-muted-foreground'">
-                {{ val > 0 ? val.toFixed(0) : '—' }}
+              <td
+                v-for="(val, i) in cat.months"
+                :key="i"
+                class="text-right py-1 px-2 tabular-nums"
+                :class="[
+                  cat.is_planned[i]
+                    ? 'text-muted-foreground italic'
+                    : val > 0
+                      ? (cat.type === 'income' ? 'text-emerald-500' : 'text-rose-500')
+                      : 'text-muted-foreground'
+                ]"
+              >
+                {{ val > 0 ? (cat.is_planned[i] ? '~' : '') + val.toFixed(0) : '—' }}
               </td>
             </tr>
           </tbody>

@@ -231,6 +231,8 @@
     "savingsRate": "Savings Rate",
     "balance": "Balance",
     "gesamt": "Total",
+    "editSoll": "Edit planned value",
+    "saveSoll": "Planned value saved",
     "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"]
   },
@@ -342,6 +344,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "noData": "No loans yet",
+    "bookingAccount": "Account for monthly payment",
+    "noAccount": "– No Account –",
     "types": { "consumer": "Consumer Loan", "mortgage": "Mortgage" },
     "name": "Name",
     "lender": "Lender",

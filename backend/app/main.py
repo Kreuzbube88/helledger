@@ -17,7 +17,6 @@ from app.routers import households as households_router
 from app.routers import accounts as accounts_router
 from app.routers import categories as categories_router
 from app.routers import expected_values as ev_router
-from app.routers import budgets as budgets_router
 from app.routers import transactions as tx_router
 from app.routers import import_ as import_router
 from app.routers import reports as reports_router
@@ -98,7 +97,6 @@ app.include_router(households_router.router, prefix="/api")
 app.include_router(accounts_router.router, prefix="/api")
 app.include_router(categories_router.router, prefix="/api")
 app.include_router(ev_router.router, prefix="/api")
-app.include_router(budgets_router.router, prefix="/api")
 app.include_router(tx_router.router, prefix="/api")
 app.include_router(import_router.router, prefix="/api")
 app.include_router(import_router.export_router, prefix="/api")

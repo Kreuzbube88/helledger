@@ -73,9 +73,6 @@ class Category(Base):
     color: Mapped[str | None] = mapped_column(String(7), nullable=True)
     icon: Mapped[str | None] = mapped_column(String(50), nullable=True)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
-    default_account_id: Mapped[int | None] = mapped_column(
-        ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True
-    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
@@ -98,17 +95,3 @@ class ExpectedValue(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
 
-class Budget(Base):
-    __tablename__ = "budgets"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    household_id: Mapped[int] = mapped_column(
-        ForeignKey("households.id", ondelete="CASCADE"), index=True
-    )
-    category_id: Mapped[int] = mapped_column(
-        ForeignKey("categories.id", ondelete="CASCADE"), index=True
-    )
-    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
-    valid_from: Mapped[date] = mapped_column(Date)
-    valid_until: Mapped[date | None] = mapped_column(Date, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

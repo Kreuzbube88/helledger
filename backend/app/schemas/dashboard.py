@@ -7,6 +7,7 @@ class YearCategoryRow(BaseModel):
     type: str
     color: str | None
     months: list[float]
+    is_planned: list[bool]
 
 
 class YearViewResponse(BaseModel):
@@ -15,6 +16,7 @@ class YearViewResponse(BaseModel):
     monthly_income: list[float]
     monthly_expense: list[float]
     monthly_balance: list[float]
+    planned_from: int
 
 
 class MonthCategoryRow(BaseModel):

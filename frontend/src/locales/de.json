@@ -231,6 +231,8 @@
     "savingsRate": "Sparquote",
     "balance": "Bilanz",
     "gesamt": "Gesamt",
+    "editSoll": "Planwert bearbeiten",
+    "saveSoll": "Planwert gespeichert",
     "months": ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
     "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
   },
@@ -342,6 +344,8 @@
     "cancel": "Abbrechen",
     "save": "Speichern",
     "noData": "Keine Kredite vorhanden",
+    "bookingAccount": "Konto für monatliche Rate",
+    "noAccount": "– Kein Konto –",
     "types": { "consumer": "Konsumkredit", "mortgage": "Immobilienkredit" },
     "name": "Bezeichnung",
     "lender": "Kreditgeber",

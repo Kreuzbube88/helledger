@@ -12,13 +12,14 @@ from app.database import get_db
 from app.models.user import User
 from app.models.loan import Loan, LoanExtraPayment
 from app.models.household import Category, ExpectedValue
+from app.models.recurring import RecurringTemplate
 from app.schemas.loans import (
     LoanCreate, LoanUpdate, LoanResponse, LoanStatsResponse,
     ExtraPaymentCreate, ExtraPaymentResponse, LoanNetWorthSummary,
 )
 from app.services.loan_calc import (
     calc_payment, calc_term, calc_principal, calc_rate_newton,
-    calc_amortization, calc_stats,
+    calc_amortization, calc_stats, _add_months,
 )
 
 router = APIRouter(prefix="/loans")
@@ -203,6 +204,22 @@ async def create_loan(
         created_at=now,
     )
     db.add(ev)
+
+    # Auto-create RecurringTemplate so trigger books the loan rate automatically
+    next_date = _add_months(date(body.start_date.year, body.start_date.month, 1), 1)
+    tmpl = RecurringTemplate(
+        household_id=hh_id,
+        name=loan.name,
+        amount=effective_payment,
+        category_id=cat.id,
+        account_id=body.account_id,
+        interval="monthly",
+        day_of_month=1,
+        next_date=next_date,
+        show_as_monthly=False,
+        is_active=True,
+    )
+    db.add(tmpl)
     db.commit()
     db.refresh(loan)
     return _build_response(loan, db)
@@ -388,6 +405,19 @@ async def add_extra_payment(
                     created_at=now,
                 )
                 db.add(new_ev)
+
+                # Also update the linked RecurringTemplate amount
+                tmpl = (
+                    db.query(RecurringTemplate)
+                    .filter(
+                        RecurringTemplate.household_id == hh_id,
+                        RecurringTemplate.category_id == loan.category_id,
+                        RecurringTemplate.is_active.is_(True),
+                    )
+                    .first()
+                )
+                if tmpl:
+                    tmpl.amount = Decimal(str(round(new_pmt + monthly_extra, 2)))
 
     loan.updated_at = now
     db.commit()

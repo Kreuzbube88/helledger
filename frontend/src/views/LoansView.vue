@@ -19,6 +19,7 @@ const api = useApi()
 const router = useRouter()
 
 const loans = ref([])
+const accounts = ref([])
 const showDialog = ref(false)
 
 const form = ref({
@@ -38,6 +39,7 @@ const form = ref({
   property_value: '',
   fixed_rate_until: '',
   land_charge: '',
+  account_id: '',
 })
 
 // 3-of-4 logic: track which field is being left empty for calculation
@@ -60,8 +62,9 @@ function isLocked(field) {
 }
 
 async function load() {
-  const res = await api.get('/loans')
-  if (res.ok) loans.value = await res.json()
+  const [loansRes, accRes] = await Promise.all([api.get('/loans'), api.get('/accounts')])
+  if (loansRes.ok) loans.value = await loansRes.json()
+  if (accRes.ok) accounts.value = await accRes.json()
 }
 
 function openCreate() {
@@ -82,6 +85,7 @@ function openCreate() {
     property_value: '',
     fixed_rate_until: '',
     land_charge: '',
+    account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '',
   }
   lockedField.value = null
   showDialog.value = true
@@ -116,6 +120,8 @@ async function save() {
     body.fixed_rate_until = form.value.fixed_rate_until || null
     body.land_charge = form.value.land_charge ? parseFloat(form.value.land_charge) : null
   }
+
+  if (form.value.account_id) body.account_id = parseInt(form.value.account_id)
 
   const res = await api.post('/loans', body)
   if (res.ok) {
@@ -245,6 +251,15 @@ onMounted(load)
           <div class="space-y-1">
             <Label>{{ t('loans.startDate') }}</Label>
             <Input v-model="form.start_date" type="date" required />
+          </div>
+          <div class="space-y-1">
+            <Label>{{ t('loans.bookingAccount') }}</Label>
+            <Select v-model="form.account_id">
+              <SelectTrigger><SelectValue :placeholder="t('loans.noAccount')" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <!-- 3-of-4 fields -->

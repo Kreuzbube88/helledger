@@ -171,8 +171,7 @@ const balancePositive = computed(() => display.balance >= 0)
 watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring(); loadMonthlyReserve(); loadGoals() } }, { immediate: true })
 
 onMounted(() => {
-  // fire-and-forget auto-book
-  api.post('/recurring/auto-book', {}).catch(() => {})
+  api.post('/recurring/trigger', {}).catch(() => {})
 })
 </script>
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
-from app.models.household import Account, Budget, Category, ExpectedValue
+from app.models.household import Account, Category, ExpectedValue
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.reports import BalanceHistoryItem, ExpensesByCategoryItem, MonthlyTrendItem
@@ -245,13 +245,6 @@ async def reports_soll_ist(
     ).all()
     ev_map: dict[int, Decimal] = {ev.category_id: ev.amount for ev in ev_rows}
 
-    budget_rows = db.query(Budget).filter(
-        Budget.category_id.in_(cat_ids),
-        Budget.valid_from <= from_date,
-        or_(Budget.valid_until.is_(None), Budget.valid_until >= from_date),
-    ).all()
-    budget_map: dict[int, Decimal] = {b.category_id: b.amount for b in budget_rows}
-
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
         for cat in cats:
@@ -261,7 +254,7 @@ async def reports_soll_ist(
             ist_self = tx_map.get(cat.id, Decimal("0"))
             ist_children = sum(Decimal(c.ist) for c in children)
             ist = ist_self + ist_children
-            monthly_soll = ev_map.get(cat.id) or budget_map.get(cat.id) or Decimal("0")
+            monthly_soll = ev_map.get(cat.id) or Decimal("0")
             soll_self = monthly_soll * months_in_range
             soll_children = sum(Decimal(c.soll) for c in children)
             soll = soll_self if soll_self > Decimal("0") else soll_children

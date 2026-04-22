@@ -17,6 +17,7 @@ class LoanCreate(BaseModel):
     is_existing: bool = False
     monthly_extra: Decimal | None = None
     include_in_net_worth: bool = True
+    account_id: int | None = None
     # Mortgage-only
     purchase_price: Decimal | None = None
     equity: Decimal | None = None
