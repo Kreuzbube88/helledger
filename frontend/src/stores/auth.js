@@ -63,12 +63,28 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser() {
-    const t = getToken()
+    let t = getToken()
     if (!t) return
-    const res = await fetch('/api/auth/me', {
+    let res = await fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${t}` },
       credentials: 'include',
     })
+    if (res.status === 401) {
+      // Access token expired — try refreshing before giving up
+      const refreshRes = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (refreshRes.ok) {
+        const data = await refreshRes.json()
+        setToken(data.access_token)
+        t = data.access_token
+        res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${t}` },
+          credentials: 'include',
+        })
+      }
+    }
     if (res.ok) user.value = await res.json()
     else setToken(null)
   }

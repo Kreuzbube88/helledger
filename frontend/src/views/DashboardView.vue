@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Doughnut } from 'vue-chartjs'
@@ -8,6 +8,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { useApi } from '@/lib/api'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -20,6 +21,7 @@ const { t, locale } = useI18n()
 const router = useRouter()
 const theme = useThemeStore()
 const api = useApi()
+const auth = useAuthStore()
 
 const year  = ref(new Date().getFullYear())
 const month = ref(new Date().getMonth() + 1)
@@ -137,7 +139,8 @@ function fmt(val) {
 }
 const balancePositive = computed(() => display.balance >= 0)
 
-onMounted(load)
+// Load once a household is active; also re-runs after wizard sets active_household_id
+watch(() => auth.user?.active_household_id, (id) => { if (id) load() }, { immediate: true })
 </script>
 
 <template>
