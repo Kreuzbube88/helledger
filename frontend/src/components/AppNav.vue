@@ -34,7 +34,7 @@ const allNavItems = computed(() => {
     { key: 'transactions', path: '/transactions', icon: ArrowLeftRight },
     { key: 'accounts',     path: '/accounts',     icon: Wallet },
     { key: 'loans',        path: '/loans',        icon: Landmark },
-    { key: 'recurring',    path: '/recurring',    icon: RefreshCw },
+    { key: 'fixedCosts',   path: '/fixed-costs',  icon: RefreshCw },
     { key: 'categories',   path: '/categories',   icon: Tag },
     { key: 'reports',      path: '/reports',      icon: BarChart3 },
     { key: 'year',         path: '/year',         icon: CalendarDays },

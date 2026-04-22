@@ -21,12 +21,6 @@ const showDialog = ref(false)
 const editingId = ref(null)
 const form = ref({ name: '', category_type: 'variable', color: '#6366f1', parent_id: null })
 
-// Set-expiry dialog (for fixed categories with active EV)
-const showExpiryDialog = ref(false)
-const expiryCatId = ref(null)
-const expiryEvId = ref(null)
-const expiryForm = ref({ valid_until: '' })
-
 const TYPE_COLORS = { income: 'default', fixed: 'secondary', variable: 'outline' }
 
 async function load() {
@@ -38,31 +32,6 @@ function fmtDate(dateStr) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
   return d.toLocaleDateString(locale.value === 'de' ? 'de-DE' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
-
-// ── Set Expiry Dialog ────────────────────────────────────────────────
-async function openExpiryDialog(cat) {
-  const res = await api.get(`/expected-values?category_id=${cat.id}`)
-  if (!res.ok) { toast.error(t('errors.generic')); return }
-  const entries = await res.json()
-  const activeEv = entries.find(e => e.valid_until === null)
-  if (!activeEv) { toast.error(t('errors.generic')); return }
-  expiryCatId.value = cat.id
-  expiryEvId.value = activeEv.id
-  expiryForm.value = { valid_until: '' }
-  showExpiryDialog.value = true
-}
-
-async function saveExpiry() {
-  const res = await api.patch(`/expected-values/${expiryEvId.value}`, {
-    valid_until: expiryForm.value.valid_until,
-  })
-  if (res.ok) {
-    showExpiryDialog.value = false
-    toast.success(t('categories.save'))
-  } else {
-    toast.error(t('errors.generic'))
-  }
 }
 
 // ── Category CRUD ────────────────────────────────────────────────────
@@ -141,9 +110,6 @@ onMounted(load)
                     <Badge :variant="TYPE_COLORS[cat.category_type]">{{ t(`categories.types.${cat.category_type}`) }}</Badge>
                   </TableCell>
                   <TableCell class="text-right space-x-1 whitespace-nowrap">
-                    <Button v-if="section === 'fixed'" variant="ghost" size="sm" @click="openExpiryDialog(cat)">
-                      {{ t('categories.setExpiry') }}
-                    </Button>
                     <Button variant="ghost" size="sm" @click="openCreate(cat.id, cat.category_type)">
                       {{ t('categories.addSub') }}
                     </Button>
@@ -216,23 +182,5 @@ onMounted(load)
       </DialogContent>
     </Dialog>
 
-    <!-- Set expiry dialog -->
-    <Dialog v-model:open="showExpiryDialog">
-      <DialogContent class="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{{ t('categories.setExpiry') }}</DialogTitle>
-        </DialogHeader>
-        <form @submit.prevent="saveExpiry" class="space-y-4">
-          <div class="space-y-1">
-            <Label>{{ t('netWorth.date') }}</Label>
-            <Input v-model="expiryForm.valid_until" type="date" required />
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" @click="showExpiryDialog = false">{{ t('categories.cancel') }}</Button>
-            <Button type="submit">{{ t('categories.save') }}</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   </div>
 </template>

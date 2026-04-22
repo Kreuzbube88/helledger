@@ -119,12 +119,12 @@ const donutOptions = computed(() => ({
 
 // ── Data loading ───────────────────────────────────────────────────
 async function loadExpiring() {
-  const res = await api.get('/categories/expiring-soon?days=30')
+  const res = await api.get('/fixed-costs/expiring-soon?days=30')
   if (res.ok) expiringCats.value = await res.json()
 }
 
 async function loadMonthlyReserve() {
-  const res = await api.get('/recurring/monthly-reserve')
+  const res = await api.get('/fixed-costs/reserve')
   if (res.ok) monthlyReserve.value = await res.json()
 }
 
@@ -171,7 +171,7 @@ const balancePositive = computed(() => display.balance >= 0)
 watch(() => auth.user?.active_household_id, (id) => {
   if (id) {
     load(); loadExpiring(); loadMonthlyReserve(); loadGoals()
-    api.post('/recurring/trigger', {}).catch(() => {})
+    api.post('/fixed-costs/trigger', {}).catch(() => {})
   }
 }, { immediate: true })
 </script>
@@ -191,15 +191,15 @@ watch(() => auth.user?.active_household_id, (id) => {
         </p>
         <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5 truncate">
           <span v-for="(cat, i) in expiringCats" :key="cat.id">
-            <span v-if="i > 0"> · </span>{{ cat.name }} ({{ t('dashboard.diff') }}: {{ cat.days_remaining }}d)
+            <span v-if="i > 0"> · </span>{{ cat.name }} ({{ cat.days_left }}d)
           </span>
         </p>
       </div>
       <button
-        @click="router.push('/categories')"
+        @click="router.push('/fixed-costs')"
         class="text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline shrink-0 mt-0.5"
       >
-        {{ t('categories.goToCategories') }}
+        {{ t('fixedCosts.goToLoans') }}
       </button>
     </div>
 
@@ -367,7 +367,7 @@ watch(() => auth.user?.active_household_id, (id) => {
     </div>
 
     <!-- ── Monthly reserve ─────────────────────────────────────────── -->
-    <div v-if="monthlyReserve && monthlyReserve.total > 0" class="anim-fade-up delay-300">
+    <div v-if="monthlyReserve && monthlyReserve.total_monthly > 0" class="anim-fade-up delay-300">
       <div
         class="rounded-2xl border overflow-hidden"
         :class="theme.isDark
@@ -379,11 +379,11 @@ watch(() => auth.user?.active_household_id, (id) => {
           @click="reserveOpen = !reserveOpen"
         >
           <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {{ t('recurring.reserve') }}
+            {{ t('fixedCosts.reserve') }}
           </span>
           <div class="flex items-center gap-3">
             <span class="text-sm font-bold tabular-nums">
-              {{ monthlyReserve.total.toFixed(2).replace('.', ',') }} € / {{ t('reports.period.month') }}
+              {{ monthlyReserve.total_monthly.toFixed(2).replace('.', ',') }} € / {{ t('reports.period.month') }}
             </span>
             <span class="text-muted-foreground text-xs">{{ reserveOpen ? '▲' : '▼' }}</span>
           </div>
@@ -397,8 +397,8 @@ watch(() => auth.user?.active_household_id, (id) => {
           >
             <span>{{ item.name }}</span>
             <div class="flex gap-4 text-xs tabular-nums text-muted-foreground">
-              <span>{{ item.amount.toFixed(2).replace('.', ',') }} € / {{ t(`recurring.intervals.${item.interval}`) }}</span>
-              <span class="font-semibold text-foreground">= {{ item.monthly_equiv.toFixed(2).replace('.', ',') }} € / Mon.</span>
+              <span>{{ item.full_amount.toFixed(2).replace('.', ',') }} € / {{ t('fixedCosts.intervals.' + item.interval_months) }}</span>
+              <span class="font-semibold text-foreground">= {{ item.monthly_share.toFixed(2).replace('.', ',') }} € / Mon.</span>
             </div>
           </div>
         </div>
@@ -497,29 +497,15 @@ watch(() => auth.user?.active_household_id, (id) => {
 const SollIstRow = {
   name: 'SollIstRow',
   props: { node: Object, depth: Number },
-  setup(props) {
-    const pct  = parseFloat(props.node.soll) > 0
-      ? Math.min(100, Math.abs(parseFloat(props.node.ist) / parseFloat(props.node.soll) * 100))
-      : 0
-    return { pct, over: pct >= 100 }
-  },
   template: `
     <div>
       <div class="px-5 py-2.5 border-b border-white/[0.04] last:border-0"
            :style="{ paddingLeft: (depth * 12 + 20) + 'px' }">
-        <div class="flex justify-between items-center mb-1.5">
+        <div class="flex justify-between items-center">
           <span class="text-sm">{{ node.name }}</span>
-          <div class="flex gap-3 text-xs tabular-nums">
-            <span :class="over ? 'text-rose-400 font-semibold' : ''">
-              {{ parseFloat(node.ist).toFixed(2).replace('.', ',') }} €
-            </span>
-            <span class="text-muted-foreground">/ {{ parseFloat(node.soll).toFixed(2).replace('.', ',') }} €</span>
-          </div>
-        </div>
-        <div class="h-1 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.05)">
-          <div class="h-full rounded-full"
-               :style="{ width: pct + '%', transition: 'width 1.2s cubic-bezier(0.16,1,0.3,1)' }"
-               :class="over ? 'bg-rose-500' : 'bg-emerald-500'" />
+          <span class="text-xs tabular-nums text-foreground">
+            {{ parseFloat(node.ist).toFixed(2).replace('.', ',') }} €
+          </span>
         </div>
       </div>
       <SollIstRow v-for="child in node.children" :key="child.id" :node="child" :depth="depth + 1" />
