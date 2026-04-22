@@ -7,7 +7,6 @@ import {
   ArcElement, CategoryScale, LinearScale, BarElement, PointElement,
   LineElement, Title, Tooltip, Legend, Filler,
 } from 'chart.js'
-import AppNav from '@/components/AppNav.vue'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -206,7 +205,6 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-dvh bg-background">
-    <AppNav />
     <main class="max-w-screen-xl mx-auto px-4 py-6 space-y-6">
       <h1 class="text-2xl font-bold">{{ t('reports.title') }}</h1>
 

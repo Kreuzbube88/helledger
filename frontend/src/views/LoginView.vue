@@ -89,7 +89,12 @@ async function handleRegister() {
   <div class="min-h-dvh flex items-center justify-center bg-background px-4">
     <div class="w-full max-w-sm">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-primary">HELLEDGER</h1>
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <span class="text-sm font-black text-white">HL</span>
+          </div>
+        </div>
+        <h1 class="text-2xl font-bold tracking-widest uppercase">HELLEDGER</h1>
         <p class="text-sm text-muted-foreground mt-1">{{ t('app.tagline') }}</p>
       </div>
 

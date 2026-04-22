@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { useRouter } from 'vue-router'
-import AppNav from '@/components/AppNav.vue'
 import { useApi } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { Button } from '@/components/ui/button'
@@ -119,7 +118,6 @@ function restart() {
 
 <template>
   <div class="min-h-dvh bg-background">
-    <AppNav />
     <main class="max-w-3xl mx-auto px-4 py-6">
       <h1 class="text-2xl font-bold mb-6">{{ t('import.title') }}</h1>
 

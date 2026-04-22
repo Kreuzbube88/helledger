@@ -12,7 +12,6 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Switch } from '@/components/ui/switch'
-import AppNav from '@/components/AppNav.vue'
 
 const { t } = useI18n()
 const api = useApi()
@@ -72,7 +71,6 @@ function formatBytes(b) {
 </script>
 
 <template>
-  <AppNav />
   <div class="container mx-auto py-6 space-y-4">
     <h1 class="text-2xl font-bold">{{ $t('admin.title') }}</h1>
 

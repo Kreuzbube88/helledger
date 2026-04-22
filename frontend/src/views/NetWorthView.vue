@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
-import AppNav from '@/components/AppNav.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,7 +46,6 @@ onMounted(load)
 </script>
 
 <template>
-  <AppNav />
   <div class="container mx-auto py-6 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">{{ $t('netWorth.title') }}</h1>

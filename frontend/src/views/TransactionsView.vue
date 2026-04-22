@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import AppNav from '@/components/AppNav.vue'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -166,7 +165,6 @@ onMounted(() => Promise.all([loadMeta(), load()]))
 
 <template>
   <div class="min-h-dvh bg-background">
-    <AppNav />
     <main class="max-w-5xl mx-auto px-4 py-6">
       <!-- Header -->
       <div class="flex items-center justify-between mb-4 flex-wrap gap-3">

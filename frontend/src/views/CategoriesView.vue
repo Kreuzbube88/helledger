@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import AppNav from '@/components/AppNav.vue'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -66,7 +65,6 @@ onMounted(load)
 
 <template>
   <div class="min-h-dvh bg-background">
-    <AppNav />
     <main class="max-w-4xl mx-auto px-4 py-6">
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ t('categories.title') }}</h1>

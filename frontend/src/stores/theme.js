@@ -3,9 +3,7 @@ import { ref } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
   const stored = localStorage.getItem('helledger-theme')
-  const isDark = ref(
-    stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
-  )
+  const isDark = ref(stored ? stored === 'dark' : true)
 
   function toggle() {
     isDark.value = !isDark.value

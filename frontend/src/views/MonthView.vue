@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
-import AppNav from '@/components/AppNav.vue'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -40,7 +39,6 @@ function pctColor(pct, type) {
 </script>
 
 <template>
-  <AppNav />
   <div class="container mx-auto py-6 space-y-4">
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="prevMonth">&#8249;</Button>
