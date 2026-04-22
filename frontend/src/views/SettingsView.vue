@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const api = useApi()
 const auth = useAuthStore()
 
@@ -24,6 +24,8 @@ const newPassword = ref('')
 async function saveProfile() {
   const r = await api.patch('/users/me', { name: profileName.value, language: profileLang.value })
   if (r.ok) {
+    locale.value = profileLang.value
+    localStorage.setItem('helledger-lang', profileLang.value)
     await auth.fetchUser()
     toast.success(t('settings.save'))
   }

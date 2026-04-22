@@ -6,6 +6,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
+    language: str = "de"
 
     @field_validator("password")
     @classmethod

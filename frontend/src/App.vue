@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Toaster } from 'vue-sonner'
 import AppNav from '@/components/AppNav.vue'
 import OnboardingWizard from '@/components/OnboardingWizard.vue'
@@ -8,8 +9,17 @@ import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const auth = useAuthStore()
+const { locale } = useI18n()
 
 const showNav = computed(() => !!route.meta?.requiresAuth && auth.isAuthenticated)
+
+// Sync i18n locale to user's stored language on login / user change
+watch(() => auth.user?.language, (lang) => {
+  if (lang && lang !== locale.value) {
+    locale.value = lang
+    localStorage.setItem('helledger-lang', lang)
+  }
+}, { immediate: true })
 
 const wizardActive = ref(false)
 watchEffect(() => {

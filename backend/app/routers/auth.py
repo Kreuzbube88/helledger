@@ -39,7 +39,7 @@ async def register(body: RegisterRequest, response: Response, db: Session = Depe
         password_hash=hash_password(body.password),
         name=body.name,
         role=role,
-        language=settings.DEFAULT_LANGUAGE,
+        language=body.language or settings.DEFAULT_LANGUAGE,
         created_at=datetime.now(timezone.utc),
     )
     db.add(user)

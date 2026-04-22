@@ -10,8 +10,9 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
@@ -37,7 +38,7 @@ function loginWithOidc() {
 }
 
 const loginForm = ref({ email: '', password: '', rememberMe: true })
-const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '' })
+const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '', language: locale.value || 'de' })
 
 function validateRegister() {
   if (registerForm.value.password.length < 8) {
@@ -71,7 +72,9 @@ async function handleRegister() {
   if (!validateRegister()) return
   loading.value = true
   try {
-    await auth.register(registerForm.value.name, registerForm.value.email, registerForm.value.password)
+    await auth.register(registerForm.value.name, registerForm.value.email, registerForm.value.password, registerForm.value.language)
+    locale.value = registerForm.value.language
+    localStorage.setItem('helledger-lang', registerForm.value.language)
     router.push('/dashboard')
   } catch (err) {
     const detail = err?.detail || ''
@@ -135,6 +138,16 @@ async function handleRegister() {
                 required
                 autocomplete="new-password"
               />
+            </div>
+            <div class="space-y-1">
+              <Label>{{ t('settings.changeLanguage') }}</Label>
+              <Select v-model="registerForm.language">
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="de">{{ t('lang.de') }}</SelectItem>
+                  <SelectItem value="en">{{ t('lang.en') }}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button type="submit" class="w-full" :disabled="loading">
               {{ t('auth.setupCreate') }}
