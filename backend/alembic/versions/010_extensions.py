@@ -28,6 +28,8 @@ def _table_exists(table: str) -> bool:
 
 
 def upgrade():
+    print("DEBUG 010-A: upgrade() entered", flush=True)
+
     # categories: Konto für Auto-Buchung
     if not _col_exists('categories', 'default_account_id'):
         op.add_column('categories', sa.Column(
@@ -35,6 +37,7 @@ def upgrade():
             sa.ForeignKey('accounts.id', ondelete='SET NULL'),
             nullable=True,
         ))
+    print("DEBUG 010-B: categories column ok", flush=True)
 
     # transactions: Flag für automatisch erstellte Buchungen
     if not _col_exists('transactions', 'is_auto_generated'):
@@ -42,9 +45,11 @@ def upgrade():
             'is_auto_generated', sa.Boolean(),
             server_default='0', nullable=False,
         ))
+    print("DEBUG 010-C: transactions column ok", flush=True)
 
     # Kreditkonto → Kreditkarte (Wert-Konsistenz)
     op.execute("UPDATE accounts SET account_type = 'credit_card' WHERE account_type = 'credit'")
+    print("DEBUG 010-D: account_type update ok", flush=True)
 
     # Wiederkehrende Vorlagen
     if not _table_exists('recurring_templates'):
@@ -68,6 +73,8 @@ def upgrade():
             sa.Column('created_at', sa.DateTime(), nullable=False),
         )
 
+    print("DEBUG 010-E: recurring_templates ok", flush=True)
+
     # Sparziele
     if not _table_exists('savings_goals'):
         op.create_table(
@@ -86,6 +93,7 @@ def upgrade():
             sa.Column('is_achieved', sa.Boolean(), server_default='0', nullable=False),
             sa.Column('created_at', sa.DateTime(), nullable=False),
         )
+    print("DEBUG 010-F: savings_goals ok — upgrade() complete", flush=True)
 
 
 def downgrade():
