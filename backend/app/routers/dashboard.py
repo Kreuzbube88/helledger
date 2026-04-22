@@ -6,9 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
-from app.models.household import Category, ExpectedValue, Account
+from app.models.household import Category, Account
 from app.models.loan import Loan, LoanExtraPayment
-from app.models.recurring import RecurringTemplate
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -72,18 +71,8 @@ def get_year_view(
 
     # Build EV map and template-soll map for future months
     cat_ids = [c.id for c in cats]
+    # TODO Phase 2: replace with FixedCost-based soll map
     template_soll: dict[int, float] = {}
-    if cat_ids:
-        templates = (
-            db.query(RecurringTemplate)
-            .filter(
-                RecurringTemplate.household_id == hh_id,
-                RecurringTemplate.is_active.is_(True),
-                RecurringTemplate.category_id.isnot(None),
-            )
-            .all()
-        )
-        template_soll = {t.category_id: float(t.amount) for t in templates}
 
     monthly_income = [0.0] * 12
     monthly_expense = [0.0] * 12
@@ -116,28 +105,8 @@ def get_year_view(
 
     monthly_balance = [monthly_income[i] - monthly_expense[i] for i in range(12)]
 
-    # Pre-fetch all EVs for the household valid within this year (single query)
-    year_start = date_type(year, 1, 1)
-    year_end = date_type(year, 12, 31)
-    all_evs = (
-        db.query(ExpectedValue)
-        .filter(
-            ExpectedValue.household_id == hh_id,
-            ExpectedValue.valid_from <= year_end,
-            or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= year_start),
-        )
-        .order_by(ExpectedValue.valid_from.desc())
-        .all()
-    )
-
+    # TODO Phase 2: replace with FixedCost-based soll lookup
     def _ev_for(cat_id: int, first_of_month: date_type):
-        for ev in all_evs:
-            if (
-                ev.category_id == cat_id
-                and ev.valid_from <= first_of_month
-                and (ev.valid_until is None or ev.valid_until >= first_of_month)
-            ):
-                return ev
         return None
 
     category_rows = []
@@ -195,19 +164,9 @@ def get_month_view(
     ).all()
 
     first_day = date_type(year, month, 1)
-    evs = db.query(ExpectedValue).filter(
-        ExpectedValue.household_id == hh_id,
-        ExpectedValue.valid_from <= first_day,
-        or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= first_day),
-    ).all()
-    ev_map = {ev.category_id: float(ev.amount) for ev in evs}
-
-    templates = db.query(RecurringTemplate).filter(
-        RecurringTemplate.household_id == hh_id,
-        RecurringTemplate.is_active.is_(True),
-        RecurringTemplate.category_id.isnot(None),
-    ).all()
-    template_soll = {t.category_id: float(t.amount) for t in templates}
+    # TODO Phase 2: replace with FixedCost-based soll maps
+    ev_map: dict[int, float] = {}
+    template_soll: dict[int, float] = {}
 
     tx_rows = (
         db.query(Transaction.category_id, func.sum(func.abs(Transaction.amount)))

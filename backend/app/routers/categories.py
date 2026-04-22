@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.user import User
-from app.models.household import Category, ExpectedValue
+from app.models.household import Category
 from app.models.transaction import Transaction
 from app.schemas.categories import (
     CategoryCreate, CategoryUpdate, CategoryResponse, CategoryTreeNode
@@ -120,12 +120,8 @@ async def get_soll_ist(
     )
     tx_map: dict[int, Decimal] = {cat_id: amt for cat_id, amt in tx_rows}
 
-    ev_rows = db.query(ExpectedValue).filter(
-        ExpectedValue.category_id.in_(cat_ids),
-        ExpectedValue.valid_from <= first_day,
-        or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= first_day),
-    ).all()
-    ev_map: dict[int, Decimal] = {ev.category_id: ev.amount for ev in ev_rows}
+    # TODO Phase 2: replace with FixedCost-based soll lookup
+    ev_map: dict[int, Decimal] = {}
 
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
@@ -158,29 +154,8 @@ async def get_expiring_categories(
     hh_id = _require_active_hh(user)
     today = date_type.today()
     cutoff = today + timedelta(days=days)
-    rows = (
-        db.query(Category, ExpectedValue)
-        .join(ExpectedValue, ExpectedValue.category_id == Category.id)
-        .filter(
-            Category.household_id == hh_id,
-            Category.archived.is_(False),
-            ExpectedValue.household_id == hh_id,
-            ExpectedValue.valid_until.isnot(None),
-            ExpectedValue.valid_until >= today,
-            ExpectedValue.valid_until <= cutoff,
-        )
-        .all()
-    )
-    return [
-        {
-            "id": cat.id,
-            "name": cat.name,
-            "category_type": cat.category_type,
-            "valid_until": ev.valid_until.isoformat(),
-            "days_remaining": (ev.valid_until - today).days,
-        }
-        for cat, ev in rows
-    ]
+    # TODO Phase 2: replace with FixedCost-based expiry lookup
+    return []
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)

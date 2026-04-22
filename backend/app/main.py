@@ -16,7 +16,6 @@ from app.routers import auth as auth_router
 from app.routers import households as households_router
 from app.routers import accounts as accounts_router
 from app.routers import categories as categories_router
-from app.routers import expected_values as ev_router
 from app.routers import transactions as tx_router
 from app.routers import import_ as import_router
 from app.routers import reports as reports_router
@@ -26,7 +25,7 @@ from app.routers import admin as admin_router
 from app.routers import dashboard as dashboard_router
 from app.routers import net_worth as net_worth_router
 from app.routers import loans as loans_router
-from app.routers import recurring as recurring_router
+from app.routers import fixed_costs as fixed_costs_router
 from app.routers import savings_goals as goals_router
 from app.routers import search as search_router
 from app.services import backup as backup_svc
@@ -96,7 +95,6 @@ app.include_router(auth_router.router, prefix="/api")
 app.include_router(households_router.router, prefix="/api")
 app.include_router(accounts_router.router, prefix="/api")
 app.include_router(categories_router.router, prefix="/api")
-app.include_router(ev_router.router, prefix="/api")
 app.include_router(tx_router.router, prefix="/api")
 app.include_router(import_router.router, prefix="/api")
 app.include_router(import_router.export_router, prefix="/api")
@@ -107,7 +105,7 @@ app.include_router(admin_router.router, prefix="/api")
 app.include_router(dashboard_router.router, prefix="/api")
 app.include_router(net_worth_router.router, prefix="/api")
 app.include_router(loans_router.router, prefix="/api")
-app.include_router(recurring_router.router, prefix="/api")
+app.include_router(fixed_costs_router.router, prefix="/api")
 app.include_router(goals_router.router, prefix="/api")
 app.include_router(search_router.router, prefix="/api")
 

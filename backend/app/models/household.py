@@ -1,8 +1,8 @@
-from datetime import datetime, date
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
-    Boolean, Date, DateTime, ForeignKey,
+    Boolean, DateTime, ForeignKey,
     Numeric, String, UniqueConstraint, func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -79,19 +79,5 @@ class Category(Base):
     )
 
 
-class ExpectedValue(Base):
-    __tablename__ = "expected_values"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    household_id: Mapped[int] = mapped_column(
-        ForeignKey("households.id", ondelete="CASCADE"), index=True
-    )
-    category_id: Mapped[int] = mapped_column(
-        ForeignKey("categories.id", ondelete="CASCADE"), index=True
-    )
-    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
-    valid_from: Mapped[date] = mapped_column(Date)
-    valid_until: Mapped[date | None] = mapped_column(Date, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
 

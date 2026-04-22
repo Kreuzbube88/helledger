@@ -11,8 +11,7 @@ from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.user import User
 from app.models.loan import Loan, LoanExtraPayment
-from app.models.household import Category, ExpectedValue
-from app.models.recurring import RecurringTemplate
+from app.models.household import Category
 from app.schemas.loans import (
     LoanCreate, LoanUpdate, LoanResponse, LoanStatsResponse,
     ExtraPaymentCreate, ExtraPaymentResponse, LoanNetWorthSummary,
@@ -195,31 +194,7 @@ async def create_loan(
     db.flush()
     loan.category_id = cat.id
 
-    effective_payment = monthly_payment + (body.monthly_extra or Decimal("0"))
-    ev = ExpectedValue(
-        household_id=hh_id,
-        category_id=cat.id,
-        amount=effective_payment,
-        valid_from=body.start_date,
-        created_at=now,
-    )
-    db.add(ev)
-
-    # Auto-create RecurringTemplate so trigger books the loan rate automatically
-    next_date = _add_months(date(body.start_date.year, body.start_date.month, 1), 1)
-    tmpl = RecurringTemplate(
-        household_id=hh_id,
-        name=loan.name,
-        amount=effective_payment,
-        category_id=cat.id,
-        account_id=body.account_id,
-        interval="monthly",
-        day_of_month=1,
-        next_date=next_date,
-        show_as_monthly=False,
-        is_active=True,
-    )
-    db.add(tmpl)
+    # TODO Phase 2: create linked FixedCost for loan monthly payment
     db.commit()
     db.refresh(loan)
     return _build_response(loan, db)
@@ -267,13 +242,7 @@ async def delete_loan(
         if cat:
             cat.archived = True
             cat.updated_at = now
-            ev = (
-                db.query(ExpectedValue)
-                .filter(ExpectedValue.category_id == cat.id, ExpectedValue.valid_until.is_(None))
-                .first()
-            )
-            if ev:
-                ev.valid_until = date.today()
+    # TODO Phase 2: deactivate linked FixedCost when loan deleted
     db.delete(loan)
     db.commit()
 
@@ -389,35 +358,7 @@ async def add_extra_payment(
                 new_pmt = calc_payment(new_balance, float(loan.interest_rate), remaining)
                 loan.monthly_payment = Decimal(str(round(new_pmt, 2)))
 
-                # Close existing ExpectedValue, create new one
-                old_ev = (
-                    db.query(ExpectedValue)
-                    .filter(ExpectedValue.category_id == loan.category_id, ExpectedValue.valid_until.is_(None))
-                    .first()
-                )
-                if old_ev:
-                    old_ev.valid_until = body.payment_date - timedelta(days=1)
-                new_ev = ExpectedValue(
-                    household_id=hh_id,
-                    category_id=loan.category_id,
-                    amount=Decimal(str(round(new_pmt + monthly_extra, 2))),
-                    valid_from=body.payment_date,
-                    created_at=now,
-                )
-                db.add(new_ev)
-
-                # Also update the linked RecurringTemplate amount
-                tmpl = (
-                    db.query(RecurringTemplate)
-                    .filter(
-                        RecurringTemplate.household_id == hh_id,
-                        RecurringTemplate.category_id == loan.category_id,
-                        RecurringTemplate.is_active.is_(True),
-                    )
-                    .first()
-                )
-                if tmpl:
-                    tmpl.amount = Decimal(str(round(new_pmt + monthly_extra, 2)))
+                # TODO Phase 2: update linked FixedCost amount via change_amount versioning
 
     loan.updated_at = now
     db.commit()
@@ -469,13 +410,7 @@ async def mark_paid_off(
         if cat:
             cat.archived = True
             cat.updated_at = now
-            ev = (
-                db.query(ExpectedValue)
-                .filter(ExpectedValue.category_id == cat.id, ExpectedValue.valid_until.is_(None))
-                .first()
-            )
-            if ev:
-                ev.valid_until = date.today()
+    # TODO Phase 2: deactivate linked FixedCost when loan paid off
     db.commit()
     db.refresh(loan)
     return _build_response(loan, db)

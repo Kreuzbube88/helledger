@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
-from app.models.household import Account, Category, ExpectedValue
+from app.models.household import Account, Category
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.reports import BalanceHistoryItem, ExpensesByCategoryItem, MonthlyTrendItem
@@ -238,12 +238,8 @@ async def reports_soll_ist(
         cat_id: amt for cat_id, amt in tx_q.group_by(Transaction.category_id).all()
     }
 
-    ev_rows = db.query(ExpectedValue).filter(
-        ExpectedValue.category_id.in_(cat_ids),
-        ExpectedValue.valid_from <= from_date,
-        or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= from_date),
-    ).all()
-    ev_map: dict[int, Decimal] = {ev.category_id: ev.amount for ev in ev_rows}
+    # TODO Phase 2: replace with FixedCost-based soll lookup
+    ev_map: dict[int, Decimal] = {}
 
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
