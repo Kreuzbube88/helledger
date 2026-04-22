@@ -1,7 +1,7 @@
-from datetime import datetime, timezone, date as date_type, timedelta
+from datetime import datetime, timezone, date as date_type
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import extract, or_, func
+from sqlalchemy import extract, func
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
@@ -94,7 +94,6 @@ async def get_soll_ist(
     db: Session = Depends(get_db),
 ):
     hh_id = _require_active_hh(user)
-    first_day = date_type(year, month, 1)
 
     cats = db.query(Category).filter(
         Category.household_id == hh_id,
@@ -103,8 +102,6 @@ async def get_soll_ist(
 
     if not cats:
         return []
-
-    cat_ids = [c.id for c in cats]
 
     tx_rows = (
         db.query(Transaction.category_id, func.sum(Transaction.amount))
@@ -120,9 +117,6 @@ async def get_soll_ist(
     )
     tx_map: dict[int, Decimal] = {cat_id: amt for cat_id, amt in tx_rows}
 
-    # TODO Phase 2: replace with FixedCost-based soll lookup
-    ev_map: dict[int, Decimal] = {}
-
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
         for cat in cats:
@@ -132,30 +126,15 @@ async def get_soll_ist(
             ist_self = tx_map.get(cat.id, Decimal("0"))
             ist_children = sum(Decimal(c.ist) for c in children)
             ist = ist_self + ist_children
-            soll_self = ev_map.get(cat.id) or Decimal("0")
-            soll_children = sum(Decimal(c.soll) for c in children)
-            soll = soll_self if soll_self > Decimal("0") else soll_children
             result.append(SollIstNode(
                 id=cat.id, name=cat.name, category_type=cat.category_type,
-                soll=f"{soll:.2f}", ist=f"{ist:.2f}", diff=f"{soll - ist:.2f}",
+                soll="0.00", ist=f"{ist:.2f}", diff=f"{-ist:.2f}",
                 children=children,
             ))
         return result
 
     return _build(None)
 
-
-@router.get("/expiring-soon")
-async def get_expiring_categories(
-    days: int = 30,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    hh_id = _require_active_hh(user)
-    today = date_type.today()
-    cutoff = today + timedelta(days=days)
-    # TODO Phase 2: replace with FixedCost-based expiry lookup
-    return []
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)

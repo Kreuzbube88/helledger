@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
+from app.models.fixed_cost import FixedCost
 from app.models.household import Category, Account
 from app.models.loan import Loan, LoanExtraPayment
 from app.models.transaction import Transaction
@@ -69,10 +70,48 @@ def get_year_view(
         if cat_id is not None:
             agg.setdefault(cat_id, {})[int(month_str)] = float(total or 0)
 
-    # Build EV map and template-soll map for future months
-    cat_ids = [c.id for c in cats]
-    # TODO Phase 2: replace with FixedCost-based soll map
-    template_soll: dict[int, float] = {}
+    # Build FixedCost projection for future months
+    import calendar as _calendar
+
+    year_start = date_type(year, 1, 1)
+    year_end = date_type(year, 12, 31)
+    active_fcs = (
+        db.query(FixedCost)
+        .filter(
+            FixedCost.household_id == hh_id,
+            FixedCost.is_active.is_(True),
+            FixedCost.start_date <= year_end,
+            or_(FixedCost.end_date.is_(None), FixedCost.end_date >= year_start),
+        )
+        .all()
+    )
+
+    def _fc_active_in_month(fc: FixedCost, m: int) -> bool:
+        first = date_type(year, m, 1)
+        last_day = _calendar.monthrange(year, m)[1]
+        last = date_type(year, m, last_day)
+        if fc.start_date > last:
+            return False
+        if fc.end_date is not None and fc.end_date < first:
+            return False
+        return True
+
+    def _fc_bills_in_month(fc: FixedCost, m: int) -> bool:
+        months_diff = (year - fc.start_date.year) * 12 + (m - fc.start_date.month)
+        return months_diff >= 0 and months_diff % fc.interval_months == 0
+
+    def _fc_amount_for_month(cat_id: int, m: int) -> float:
+        total = 0.0
+        for fc in active_fcs:
+            if fc.category_id != cat_id:
+                continue
+            if not _fc_active_in_month(fc, m):
+                continue
+            if fc.show_split:
+                total += float(fc.amount) / fc.interval_months
+            elif _fc_bills_in_month(fc, m):
+                total += float(fc.amount)
+        return total
 
     monthly_income = [0.0] * 12
     monthly_expense = [0.0] * 12
@@ -105,10 +144,6 @@ def get_year_view(
 
     monthly_balance = [monthly_income[i] - monthly_expense[i] for i in range(12)]
 
-    # TODO Phase 2: replace with FixedCost-based soll lookup
-    def _ev_for(cat_id: int, first_of_month: date_type):
-        return None
-
     category_rows = []
     for cat in cats:
         months_vals = []
@@ -120,9 +155,7 @@ def get_year_view(
                 months_vals.append(val)
                 is_planned_flags.append(False)
             else:
-                first_of_month = date_type(year, m, 1)
-                ev = _ev_for(cat.id, first_of_month)
-                soll = float(ev.amount) if ev else template_soll.get(cat.id, 0.0)
+                soll = _fc_amount_for_month(cat.id, m)
                 months_vals.append(soll)
                 is_planned_flags.append(True)
         category_rows.append(YearCategoryRow(
@@ -163,11 +196,6 @@ def get_month_view(
         Category.archived.is_(False),
     ).all()
 
-    first_day = date_type(year, month, 1)
-    # TODO Phase 2: replace with FixedCost-based soll maps
-    ev_map: dict[int, float] = {}
-    template_soll: dict[int, float] = {}
-
     tx_rows = (
         db.query(Transaction.category_id, func.sum(func.abs(Transaction.amount)))
         .filter(
@@ -185,22 +213,15 @@ def get_month_view(
         section_cats = [c for c in cats if c.category_type == section_type]
         rows = []
         for cat in section_cats:
-            soll = ev_map.get(cat.id) or template_soll.get(cat.id, 0.0)
             ist = tx_map.get(cat.id, 0.0)
-            diff = ist - soll
-            pct = (ist / soll * 100) if soll > 0 else 0.0
             rows.append(MonthCategoryRow(
                 category_id=cat.id,
                 name=cat.name,
-                soll=soll,
                 ist=ist,
-                diff=diff,
-                pct=pct,
             ))
         sections.append(MonthSection(
             type=section_type,
             rows=rows,
-            total_soll=sum(r.soll for r in rows),
             total_ist=sum(r.ist for r in rows),
         ))
 

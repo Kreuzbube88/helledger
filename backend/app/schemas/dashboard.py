@@ -22,16 +22,12 @@ class YearViewResponse(BaseModel):
 class MonthCategoryRow(BaseModel):
     category_id: int
     name: str
-    soll: float
     ist: float
-    diff: float
-    pct: float
 
 
 class MonthSection(BaseModel):
     type: str
     rows: list[MonthCategoryRow]
-    total_soll: float
     total_ist: float
 
 

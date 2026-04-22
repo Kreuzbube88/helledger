@@ -206,16 +206,12 @@ async def reports_soll_ist(
 ):
     hh_id = _require_active_hh(user)
     _validate_dates(from_date, to_date)
-    months_in_range = (
-        (to_date.year - from_date.year) * 12 + to_date.month - from_date.month + 1
-    )
     cats = db.query(Category).filter(
         Category.household_id == hh_id,
         Category.archived.is_(False),
     ).all()
     if not cats:
         return []
-    cat_ids = [c.id for c in cats]
 
     tx_q = (
         db.query(Transaction.category_id, func.sum(Transaction.amount))
@@ -238,9 +234,6 @@ async def reports_soll_ist(
         cat_id: amt for cat_id, amt in tx_q.group_by(Transaction.category_id).all()
     }
 
-    # TODO Phase 2: replace with FixedCost-based soll lookup
-    ev_map: dict[int, Decimal] = {}
-
     def _build(parent_id: int | None) -> list[SollIstNode]:
         result = []
         for cat in cats:
@@ -250,18 +243,14 @@ async def reports_soll_ist(
             ist_self = tx_map.get(cat.id, Decimal("0"))
             ist_children = sum(Decimal(c.ist) for c in children)
             ist = ist_self + ist_children
-            monthly_soll = ev_map.get(cat.id) or Decimal("0")
-            soll_self = monthly_soll * months_in_range
-            soll_children = sum(Decimal(c.soll) for c in children)
-            soll = soll_self if soll_self > Decimal("0") else soll_children
             result.append(
                 SollIstNode(
                     id=cat.id,
                     name=cat.name,
                     category_type=cat.category_type,
-                    soll=f"{soll:.2f}",
+                    soll="0.00",
                     ist=f"{ist:.2f}",
-                    diff=f"{soll - ist:.2f}",
+                    diff=f"{-ist:.2f}",
                     children=children,
                 )
             )

@@ -20,6 +20,7 @@ from app.services.loan_calc import (
     calc_payment, calc_term, calc_principal, calc_rate_newton,
     calc_amortization, calc_stats, _add_months,
 )
+from app.models.fixed_cost import FixedCost
 
 router = APIRouter(prefix="/loans")
 
@@ -194,7 +195,27 @@ async def create_loan(
     db.flush()
     loan.category_id = cat.id
 
-    # TODO Phase 2: create linked FixedCost for loan monthly payment
+    # Auto-create FixedCost for loan monthly payment
+    if body.account_id:
+        from datetime import date as _date
+        effective_payment = monthly_payment + (body.monthly_extra or Decimal("0"))
+        next_fc_date = _add_months(_date(body.start_date.year, body.start_date.month, 1), 1)
+        fc = FixedCost(
+            household_id=hh_id,
+            name=loan.name,
+            amount=effective_payment,
+            cost_type="expense",
+            category_id=cat.id,
+            account_id=body.account_id,
+            interval_months=1,
+            show_split=False,
+            start_date=body.start_date,
+            end_date=None,
+            next_date=next_fc_date,
+            loan_id=loan.id,
+            is_active=True,
+        )
+        db.add(fc)
     db.commit()
     db.refresh(loan)
     return _build_response(loan, db)
@@ -242,7 +263,10 @@ async def delete_loan(
         if cat:
             cat.archived = True
             cat.updated_at = now
-    # TODO Phase 2: deactivate linked FixedCost when loan deleted
+    # Deactivate linked FixedCost(s)
+    for fc in db.query(FixedCost).filter(FixedCost.loan_id == loan.id).all():
+        fc.is_active = False
+        fc.end_date = date.today()
     db.delete(loan)
     db.commit()
 
@@ -336,7 +360,7 @@ async def add_extra_payment(
     db.add(ep)
     db.flush()
 
-    # If reduce_payment: recalculate monthly_payment and update ExpectedValue
+    # If reduce_payment: recalculate monthly_payment and update linked FixedCost
     if body.effect == "reduce_payment" and loan.category_id:
         # db.flush() already made ep queryable — no append needed
         all_eps = _extra_payments_for(loan_id, db)
@@ -358,7 +382,34 @@ async def add_extra_payment(
                 new_pmt = calc_payment(new_balance, float(loan.interest_rate), remaining)
                 loan.monthly_payment = Decimal(str(round(new_pmt, 2)))
 
-                # TODO Phase 2: update linked FixedCost amount via change_amount versioning
+                # Close old FixedCost for this loan, create new with updated payment
+                old_fcs = db.query(FixedCost).filter(
+                    FixedCost.loan_id == loan_id,
+                    FixedCost.is_active.is_(True),
+                ).all()
+                for old_fc in old_fcs:
+                    old_fc.end_date = body.payment_date
+                    old_fc.is_active = False
+                    new_effective = Decimal(str(round(new_pmt, 2))) + (loan.monthly_extra or Decimal("0"))
+                    new_next = old_fc.next_date
+                    while new_next <= body.payment_date:
+                        new_next = _add_months(new_next, 1)
+                    new_fc = FixedCost(
+                        household_id=old_fc.household_id,
+                        name=old_fc.name,
+                        amount=new_effective,
+                        cost_type="expense",
+                        category_id=old_fc.category_id,
+                        account_id=old_fc.account_id,
+                        interval_months=1,
+                        show_split=False,
+                        start_date=body.payment_date,
+                        end_date=None,
+                        next_date=new_next,
+                        loan_id=loan_id,
+                        is_active=True,
+                    )
+                    db.add(new_fc)
 
     loan.updated_at = now
     db.commit()
@@ -410,7 +461,9 @@ async def mark_paid_off(
         if cat:
             cat.archived = True
             cat.updated_at = now
-    # TODO Phase 2: deactivate linked FixedCost when loan paid off
+    for fc in db.query(FixedCost).filter(FixedCost.loan_id == loan_id).all():
+        fc.is_active = False
+        fc.end_date = date.today()
     db.commit()
     db.refresh(loan)
     return _build_response(loan, db)
