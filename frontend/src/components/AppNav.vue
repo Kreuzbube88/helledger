@@ -31,16 +31,15 @@ const searchOpen = ref(false)
 const allNavItems = computed(() => {
   const items = [
     { key: 'dashboard',    path: '/dashboard',    icon: LayoutDashboard },
-    { key: 'transactions', path: '/transactions', icon: ArrowLeftRight },
     { key: 'accounts',     path: '/accounts',     icon: Wallet },
-    { key: 'loans',        path: '/loans',        icon: Landmark },
+    { key: 'transactions', path: '/transactions', icon: ArrowLeftRight },
     { key: 'fixedCosts',   path: '/fixed-costs',  icon: RefreshCw },
-    { key: 'categories',   path: '/categories',   icon: Tag },
-    { key: 'reports',      path: '/reports',      icon: BarChart3 },
-    { key: 'year',         path: '/year',         icon: CalendarDays },
-    { key: 'month',        path: '/month',        icon: CalendarRange },
-    { key: 'netWorth',     path: '/net-worth',    icon: TrendingUp },
+    { key: 'loans',        path: '/loans',        icon: Landmark },
     { key: 'goals',        path: '/goals',        icon: Target },
+    { key: 'categories',   path: '/categories',   icon: Tag },
+    { key: 'month',        path: '/month',        icon: CalendarRange },
+    { key: 'year',         path: '/year',         icon: CalendarDays },
+    { key: 'reports',      path: '/reports',      icon: BarChart3 },
     { key: 'import',       path: '/import',       icon: Upload },
     { key: 'settings',     path: '/settings',     icon: Settings },
   ]
