@@ -40,7 +40,7 @@ const loginForm = ref({ email: '', password: '', rememberMe: true })
 const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '' })
 
 function validateRegister() {
-  if (registerForm.value.password.length < 12) {
+  if (registerForm.value.password.length < 8) {
     toast.error(t('auth.passwordTooShort'))
     return false
   }

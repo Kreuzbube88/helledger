@@ -10,8 +10,8 @@ class RegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def password_length(cls, v: str) -> str:
-        if len(v) < 12:
-            raise ValueError("password must be at least 12 characters")
+        if len(v) < 8:
+            raise ValueError("password must be at least 8 characters")
         return v
 
 
@@ -43,9 +43,9 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordResetConfirm(BaseModel):
     token: str
-    new_password: str = Field(min_length=12)
+    new_password: str = Field(min_length=8)
 
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=12)
+    new_password: str = Field(min_length=8)
