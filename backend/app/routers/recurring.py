@@ -150,7 +150,9 @@ async def auto_book(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    hh_id = _require_active_hh(user)
+    if user.active_household_id is None:
+        return {"status": "no_household"}
+    hh_id = user.active_household_id
     today = date_type.today()
     first_of_month = date_type(today.year, today.month, 1)
 
