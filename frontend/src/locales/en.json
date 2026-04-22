@@ -15,7 +15,8 @@
     "admin": "Admin",
     "logout": "Sign Out",
     "more": "More",
-    "menu": "Menu"
+    "menu": "Menu",
+    "loans": "Loans"
   },
   "auth": {
     "login": "Sign In", "register": "Create Account",
@@ -276,5 +277,76 @@
     "delete": "Delete",
     "deleteConfirm": "Really delete this backup?",
     "empty": "No backups yet"
+  },
+  "loans": {
+    "title": "Loans",
+    "add": "Add Loan",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "noData": "No loans yet",
+    "types": { "consumer": "Consumer Loan", "mortgage": "Mortgage" },
+    "name": "Name",
+    "lender": "Lender",
+    "principal": "Loan Amount (€)",
+    "interestRate": "Annual Rate (%)",
+    "monthlyPayment": "Monthly Payment (€)",
+    "termMonths": "Term (months)",
+    "monthlyExtra": "Monthly Extra Payment (€)",
+    "startDate": "Start Date",
+    "isExisting": "Existing Loan (remaining balance)",
+    "includeInNetWorth": "Include in Net Worth",
+    "purchasePrice": "Purchase Price (€)",
+    "equity": "Equity (€)",
+    "propertyValue": "Current Property Value (€)",
+    "fixedRateUntil": "Fixed Rate Until",
+    "landCharge": "Land Charge (€)",
+    "currentBalance": "Current Balance",
+    "payoffDate": "Estimated Payoff",
+    "monthlyRate": "Monthly Payment",
+    "interestRateLabel": "Interest Rate",
+    "ltv": "LTV",
+    "statuses": { "active": "Active", "paid_off": "Paid Off" },
+    "fixedRateExpiringSoon": "Fixed rate expiring soon",
+    "markPaidOff": "Mark as Paid Off",
+    "confirmPaidOff": "Mark this loan as paid off? The linked category will be archived.",
+    "exportCsv": "Export Amortization (CSV)",
+    "provide3of4": "Please fill exactly 3 of the 4 fields",
+    "paymentTooLow": "Payment too low — loan would never be paid off",
+    "computed": "Computed",
+    "newLoan": "New Loan",
+    "existingLoan": "Existing Loan",
+    "detail": {
+      "overview": "Overview",
+      "amortization": "Amortization",
+      "extraPayments": "Extra Payments",
+      "settings": "Settings"
+    },
+    "amortization": {
+      "month": "Month",
+      "date": "Date",
+      "payment": "Payment",
+      "interest": "Interest",
+      "principal": "Principal",
+      "extra": "Extra",
+      "balance": "Balance"
+    },
+    "extraPayment": {
+      "add": "Add Extra Payment",
+      "date": "Date",
+      "amount": "Amount (€)",
+      "effect": "Effect",
+      "notes": "Notes (optional)",
+      "effects": { "shorten_term": "Shorten term", "reduce_payment": "Reduce payment" }
+    },
+    "stats": {
+      "totalInterest": "Total Interest",
+      "totalPaid": "Total Paid",
+      "interestSaved": "Interest Saved",
+      "monthsSaved": "Months Saved",
+      "currentBalance": "Current Balance",
+      "payoffDate": "Payoff Date"
+    }
   }
 }

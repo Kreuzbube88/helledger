@@ -26,6 +26,7 @@ from app.routers import users as users_router
 from app.routers import admin as admin_router
 from app.routers import dashboard as dashboard_router
 from app.routers import net_worth as net_worth_router
+from app.routers import loans as loans_router
 from app.services import backup as backup_svc
 from app.database import get_session
 
@@ -104,6 +105,7 @@ app.include_router(users_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(dashboard_router.router, prefix="/api")
 app.include_router(net_worth_router.router, prefix="/api")
+app.include_router(loans_router.router, prefix="/api")
 
 _frontend = os.environ.get("HELLEDGER_FRONTEND") or os.path.join(
     os.path.dirname(__file__), "..", "..", "frontend", "dist"

@@ -15,10 +15,25 @@ const api = useApi()
 const snapshots = ref([])
 const showDialog = ref(false)
 const form = ref({ snapshot_date: '', total_assets: '', total_liabilities: '', notes: '' })
+const loanSummary = ref(null)
 
 async function load() {
-  const r = await api.get('/net-worth')
-  if (r.ok) snapshots.value = await r.json()
+  const [nwRes, loanRes] = await Promise.all([
+    api.get('/net-worth'),
+    api.get('/loans/net-worth-summary'),
+  ])
+  if (nwRes.ok) snapshots.value = await nwRes.json()
+  if (loanRes.ok) loanSummary.value = await loanRes.json()
+}
+
+function openNewSnapshot() {
+  form.value = {
+    snapshot_date: new Date().toISOString().slice(0, 10),
+    total_assets: '',
+    total_liabilities: loanSummary.value?.total_liability != null ? String(loanSummary.value.total_liability) : '',
+    notes: '',
+  }
+  showDialog.value = true
 }
 
 async function save() {
@@ -49,7 +64,7 @@ onMounted(load)
   <div class="container mx-auto py-6 space-y-4">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">{{ $t('netWorth.title') }}</h1>
-      <Button @click="showDialog = true">{{ $t('netWorth.newSnapshot') }}</Button>
+      <Button @click="openNewSnapshot">{{ $t('netWorth.newSnapshot') }}</Button>
     </div>
 
     <Card>
@@ -82,6 +97,29 @@ onMounted(load)
             </TableRow>
           </TableBody>
         </Table>
+      </CardContent>
+    </Card>
+
+    <!-- Loan liabilities section -->
+    <Card v-if="loanSummary && loanSummary.loans.length > 0">
+      <CardContent class="pt-4">
+        <h2 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{{ $t('loans.title') }}</h2>
+        <table class="w-full text-sm">
+          <tbody>
+            <tr v-for="loan in loanSummary.loans" :key="loan.id" class="border-b">
+              <td class="py-1.5">{{ loan.name }}</td>
+              <td class="text-right tabular-nums text-rose-500 py-1.5">
+                -{{ Number(loan.current_balance).toLocaleString('de-DE', { minimumFractionDigits: 2 }) }} €
+              </td>
+            </tr>
+            <tr class="font-semibold">
+              <td class="pt-2">{{ $t('netWorth.totalLiabilities') }}</td>
+              <td class="text-right tabular-nums text-rose-500 pt-2">
+                -{{ Number(loanSummary.total_liability).toLocaleString('de-DE', { minimumFractionDigits: 2 }) }} €
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </CardContent>
     </Card>
 

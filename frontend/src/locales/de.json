@@ -15,7 +15,8 @@
     "admin": "Admin",
     "logout": "Abmelden",
     "more": "Mehr",
-    "menu": "Menü"
+    "menu": "Menü",
+    "loans": "Kredite"
   },
   "auth": {
     "login": "Anmelden", "register": "Registrieren",
@@ -276,5 +277,76 @@
     "delete": "Löschen",
     "deleteConfirm": "Backup wirklich löschen?",
     "empty": "Keine Backups vorhanden"
+  },
+  "loans": {
+    "title": "Kredite",
+    "add": "Kredit hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "noData": "Keine Kredite vorhanden",
+    "types": { "consumer": "Konsumkredit", "mortgage": "Immobilienkredit" },
+    "name": "Bezeichnung",
+    "lender": "Kreditgeber",
+    "principal": "Kreditbetrag (€)",
+    "interestRate": "Jahreszins (%)",
+    "monthlyPayment": "Monatliche Rate (€)",
+    "termMonths": "Laufzeit (Monate)",
+    "monthlyExtra": "Monatl. Sondertilgung (€)",
+    "startDate": "Startdatum",
+    "isExisting": "Bestehender Kredit (Restschuld)",
+    "includeInNetWorth": "Im Nettovermögen berücksichtigen",
+    "purchasePrice": "Kaufpreis (€)",
+    "equity": "Eigenkapital (€)",
+    "propertyValue": "Aktueller Immobilienwert (€)",
+    "fixedRateUntil": "Zinsbindung bis",
+    "landCharge": "Grundschuld (€)",
+    "currentBalance": "Aktuelle Restschuld",
+    "payoffDate": "Voraussichtliches Ende",
+    "monthlyRate": "Monatliche Rate",
+    "interestRateLabel": "Zinssatz",
+    "ltv": "LTV",
+    "statuses": { "active": "Aktiv", "paid_off": "Abbezahlt" },
+    "fixedRateExpiringSoon": "Zinsbindung endet bald",
+    "markPaidOff": "Als abbezahlt markieren",
+    "confirmPaidOff": "Kredit als abbezahlt markieren? Die verknüpfte Kategorie wird archiviert.",
+    "exportCsv": "Tilgungsplan exportieren (CSV)",
+    "provide3of4": "Bitte genau 3 der 4 Felder ausfüllen",
+    "paymentTooLow": "Rate zu gering – Kredit würde nie abbezahlt",
+    "computed": "Berechnet",
+    "newLoan": "Neuer Kredit",
+    "existingLoan": "Bestehender Kredit",
+    "detail": {
+      "overview": "Übersicht",
+      "amortization": "Tilgungsplan",
+      "extraPayments": "Sondertilgungen",
+      "settings": "Einstellungen"
+    },
+    "amortization": {
+      "month": "Monat",
+      "date": "Datum",
+      "payment": "Rate",
+      "interest": "Zinsen",
+      "principal": "Tilgung",
+      "extra": "Sondertilg.",
+      "balance": "Restschuld"
+    },
+    "extraPayment": {
+      "add": "Sondertilgung hinzufügen",
+      "date": "Datum",
+      "amount": "Betrag (€)",
+      "effect": "Effekt",
+      "notes": "Notiz (optional)",
+      "effects": { "shorten_term": "Laufzeit verkürzen", "reduce_payment": "Rate reduzieren" }
+    },
+    "stats": {
+      "totalInterest": "Gesamtzinsen",
+      "totalPaid": "Gesamtzahlung",
+      "interestSaved": "Zinsen gespart",
+      "monthsSaved": "Monate gespart",
+      "currentBalance": "Aktuelle Restschuld",
+      "payoffDate": "Tilgungsende"
+    }
   }
 }

@@ -37,6 +37,9 @@ const catData = ref(null)
 const trendData = ref(null)
 const sollIstData = ref(null)
 const balanceData = ref(null)
+const loanList = ref([])
+const selectedLoanId = ref('')
+const loanAmortization = ref([])
 
 function lastDayOf(y, m) {
   return new Date(y, m, 0).getDate()
@@ -196,9 +199,34 @@ function downloadCsv(data, filename) {
 
 const years = Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - 1 + i)
 
+async function loadLoanAmortization() {
+  if (!selectedLoanId.value) { loanAmortization.value = []; return }
+  const res = await api.get(`/loans/${selectedLoanId.value}/amortization`)
+  if (res.ok) loanAmortization.value = await res.json()
+}
+
+const loanBalanceChartData = computed(() => {
+  const rows = loanAmortization.value
+  const step = Math.max(1, Math.floor(rows.length / 60))
+  const sampled = rows.filter((_, i) => i % step === 0 || i === rows.length - 1)
+  return {
+    labels: sampled.map(r => r.date.slice(0, 7)),
+    datasets: [{
+      label: t('loans.currentBalance'),
+      data: sampled.map(r => r.balance),
+      borderColor: '#6366f1',
+      backgroundColor: 'rgba(99,102,241,0.1)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+    }],
+  }
+})
+
 onMounted(async () => {
-  const res = await api.get('/accounts')
-  if (res.ok) accounts.value = await res.json()
+  const [accRes, loanRes] = await Promise.all([api.get('/accounts'), api.get('/loans')])
+  if (accRes.ok) accounts.value = await accRes.json()
+  if (loanRes.ok) loanList.value = await loanRes.json()
   await loadData()
 })
 </script>
@@ -269,6 +297,7 @@ onMounted(async () => {
           <TabsTrigger value="trend">{{ t('reports.chart.monthlyTrend') }}</TabsTrigger>
           <TabsTrigger value="balance">{{ t('reports.chart.balanceHistory') }}</TabsTrigger>
           <TabsTrigger value="sollist">{{ t('reports.chart.sollIst') }}</TabsTrigger>
+          <TabsTrigger value="loans">{{ t('loans.title') }}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="expenses">
@@ -326,6 +355,27 @@ onMounted(async () => {
             <CardContent>
               <Bar v-if="sollIstFlat.length" :data="sollIstChartData" :options="hBarOptions" class="max-h-80" />
               <p v-else class="text-center text-muted-foreground py-12">{{ t('reports.noData') }}</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="loans">
+          <Card>
+            <CardHeader class="pb-2">
+              <CardTitle class="text-sm">{{ t('loans.title') }}</CardTitle>
+            </CardHeader>
+            <CardContent class="space-y-4">
+              <Select v-model="selectedLoanId" @update:modelValue="loadLoanAmortization">
+                <SelectTrigger class="w-64">
+                  <SelectValue :placeholder="t('loans.title')" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="loan in loanList" :key="loan.id" :value="String(loan.id)">
+                    {{ loan.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Line v-if="loanAmortization.length" :data="loanBalanceChartData" :options="lineOptions" class="max-h-80" />
+              <p v-else class="text-center text-muted-foreground py-8">{{ selectedLoanId ? t('reports.noData') : t('loans.noData') }}</p>
             </CardContent>
           </Card>
         </TabsContent>
