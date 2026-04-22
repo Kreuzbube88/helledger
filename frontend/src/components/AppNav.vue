@@ -93,8 +93,8 @@ onMounted(loadHouseholds)
     <!-- Brand -->
     <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b"
          :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-100'">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
-        <span class="text-[11px] font-black text-white tracking-tight">HL</span>
+      <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0 logo-ring shadow-lg shadow-emerald-500/20">
+        <img src="/favicon.png" class="w-full h-full object-cover" alt="HELLEDGER" />
       </div>
       <span class="font-bold text-sm tracking-widest uppercase text-foreground">Helledger</span>
     </div>
@@ -150,7 +150,8 @@ onMounted(loadHouseholds)
         <!-- Active dot -->
         <span
           v-if="isActive(item.path)"
-          class="absolute right-3 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-500/50"
+          class="absolute right-3 w-1.5 h-1.5 rounded-full bg-emerald-400 nav-dot"
+          style="box-shadow: 0 0 6px rgba(16,185,129,0.8)"
         />
       </RouterLink>
     </nav>

@@ -199,8 +199,8 @@ function groupLabel(type) {
 
           <!-- ══ Step 0: Welcome ══════════════════════════════════════ -->
           <div v-if="step === 0" key="0" class="px-7 pt-8 pb-6 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/30">
-              <span class="text-2xl font-black text-white">HL</span>
+            <div class="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-6 logo-ring shadow-xl shadow-emerald-500/25">
+              <img src="/favicon.png" class="w-full h-full object-cover" alt="HELLEDGER" />
             </div>
             <h1 class="text-2xl font-bold mb-3">{{ t('onboarding.welcome') }}</h1>
             <p class="text-sm text-muted-foreground leading-relaxed mb-8">

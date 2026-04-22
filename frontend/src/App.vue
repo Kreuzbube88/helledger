@@ -11,25 +11,25 @@ const auth = useAuthStore()
 
 const showNav = computed(() => !!route.meta?.requiresAuth && auth.isAuthenticated)
 
-// Show wizard when authenticated user has no household yet
 const wizardActive = ref(false)
 watch(
   () => auth.user,
-  (user) => {
-    if (user && !user.active_household_id) wizardActive.value = true
-  },
+  (user) => { if (user && !user.active_household_id) wizardActive.value = true },
   { immediate: true },
 )
-
 const showWizard = computed(() => showNav.value && wizardActive.value)
-
-function onWizardDone() {
-  wizardActive.value = false
-  auth.fetchUser()
-}
+function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
 </script>
 
 <template>
+  <!-- Ambient floating orbs — visible only in dark mode via CSS -->
+  <div aria-hidden="true">
+    <div class="ambient-orb ambient-orb-1" />
+    <div class="ambient-orb ambient-orb-2" />
+    <div class="ambient-orb ambient-orb-3" />
+    <div class="ambient-orb ambient-orb-4" />
+  </div>
+
   <AppNav v-if="showNav" />
   <div
     class="min-h-dvh transition-all duration-300"

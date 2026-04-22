@@ -86,16 +86,19 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="min-h-dvh flex items-center justify-center bg-background px-4">
-    <div class="w-full max-w-sm">
-      <div class="text-center mb-8">
-        <div class="flex items-center justify-center gap-2 mb-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <span class="text-sm font-black text-white">HL</span>
+  <div class="min-h-dvh flex items-center justify-center bg-background px-4 relative overflow-hidden">
+    <div class="w-full max-w-sm relative z-10">
+      <!-- Brand -->
+      <div class="text-center mb-8 anim-fade-up">
+        <div class="flex items-center justify-center mb-4">
+          <div class="w-14 h-14 rounded-2xl overflow-hidden logo-ring shadow-xl shadow-emerald-500/25">
+            <img src="/favicon.png" class="w-full h-full object-cover" alt="HELLEDGER" />
           </div>
         </div>
-        <h1 class="text-2xl font-bold tracking-widest uppercase">HELLEDGER</h1>
-        <p class="text-sm text-muted-foreground mt-1">{{ t('app.tagline') }}</p>
+        <h1 class="text-xl font-bold tracking-widest uppercase bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+          HELLEDGER
+        </h1>
+        <p class="text-xs text-muted-foreground mt-1.5 tracking-wide">{{ t('app.tagline') }}</p>
       </div>
 
       <!-- First-time setup: no users exist yet -->
