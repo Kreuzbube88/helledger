@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
@@ -39,6 +39,11 @@ function loginWithOidc() {
 
 const loginForm = ref({ email: '', password: '', rememberMe: true })
 const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '', language: locale.value || 'de' })
+
+watch(() => registerForm.value.language, (lang) => {
+  locale.value = lang
+  localStorage.setItem('helledger-lang', lang)
+})
 
 function validateRegister() {
   if (registerForm.value.password.length < 8) {
