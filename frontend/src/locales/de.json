@@ -408,7 +408,10 @@
       "amount": "Betrag (€)",
       "effect": "Effekt",
       "notes": "Notiz (optional)",
-      "effects": { "shorten_term": "Laufzeit verkürzen", "reduce_payment": "Rate reduzieren" }
+      "effects": { "shorten_term": "Laufzeit verkürzen", "reduce_payment": "Rate reduzieren" },
+      "intervalMonths": "Intervall",
+      "oneTime": "Einmalig",
+      "endDate": "Bis Datum (optional)"
     },
     "stats": {
       "totalInterest": "Gesamtzinsen",

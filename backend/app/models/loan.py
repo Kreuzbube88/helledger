@@ -43,4 +43,6 @@ class LoanExtraPayment(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     effect: Mapped[str] = mapped_column(String(20))  # 'shorten_term' | 'reduce_payment'
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    interval_months: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

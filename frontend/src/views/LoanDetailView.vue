@@ -35,7 +35,7 @@ const stats = ref(null)
 const activeTab = ref('overview')
 
 const showEpDialog = ref(false)
-const epForm = ref({ payment_date: new Date().toISOString().slice(0, 10), amount: '', effect: 'shorten_term', notes: '' })
+const epForm = ref({ payment_date: new Date().toISOString().slice(0, 10), amount: '', effect: 'shorten_term', notes: '', interval_months: '0', end_date: '' })
 
 async function load() {
   const [loanRes, amoRes, epsRes, statsRes] = await Promise.all([
@@ -76,11 +76,14 @@ const lineOptions = {
 }
 
 async function addExtraPayment() {
+  const intervalMonths = parseInt(epForm.value.interval_months) || 0
   const body = {
     payment_date: epForm.value.payment_date,
     amount: parseFloat(epForm.value.amount),
-    effect: epForm.value.effect,
+    effect: intervalMonths > 0 ? 'shorten_term' : epForm.value.effect,
     notes: epForm.value.notes || null,
+    interval_months: intervalMonths > 0 ? intervalMonths : null,
+    end_date: intervalMonths > 0 && epForm.value.end_date ? epForm.value.end_date : null,
   }
   const res = await api.post(`/loans/${loanId}/extra-payments`, body)
   if (res.ok) {
@@ -294,7 +297,13 @@ onMounted(load)
                   <tr v-for="ep in extraPayments" :key="ep.id" class="border-b hover:bg-muted/40">
                     <td class="px-4 py-2">{{ ep.payment_date }}</td>
                     <td class="text-right px-4 py-2 tabular-nums text-violet-500 font-medium">{{ fmt(ep.amount) }} €</td>
-                    <td class="px-4 py-2 text-sm">{{ t(`loans.extraPayment.effects.${ep.effect}`) }}</td>
+                    <td class="px-4 py-2 text-sm">
+                      <span v-if="ep.interval_months" class="text-violet-500">
+                        {{ t(`fixedCosts.intervals.${ep.interval_months}`) }}
+                        <span v-if="ep.end_date" class="text-muted-foreground text-xs"> bis {{ ep.end_date }}</span>
+                      </span>
+                      <span v-else>{{ t(`loans.extraPayment.effects.${ep.effect}`) }}</span>
+                    </td>
                     <td class="px-4 py-2 text-muted-foreground text-sm">{{ ep.notes || '—' }}</td>
                     <td class="text-right px-4 py-2 whitespace-nowrap">
                       <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="removeExtraPayment(ep.id)">
@@ -343,6 +352,23 @@ onMounted(load)
             <Input v-model="epForm.amount" type="number" step="0.01" min="0.01" required />
           </div>
           <div class="space-y-1">
+            <Label>{{ t('loans.extraPayment.intervalMonths') }}</Label>
+            <Select v-model="epForm.interval_months">
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">{{ t('loans.extraPayment.oneTime') }}</SelectItem>
+                <SelectItem value="1">{{ t('fixedCosts.intervals.1') }}</SelectItem>
+                <SelectItem value="3">{{ t('fixedCosts.intervals.3') }}</SelectItem>
+                <SelectItem value="6">{{ t('fixedCosts.intervals.6') }}</SelectItem>
+                <SelectItem value="12">{{ t('fixedCosts.intervals.12') }}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div v-if="parseInt(epForm.interval_months) > 0" class="space-y-1">
+            <Label>{{ t('loans.extraPayment.endDate') }}</Label>
+            <Input v-model="epForm.end_date" type="date" />
+          </div>
+          <div v-if="parseInt(epForm.interval_months) === 0" class="space-y-1">
             <Label>{{ t('loans.extraPayment.effect') }}</Label>
             <Select v-model="epForm.effect">
               <SelectTrigger><SelectValue /></SelectTrigger>

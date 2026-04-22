@@ -408,7 +408,10 @@
       "amount": "Amount (€)",
       "effect": "Effect",
       "notes": "Notes (optional)",
-      "effects": { "shorten_term": "Shorten term", "reduce_payment": "Reduce payment" }
+      "effects": { "shorten_term": "Shorten term", "reduce_payment": "Reduce payment" },
+      "intervalMonths": "Interval",
+      "oneTime": "One-time",
+      "endDate": "End date (optional)"
     },
     "stats": {
       "totalInterest": "Total Interest",

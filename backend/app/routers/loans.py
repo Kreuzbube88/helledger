@@ -40,10 +40,17 @@ def _get_loan(loan_id: int, hh_id: int, db: Session) -> Loan:
 
 def _extra_payments_for(loan_id: int, db: Session) -> list[dict]:
     rows = db.query(LoanExtraPayment).filter(LoanExtraPayment.loan_id == loan_id).all()
-    return [
-        {"payment_date": ep.payment_date, "amount": float(ep.amount), "effect": ep.effect}
-        for ep in rows
-    ]
+    result = []
+    for ep in rows:
+        if ep.interval_months and ep.interval_months > 0:
+            end = ep.end_date or date(2099, 12, 31)
+            current = ep.payment_date
+            while current <= end:
+                result.append({"payment_date": current, "amount": float(ep.amount), "effect": ep.effect})
+                current = _add_months(current, ep.interval_months)
+        else:
+            result.append({"payment_date": ep.payment_date, "amount": float(ep.amount), "effect": ep.effect})
+    return result
 
 
 def _build_response(loan: Loan, db: Session) -> LoanResponse:
@@ -355,13 +362,16 @@ async def add_extra_payment(
         amount=body.amount,
         effect=body.effect,
         notes=body.notes,
+        interval_months=body.interval_months,
+        end_date=body.end_date,
         created_at=now,
     )
     db.add(ep)
     db.flush()
 
-    # If reduce_payment: recalculate monthly_payment and update linked FixedCost
-    if body.effect == "reduce_payment" and loan.category_id:
+    is_recurring = bool(body.interval_months and body.interval_months > 0)
+    # If reduce_payment and one-time: recalculate monthly_payment and update linked FixedCost
+    if body.effect == "reduce_payment" and loan.category_id and not is_recurring:
         # db.flush() already made ep queryable — no append needed
         all_eps = _extra_payments_for(loan_id, db)
         monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0

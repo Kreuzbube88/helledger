@@ -87,6 +87,8 @@ class ExtraPaymentCreate(BaseModel):
     amount: Decimal
     effect: Literal["shorten_term", "reduce_payment"]
     notes: str | None = None
+    interval_months: int | None = None
+    end_date: date | None = None
 
 
 class ExtraPaymentResponse(BaseModel):
@@ -96,6 +98,8 @@ class ExtraPaymentResponse(BaseModel):
     amount: Decimal
     effect: str
     notes: str | None
+    interval_months: int | None
+    end_date: date | None
     created_at: datetime
     model_config = {"from_attributes": True}
 
