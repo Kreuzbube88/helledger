@@ -46,6 +46,12 @@
   <Config Name="Backups" Target="/backups" Default="/mnt/user/appdata/helledger/backups" Mode="rw"
     Description="Backup storage path"
     Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/helledger/backups</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode=""
+    Description="User ID the app runs as (Unraid default: 99)"
+    Type="Variable" Display="always" Required="true" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode=""
+    Description="Group ID the app runs as (Unraid default: 100)"
+    Type="Variable" Display="always" Required="true" Mask="false">100</Config>
   <Config Name="SECRET_KEY" Target="SECRET_KEY" Default="" Mode=""
     Description="Required: random secret for session encryption. Generate with: openssl rand -hex 32"
     Type="Variable" Display="always" Required="true" Mask="true"></Config>

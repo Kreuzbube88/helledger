@@ -10,7 +10,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt .
@@ -24,14 +24,15 @@ COPY backend/app/ ./app/
 COPY backend/alembic/ ./alembic/
 COPY backend/alembic.ini .
 COPY --from=frontend-builder /build/dist ./frontend/dist/
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 ENV HELLEDGER_FRONTEND=/app/frontend/dist
-
-USER helledger
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s \
     CMD curl -f http://localhost:3000/api/health || exit 1
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]
