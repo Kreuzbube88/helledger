@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
         if not settings.TESTING:
             logger.info("Running database migrations")
             _run_migrations()
-            asyncio.get_event_loop().create_task(_backup_loop())
+            asyncio.create_task(_backup_loop())
         logger.info("HELLEDGER started")
     except BaseException:
         logger.exception("Startup failed")

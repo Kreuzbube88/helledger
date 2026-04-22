@@ -28,6 +28,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENV HELLEDGER_FRONTEND=/app/frontend/dist
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 3000
 
