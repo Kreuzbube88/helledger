@@ -1,5 +1,5 @@
 # Stage 1: build frontend
-FROM node:20-alpine AS frontend-builder
+FROM --platform=linux/amd64 node:20-alpine AS frontend-builder
 WORKDIR /build
 COPY frontend/ .
 RUN npm ci && npm run build
