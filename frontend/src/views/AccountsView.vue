@@ -17,7 +17,7 @@ const api = useApi()
 const accounts = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
-const form = ref({ name: '', type: 'checking', balance: '0', currency: 'EUR' })
+const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR' })
 
 async function load() {
   const res = await api.get('/accounts')
@@ -26,21 +26,21 @@ async function load() {
 
 function openCreate() {
   editingId.value = null
-  form.value = { name: '', type: 'checking', balance: '0', currency: 'EUR' }
+  form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR' }
   showDialog.value = true
 }
 
 function openEdit(acc) {
   editingId.value = acc.id
-  form.value = { name: acc.name, type: acc.type, balance: String(acc.balance), currency: acc.currency }
+  form.value = { name: acc.name, account_type: acc.account_type, starting_balance: String(acc.starting_balance), currency: acc.currency }
   showDialog.value = true
 }
 
 async function save() {
   const body = {
     name: form.value.name,
-    type: form.value.type,
-    balance: parseFloat(form.value.balance),
+    account_type: form.value.account_type,
+    starting_balance: parseFloat(form.value.starting_balance),
     currency: form.value.currency,
   }
   const res = editingId.value
@@ -73,30 +73,30 @@ onMounted(load)
         <Button @click="openCreate">{{ t('accounts.add') }}</Button>
       </div>
 
-      <div class="rounded-lg border bg-card">
+      <div class="rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{{ t('accounts.name') }}</TableHead>
-              <TableHead>{{ t('accounts.type') }}</TableHead>
-              <TableHead class="text-right">{{ t('accounts.balance') }}</TableHead>
-              <TableHead>{{ t('accounts.currency') }}</TableHead>
-              <TableHead>{{ t('accounts.status') }}</TableHead>
-              <TableHead />
+              <TableHead class="w-28">{{ t('accounts.type') }}</TableHead>
+              <TableHead class="text-right w-32">{{ t('accounts.balance') }}</TableHead>
+              <TableHead class="w-20">{{ t('accounts.currency') }}</TableHead>
+              <TableHead class="w-24">{{ t('accounts.status') }}</TableHead>
+              <TableHead class="w-40 text-right">{{ t('common.actions') }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="acc in accounts" :key="acc.id">
               <TableCell class="font-medium">{{ acc.name }}</TableCell>
-              <TableCell>{{ t(`accounts.types.${acc.type}`) }}</TableCell>
+              <TableCell>{{ t(`accounts.types.${acc.account_type}`) }}</TableCell>
               <TableCell class="text-right tabular-nums"
-                :class="acc.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'">
-                {{ parseFloat(acc.balance).toFixed(2) }}
+                :class="parseFloat(acc.starting_balance) >= 0 ? 'text-emerald-500' : 'text-rose-500'">
+                {{ parseFloat(acc.starting_balance).toFixed(2) }}
               </TableCell>
               <TableCell>{{ acc.currency }}</TableCell>
               <TableCell>
-                <Badge :variant="acc.status === 'active' ? 'default' : 'secondary'">
-                  {{ t(`accounts.${acc.status}`) }}
+                <Badge :variant="!acc.archived ? 'default' : 'secondary'">
+                  {{ acc.archived ? t('accounts.archived') : t('accounts.active') }}
                 </Badge>
               </TableCell>
               <TableCell class="text-right space-x-1">
@@ -123,7 +123,7 @@ onMounted(load)
           </div>
           <div class="space-y-1">
             <Label>{{ t('accounts.type') }}</Label>
-            <Select v-model="form.type">
+            <Select v-model="form.account_type">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="checking">{{ t('accounts.types.checking') }}</SelectItem>
@@ -134,7 +134,7 @@ onMounted(load)
           </div>
           <div class="space-y-1">
             <Label>{{ t('accounts.balance') }}</Label>
-            <Input v-model="form.balance" type="number" step="0.01" required />
+            <Input v-model="form.starting_balance" type="number" step="0.01" required />
           </div>
           <div class="space-y-1">
             <Label>{{ t('accounts.currency') }}</Label>

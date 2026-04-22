@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -77,7 +77,8 @@ function handleLogout() {
   router.push('/login')
 }
 
-onMounted(loadHouseholds)
+// Reload household list whenever the active household changes (e.g. after wizard)
+watch(() => auth.user?.active_household_id, () => loadHouseholds(), { immediate: true })
 </script>
 
 <template>

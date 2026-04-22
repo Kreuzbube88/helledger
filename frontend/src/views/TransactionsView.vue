@@ -26,7 +26,7 @@ const flatCategories = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
 const form = ref({
-  type: 'expense',
+  transaction_type: 'expense',
   date: new Date().toISOString().slice(0, 10),
   description: '',
   amount: '',
@@ -55,6 +55,13 @@ function flattenCats(list) {
   }
   walk(list)
   return result
+}
+
+function accountName(id) {
+  return accounts.value.find(a => a.id === id)?.name || '—'
+}
+function categoryName(id) {
+  return id ? (flatCategories.value.find(c => c.id === id)?.name || '—') : '—'
 }
 
 async function load() {
@@ -88,7 +95,7 @@ function nextMonth() {
 function openCreate() {
   editingId.value = null
   form.value = {
-    type: 'expense',
+    transaction_type: 'expense',
     date: new Date().toISOString().slice(0, 10),
     description: '',
     amount: '',
@@ -103,7 +110,7 @@ function openCreate() {
 function openEdit(tx) {
   editingId.value = tx.id
   form.value = {
-    type: tx.type,
+    transaction_type: tx.transaction_type,
     date: tx.date,
     description: tx.description,
     amount: String(Math.abs(parseFloat(tx.amount))),
@@ -117,9 +124,9 @@ function openEdit(tx) {
 
 async function save() {
   let body
-  if (form.value.type === 'transfer') {
+  if (form.value.transaction_type === 'transfer') {
     body = {
-      type: 'transfer',
+      transaction_type: 'transfer',
       date: form.value.date,
       description: form.value.description,
       amount: parseFloat(form.value.amount),
@@ -128,7 +135,7 @@ async function save() {
     }
   } else {
     body = {
-      type: form.value.type,
+      transaction_type: form.value.transaction_type,
       date: form.value.date,
       description: form.value.description,
       amount: parseFloat(form.value.amount),
@@ -199,17 +206,17 @@ onMounted(() => Promise.all([loadMeta(), load()]))
       </div>
 
       <!-- Table -->
-      <div class="rounded-lg border bg-card">
+      <div class="rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{{ t('transactions.date') }}</TableHead>
+              <TableHead class="w-28">{{ t('transactions.date') }}</TableHead>
               <TableHead>{{ t('transactions.description') }}</TableHead>
               <TableHead>{{ t('transactions.account') }}</TableHead>
               <TableHead>{{ t('transactions.category') }}</TableHead>
-              <TableHead>{{ t('transactions.type') }}</TableHead>
-              <TableHead class="text-right">{{ t('transactions.amount') }}</TableHead>
-              <TableHead />
+              <TableHead class="w-28">{{ t('transactions.type') }}</TableHead>
+              <TableHead class="text-right w-32">{{ t('transactions.amount') }}</TableHead>
+              <TableHead class="w-32 text-right">{{ t('common.actions') }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -221,13 +228,15 @@ onMounted(() => Promise.all([loadMeta(), load()]))
             <TableRow v-for="tx in transactions" :key="tx.id">
               <TableCell class="tabular-nums text-sm">{{ tx.date }}</TableCell>
               <TableCell class="max-w-48 truncate">{{ tx.description }}</TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ tx.account_name }}</TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ tx.category_name || '—' }}</TableCell>
+              <TableCell class="text-sm text-muted-foreground">{{ accountName(tx.account_id) }}</TableCell>
+              <TableCell class="text-sm text-muted-foreground">{{ categoryName(tx.category_id) }}</TableCell>
               <TableCell>
-                <Badge :variant="TYPE_BADGE[tx.type]">{{ t(`transactions.${tx.type}`) }}</Badge>
+                <Badge :variant="TYPE_BADGE[tx.transaction_type]">
+                  {{ t(`transactions.${tx.transaction_type}`) }}
+                </Badge>
               </TableCell>
               <TableCell class="text-right tabular-nums"
-                :class="tx.type === 'income' ? 'text-emerald-500' : tx.type === 'transfer' ? 'text-violet-500' : 'text-rose-500'">
+                :class="tx.transaction_type === 'income' ? 'text-emerald-500' : tx.transaction_type === 'transfer' ? 'text-violet-500' : 'text-rose-500'">
                 {{ fmtAmount(tx) }}
               </TableCell>
               <TableCell class="text-right space-x-1">
@@ -251,7 +260,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
         <form @submit.prevent="save" class="space-y-4">
           <div class="space-y-1">
             <Label>{{ t('transactions.type') }}</Label>
-            <Select v-model="form.type">
+            <Select v-model="form.transaction_type">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="income">{{ t('transactions.income') }}</SelectItem>
@@ -272,8 +281,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
             <Label>{{ t('transactions.amount') }}</Label>
             <Input v-model="form.amount" type="number" step="0.01" min="0" required />
           </div>
-          <!-- Transfer fields -->
-          <template v-if="form.type === 'transfer'">
+          <template v-if="form.transaction_type === 'transfer'">
             <div class="space-y-1">
               <Label>{{ t('transactions.fromAccount') }}</Label>
               <Select v-model="form.from_account_id">
@@ -293,7 +301,6 @@ onMounted(() => Promise.all([loadMeta(), load()]))
               </Select>
             </div>
           </template>
-          <!-- Income/Expense fields -->
           <template v-else>
             <div class="space-y-1">
               <Label>{{ t('transactions.account') }}</Label>

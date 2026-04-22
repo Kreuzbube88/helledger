@@ -75,13 +75,13 @@ onMounted(load)
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t(`categories.sections.${section}`) }}
         </h2>
-        <div class="rounded-lg border bg-card">
+        <div class="rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{{ t('categories.name') }}</TableHead>
-                <TableHead>{{ t('categories.type') }}</TableHead>
-                <TableHead />
+                <TableHead class="w-28">{{ t('categories.type') }}</TableHead>
+                <TableHead class="w-48 text-right">{{ t('common.actions') }}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
