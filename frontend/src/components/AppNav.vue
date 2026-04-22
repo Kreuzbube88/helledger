@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
   LayoutDashboard, Wallet, Tag, ArrowLeftRight, BarChart3,
   CalendarDays, CalendarRange, TrendingUp, Upload, Settings,
   HardDrive, Shield, LogOut, MoreHorizontal, Sun, Moon, X,
-  ChevronDown, Landmark, RefreshCw, Target,
+  ChevronDown, Landmark, RefreshCw, Target, Search,
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
@@ -14,6 +14,7 @@ import { useApi } from '@/lib/api'
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import GlobalSearch from '@/components/GlobalSearch.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -25,6 +26,7 @@ const api = useApi()
 const households = ref([])
 const activeHousehold = ref(null)
 const moreOpen = ref(false)
+const searchOpen = ref(false)
 
 const allNavItems = computed(() => {
   const items = [
@@ -82,6 +84,15 @@ function handleLogout() {
 
 // Reload household list whenever the active household changes (e.g. after wizard)
 watch(() => auth.user?.active_household_id, () => loadHouseholds(), { immediate: true })
+
+function onKeydown(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault()
+    searchOpen.value = true
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
@@ -127,6 +138,15 @@ watch(() => auth.user?.active_household_id, () => loadHouseholds(), { immediate:
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    </div>
+
+    <!-- Search button -->
+    <div class="px-3 pb-2">
+      <button @click="searchOpen = true" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-muted-foreground transition-colors hover:bg-muted">
+        <Search class="h-4 w-4" />
+        <span class="text-xs">{{ t('search.placeholder') }}</span>
+        <kbd class="ml-auto text-[10px] border rounded px-1">⌘K</kbd>
+      </button>
     </div>
 
     <!-- Nav items -->
@@ -264,6 +284,17 @@ watch(() => auth.user?.active_household_id, () => loadHouseholds(), { immediate:
           </button>
         </div>
 
+        <!-- Search -->
+        <button
+          @click="moreOpen = false; searchOpen = true"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl mb-3 transition-all"
+          :class="theme.isDark ? 'bg-white/[0.04] text-muted-foreground hover:bg-white/[0.08]' : 'bg-gray-50 text-muted-foreground hover:bg-gray-100'"
+        >
+          <Search class="h-5 w-5" />
+          <span class="text-sm">{{ t('search.placeholder') }}</span>
+          <kbd class="ml-auto text-[10px] border rounded px-1">⌘K</kbd>
+        </button>
+
         <!-- Grid of remaining nav items -->
         <div class="grid grid-cols-3 gap-2 mb-5">
           <RouterLink
@@ -315,6 +346,8 @@ watch(() => auth.user?.active_household_id, () => loadHouseholds(), { immediate:
       </div>
     </div>
   </Transition>
+
+  <GlobalSearch :open="searchOpen" @close="searchOpen = false" />
 </template>
 
 <style scoped>

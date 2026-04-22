@@ -323,6 +323,10 @@
     "allGoals": "→ Alle Sparziele",
     "confirmDelete": "Sparziel wirklich löschen?"
   },
+  "search": {
+    "placeholder": "Transaktionen suchen…",
+    "noResults": "Keine Ergebnisse gefunden."
+  },
   "loans": {
     "title": "Kredite",
     "add": "Kredit hinzufügen",

@@ -29,6 +29,7 @@ from app.routers import net_worth as net_worth_router
 from app.routers import loans as loans_router
 from app.routers import recurring as recurring_router
 from app.routers import savings_goals as goals_router
+from app.routers import search as search_router
 from app.services import backup as backup_svc
 from app.database import get_session
 
@@ -110,6 +111,7 @@ app.include_router(net_worth_router.router, prefix="/api")
 app.include_router(loans_router.router, prefix="/api")
 app.include_router(recurring_router.router, prefix="/api")
 app.include_router(goals_router.router, prefix="/api")
+app.include_router(search_router.router, prefix="/api")
 
 _frontend = os.environ.get("HELLEDGER_FRONTEND") or os.path.join(
     os.path.dirname(__file__), "..", "..", "frontend", "dist"

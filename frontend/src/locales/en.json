@@ -323,6 +323,10 @@
     "allGoals": "→ All Goals",
     "confirmDelete": "Delete this savings goal?"
   },
+  "search": {
+    "placeholder": "Search transactions…",
+    "noResults": "No results found."
+  },
   "loans": {
     "title": "Loans",
     "add": "Add Loan",
