@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
-from app.models.household import Category, ExpectedValue
+from app.models.household import Category, ExpectedValue, Account
+from app.models.loan import Loan
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -17,6 +18,7 @@ from app.schemas.dashboard import (
     YearCategoryRow,
     YearViewResponse,
 )
+from app.services.loan_calc import calc_stats
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -185,6 +187,62 @@ def get_month_view(
     balance = total_income - total_expense
     savings_rate = (balance / total_income * 100) if total_income > 0 else 0.0
 
+    # debt_to_income: total active loan balances / monthly income * 100
+    active_loans = db.query(Loan).filter(
+        Loan.household_id == hh_id,
+        Loan.status == "active",
+    ).all()
+    total_debt = 0.0
+    for loan in active_loans:
+        if not loan.include_in_net_worth:
+            continue
+        extra_payments = []
+        monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
+        stats = calc_stats(
+            float(loan.principal), float(loan.interest_rate),
+            float(loan.monthly_payment), loan.term_months,
+            loan.start_date, extra_payments, monthly_extra,
+        )
+        total_debt += stats["current_balance"]
+    debt_to_income = (total_debt / total_income * 100) if total_income > 0 else 0.0
+
+    # emergency_months: liquid account balances / avg monthly expenses (last 3 months)
+    liquid_accounts = db.query(Account).filter(
+        Account.household_id == hh_id,
+        Account.account_type.in_(["checking", "savings"]),
+        Account.archived.is_(False),
+    ).all()
+    liquid_ids = [a.id for a in liquid_accounts]
+    liquid_balance = sum(float(a.starting_balance) for a in liquid_accounts)
+    if liquid_ids:
+        tx_sum = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.household_id == hh_id,
+            Transaction.account_id.in_(liquid_ids),
+        ).scalar() or 0.0
+        liquid_balance += float(tx_sum)
+
+    # avg expense over 3 months prior to selected month
+    from datetime import date as _date
+    months_back = []
+    y, m = year, month
+    for _ in range(3):
+        m -= 1
+        if m < 1:
+            m = 12; y -= 1
+        months_back.append((str(y), f"{m:02d}"))
+
+    monthly_expenses = []
+    for y_str, m_str in months_back:
+        exp = db.query(func.sum(func.abs(Transaction.amount))).filter(
+            Transaction.household_id == hh_id,
+            func.strftime("%Y", Transaction.date) == y_str,
+            func.strftime("%m", Transaction.date) == m_str,
+            Transaction.transaction_type == "expense",
+        ).scalar() or 0.0
+        monthly_expenses.append(float(exp))
+    avg_expense = sum(monthly_expenses) / len(monthly_expenses) if monthly_expenses else 0.0
+    emergency_months = (liquid_balance / avg_expense) if avg_expense > 0 else 0.0
+
     return MonthViewResponse(
         year=year,
         month=month,
@@ -194,5 +252,7 @@ def get_month_view(
             total_expense=total_expense,
             balance=balance,
             savings_rate=savings_rate,
+            debt_to_income=debt_to_income,
+            emergency_months=emergency_months,
         ),
     )

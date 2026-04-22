@@ -59,7 +59,12 @@
     "addTransaction": "Transaktion hinzufügen",
     "soll": "Soll",
     "ist": "Ist",
-    "diff": "Differenz"
+    "diff": "Differenz",
+    "savingsRate": "Sparquote",
+    "debtToIncome": "Schuldenquote",
+    "emergencyMonths": "Notfallfonds",
+    "months": "Monate",
+    "ofIncome": "des Einkommens"
   },
   "transactions": {
     "title": "Transaktionen",

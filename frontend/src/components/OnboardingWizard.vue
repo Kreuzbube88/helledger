@@ -29,7 +29,7 @@ const accounts = ref([
 const ACCOUNT_TYPES = [
   { value: 'checking', labelDe: 'Girokonto',   labelEn: 'Checking',  icon: Building2 },
   { value: 'savings',  labelDe: 'Sparkonto',    labelEn: 'Savings',   icon: Wallet },
-  { value: 'credit',   labelDe: 'Kreditkarte',  labelEn: 'Credit',    icon: CreditCard },
+  { value: 'credit_card', labelDe: 'Kreditkarte', labelEn: 'Credit Card', icon: CreditCard },
 ]
 
 function accountTypeLabel(v) {

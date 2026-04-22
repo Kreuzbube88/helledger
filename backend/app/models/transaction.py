@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import Numeric, String, Date, DateTime, ForeignKey, func
+from sqlalchemy import Boolean, Numeric, String, Date, DateTime, ForeignKey, func
 from sqlalchemy.orm import mapped_column, Mapped
 from app.database import Base
 
@@ -18,5 +18,6 @@ class Transaction(Base):
     transaction_type: Mapped[str] = mapped_column(String(20))
     transfer_peer_id: Mapped[int | None] = mapped_column(ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True)
     external_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_auto_generated: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())

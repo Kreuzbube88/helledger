@@ -59,7 +59,12 @@
     "addTransaction": "Add Transaction",
     "soll": "Budget",
     "ist": "Actual",
-    "diff": "Difference"
+    "diff": "Difference",
+    "savingsRate": "Savings Rate",
+    "debtToIncome": "Debt-to-Income",
+    "emergencyMonths": "Emergency Fund",
+    "months": "months",
+    "ofIncome": "of income"
   },
   "transactions": {
     "title": "Transactions",

@@ -16,6 +16,7 @@ class CategoryUpdate(BaseModel):
     parent_id: int | None = None
     color: str | None = None
     icon: str | None = None
+    default_account_id: int | None = None
 
 
 class CategoryResponse(BaseModel):
@@ -27,6 +28,7 @@ class CategoryResponse(BaseModel):
     color: str | None
     icon: str | None
     archived: bool
+    default_account_id: int | None
     created_at: datetime
     updated_at: datetime
     model_config = {"from_attributes": True}

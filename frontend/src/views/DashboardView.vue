@@ -33,6 +33,7 @@ const expiringCats = ref([])
 const monthlyReserve = ref(null)
 const reserveOpen = ref(false)
 const topGoals = ref([])
+const kpis = ref(null)
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, balance: 0 })
@@ -140,15 +141,17 @@ async function loadGoals() {
 
 async function load() {
   loaded.value = false
-  const [sumRes, siRes, balRes] = await Promise.all([
+  const [sumRes, siRes, balRes, kpiRes] = await Promise.all([
     api.get(`/transactions/summary?year=${year.value}&month=${month.value}`),
     api.get(`/categories/soll-ist?year=${year.value}&month=${month.value}`),
     api.get('/accounts/balances'),
+    api.get(`/dashboard/month?year=${year.value}&month=${month.value}`),
   ])
   if (!sumRes.ok || !siRes.ok || !balRes.ok) { toast.error(t('errors.generic')); return }
   summary.value  = await sumRes.json()
   sollIst.value  = await siRes.json()
   balances.value = await balRes.json()
+  if (kpiRes.ok) kpis.value = (await kpiRes.json()).summary
   loaded.value   = true
 }
 
@@ -275,6 +278,45 @@ onMounted(() => {
           {{ t('dashboard.expenses') }}
         </p>
         <p class="text-2xl font-bold text-rose-400 tabular-nums relative">{{ fmt(display.expenses) }}</p>
+      </div>
+    </div>
+
+    <!-- ── KPI tiles ──────────────────────────────────────────────── -->
+    <div v-if="kpis" class="grid grid-cols-3 gap-3">
+      <!-- Savings Rate -->
+      <div
+        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.savingsRate') }}</p>
+        <p class="text-2xl font-bold tabular-nums"
+           :class="kpis.savings_rate >= 20 ? 'text-emerald-400' : kpis.savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.savings_rate.toFixed(1) }}%
+        </p>
+      </div>
+      <!-- Debt-to-Income -->
+      <div
+        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.debtToIncome') }}</p>
+        <p class="text-2xl font-bold tabular-nums"
+           :class="kpis.debt_to_income < 30 ? 'text-emerald-400' : kpis.debt_to_income < 50 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.debt_to_income.toFixed(1) }}%
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.ofIncome') }}</p>
+      </div>
+      <!-- Emergency Fund -->
+      <div
+        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.emergencyMonths') }}</p>
+        <p class="text-2xl font-bold tabular-nums"
+           :class="kpis.emergency_months >= 3 ? 'text-emerald-400' : kpis.emergency_months >= 1 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.emergency_months.toFixed(1) }}
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.months') }}</p>
       </div>
     </div>
 

@@ -128,7 +128,7 @@ onMounted(load)
               <SelectContent>
                 <SelectItem value="checking">{{ t('accounts.types.checking') }}</SelectItem>
                 <SelectItem value="savings">{{ t('accounts.types.savings') }}</SelectItem>
-                <SelectItem value="credit">{{ t('accounts.types.credit') }}</SelectItem>
+                <SelectItem value="credit_card">{{ t('accounts.types.credit_card') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>

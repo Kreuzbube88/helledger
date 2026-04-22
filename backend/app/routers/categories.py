@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, date as date_type
+from datetime import datetime, timezone, date as date_type, timedelta
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import extract, or_, func
@@ -154,6 +154,39 @@ async def get_soll_ist(
         return result
 
     return _build(None)
+
+
+@router.get("/expiring-soon")
+async def get_expiring_categories(
+    days: int = 30,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    hh_id = _require_active_hh(user)
+    today = date_type.today()
+    cutoff = today + timedelta(days=days)
+    rows = (
+        db.query(Category, ExpectedValue)
+        .join(ExpectedValue, ExpectedValue.category_id == Category.id)
+        .filter(
+            Category.household_id == hh_id,
+            Category.archived.is_(False),
+            ExpectedValue.valid_until.isnot(None),
+            ExpectedValue.valid_until >= today,
+            ExpectedValue.valid_until <= cutoff,
+        )
+        .all()
+    )
+    return [
+        {
+            "id": cat.id,
+            "name": cat.name,
+            "category_type": cat.category_type,
+            "valid_until": ev.valid_until.isoformat(),
+            "days_remaining": (ev.valid_until - today).days,
+        }
+        for cat, ev in rows
+    ]
 
 
 @router.get("/{category_id}", response_model=CategoryResponse)
