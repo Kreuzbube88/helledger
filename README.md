@@ -9,7 +9,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/status-active-brightgreen" alt="Status">
   <img src="https://img.shields.io/badge/python-%3E%3D3.12-blue" alt="Python">
-  <img src="https://img.shields.io/github/license/Kreuzbube88/helledger" alt="License">
+  <img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/platform-Unraid-orange" alt="Platform">
 </p>
 
@@ -115,4 +115,4 @@ All SMTP and OIDC configuration lives in the Admin UI and is stored in the datab
 
 ## License
 
-Apache 2.0 © HEL*Apps
+GPL-3.0 © HEL*Apps
