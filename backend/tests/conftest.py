@@ -82,6 +82,9 @@ def registered_client(_shared_engine):
             "password": "securepassword1",
         })
         c.headers.update(auth_headers(r.json()["access_token"]))
+        # Register no longer auto-creates a household; wizard handles it in the UI
+        hh = c.post("/api/households", json={"name": "Test Household"}).json()
+        c.post(f"/api/households/{hh['id']}/activate", json={})
         yield c
     app.dependency_overrides.clear()
 
@@ -100,4 +103,6 @@ def second_user_client(_shared_engine, registered_client):
             "password": "securepassword1",
         })
         c.headers.update(auth_headers(r.json()["access_token"]))
+        hh = c.post("/api/households", json={"name": "User B Household"}).json()
+        c.post(f"/api/households/{hh['id']}/activate", json={})
         yield c

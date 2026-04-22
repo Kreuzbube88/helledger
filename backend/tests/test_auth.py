@@ -6,10 +6,11 @@ def test_register_first_user_is_admin(client):
         "email": "admin@example.com", "password": "securepassword1", "name": "Admin"
     })
     assert r.status_code == 201
-    body = r.json()
-    assert body["email"] == "admin@example.com"
-    assert body["role"] == "admin"
-    assert "password_hash" not in body
+    token = r.json()["access_token"]
+    me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me.json()["email"] == "admin@example.com"
+    assert me.json()["role"] == "admin"
+    assert "password_hash" not in me.json()
 
 
 def test_register_second_user_is_not_admin(client):
@@ -20,7 +21,9 @@ def test_register_second_user_is_not_admin(client):
         "email": "second@example.com", "password": "securepassword1", "name": "Second"
     })
     assert r.status_code == 201
-    assert r.json()["role"] == "user"
+    token = r.json()["access_token"]
+    me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me.json()["role"] == "user"
 
 
 def test_register_duplicate_email(client):
@@ -124,21 +127,23 @@ def test_logout_invalidates_refresh_token(registered):
     assert r.status_code == 401
 
 
-def test_register_creates_household(client):
+def test_register_no_household_until_wizard(client):
     r = client.post("/api/auth/register", json={
         "email": "h@example.com", "password": "securepassword1", "name": "H"
     })
     assert r.status_code == 201
-    assert r.json()["active_household_id"] is not None
-
-
-def test_login_me_has_active_household(client):
-    client.post("/api/auth/register", json={
-        "email": "h@example.com", "password": "securepassword1", "name": "H"
-    })
-    r = client.post("/api/auth/login", json={
-        "email": "h@example.com", "password": "securepassword1"
-    })
     token = r.json()["access_token"]
     me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
-    assert me.json()["active_household_id"] is not None
+    assert me.json()["active_household_id"] is None
+
+
+def test_login_me_active_household_after_creation(client):
+    r = client.post("/api/auth/register", json={
+        "email": "h@example.com", "password": "securepassword1", "name": "H"
+    })
+    token = r.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    hh = client.post("/api/households", json={"name": "My Home"}, headers=headers).json()
+    client.post(f"/api/households/{hh['id']}/activate", json={}, headers=headers)
+    me = client.get("/api/auth/me", headers=headers)
+    assert me.json()["active_household_id"] == hh["id"]

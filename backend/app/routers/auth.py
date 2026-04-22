@@ -45,25 +45,6 @@ async def register(body: RegisterRequest, response: Response, db: Session = Depe
     db.add(user)
     db.flush()
 
-    household_name = "Mein Haushalt" if user.language == "de" else "My Household"
-    now = datetime.now(timezone.utc)
-    household = Household(
-        name=household_name,
-        owner_id=user.id,
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(household)
-    db.flush()
-
-    db.add(HouseholdMember(
-        household_id=household.id,
-        user_id=user.id,
-        role="owner",
-        created_at=now,
-    ))
-    user.active_household_id = household.id
-
     raw_refresh, refresh_hash = create_refresh_token()
     expires = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     db.add(RefreshToken(

@@ -87,12 +87,13 @@ onMounted(loadHouseholds)
   <aside
     class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 z-40"
     :class="theme.isDark
-      ? 'bg-[#05080f]/90 backdrop-blur-2xl border-r border-white/[0.06]'
+      ? 'bg-[#060a14]/75 backdrop-blur-3xl border-r border-emerald-500/[0.08] sidebar-glow'
       : 'bg-white/95 backdrop-blur-2xl border-r border-gray-100 shadow-sm'"
   >
     <!-- Brand -->
-    <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b"
-         :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-100'">
+    <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b relative overflow-hidden"
+         :class="theme.isDark ? 'border-emerald-500/[0.08]' : 'border-gray-100'">
+      <div v-if="theme.isDark" class="absolute inset-0 bg-gradient-to-r from-emerald-500/[0.06] via-transparent to-transparent pointer-events-none" />
       <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0 logo-ring shadow-lg shadow-emerald-500/20">
         <img src="/favicon.png" class="w-full h-full object-cover" alt="HELLEDGER" />
       </div>
@@ -157,8 +158,9 @@ onMounted(loadHouseholds)
     </nav>
 
     <!-- User footer -->
-    <div class="shrink-0 p-4 border-t"
-         :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-100'">
+    <div class="shrink-0 p-4 border-t relative"
+         :class="theme.isDark ? 'border-emerald-500/[0.08]' : 'border-gray-100'">
+      <div v-if="theme.isDark" class="absolute inset-0 bg-gradient-to-t from-emerald-500/[0.04] to-transparent pointer-events-none" />
       <div class="flex items-center gap-3 mb-3 px-1">
         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0 shadow-sm">
           {{ userInitial }}

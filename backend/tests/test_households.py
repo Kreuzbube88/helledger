@@ -3,7 +3,7 @@ def test_list_households_returns_own(registered_client):
     assert r.status_code == 200
     data = r.json()
     assert len(data) == 1
-    assert data[0]["name"] in ("Mein Haushalt", "My Household")
+    assert data[0]["name"] == "Test Household"
 
 
 def test_create_household(registered_client):

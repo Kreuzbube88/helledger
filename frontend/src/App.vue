@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toaster } from 'vue-sonner'
 import AppNav from '@/components/AppNav.vue'
@@ -10,8 +10,15 @@ const route = useRoute()
 const auth = useAuthStore()
 
 const showNav = computed(() => !!route.meta?.requiresAuth && auth.isAuthenticated)
-const showWizard = computed(() => showNav.value && !!auth.user && !auth.user.active_household_id)
-function onWizardDone() { auth.fetchUser() }
+
+const wizardActive = ref(false)
+watchEffect(() => {
+  if (showNav.value && auth.user && !auth.user.active_household_id) {
+    wizardActive.value = true
+  }
+})
+const showWizard = computed(() => showNav.value && wizardActive.value)
+function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
 </script>
 
 <template>
