@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <strong>Self-Hosted Household Finance Tracker for Homelab</strong>
+  <strong>Self-Hosted Household Budget Ledger for Homelab</strong>
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 
 ---
 
-HELLEDGER is a self-hosted household finance tracker built for homelab enthusiasts. It runs as a single Docker container, stores everything in a local SQLite database, and gives you full control over your financial data — no cloud dependency, no subscription, works offline as a PWA.
+HELLEDGER is a self-hosted household budget ledger built for homelab enthusiasts. It lets you manage multiple accounts and households, track income and expenses by category, and compare your planned budget (Soll) against actual spending (Ist) — month by month and year by year. Everything runs in a single Docker container with a local SQLite database. No cloud, no subscription, full data ownership.
 
 > ⚠️ HELLEDGER was built entirely with AI (Claude.ai). It is not designed for public internet exposure and should only be used within a local network / homelab.
 
