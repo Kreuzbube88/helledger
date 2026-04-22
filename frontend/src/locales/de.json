@@ -27,7 +27,14 @@
     "switchToLogin": "Anmelden",
     "ssoLogin": "Login mit SSO",
     "orContinueWith": "oder weiter mit",
-    "redirecting": "Weiterleitung..."
+    "redirecting": "Weiterleitung...",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+    "passwordTooShort": "Das Passwort muss mindestens 12 Zeichen lang sein.",
+    "rememberMe": "Angemeldet bleiben",
+    "setupTitle": "Admin-Konto erstellen",
+    "setupDescription": "Ersteinrichtung: Erstelle das erste Administrator-Konto.",
+    "setupCreate": "Konto erstellen"
   },
   "errors": {
     "email_taken": "Diese E-Mail-Adresse ist bereits vergeben.",

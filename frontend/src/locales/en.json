@@ -27,7 +27,14 @@
     "switchToLogin": "Sign in",
     "ssoLogin": "Login with SSO",
     "orContinueWith": "or continue with",
-    "redirecting": "Redirecting..."
+    "redirecting": "Redirecting...",
+    "confirmPassword": "Confirm password",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordTooShort": "Password must be at least 12 characters.",
+    "rememberMe": "Stay signed in",
+    "setupTitle": "Create Admin Account",
+    "setupDescription": "First-time setup: create the administrator account.",
+    "setupCreate": "Create account"
   },
   "errors": {
     "email_taken": "This email address is already taken.",

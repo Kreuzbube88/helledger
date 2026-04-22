@@ -21,8 +21,13 @@ from app.services.email import send_email, _build_reset_email
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest, db: Session = Depends(get_db)):
+@router.get("/setup-status")
+def setup_status(db: Session = Depends(get_db)):
+    return {"needs_setup": db.query(User).count() == 0}
+
+
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+async def register(body: RegisterRequest, response: Response, db: Session = Depends(get_db)):
     if not settings.ALLOW_REGISTRATION:
         raise HTTPException(status_code=403, detail="registration_disabled")
     if db.query(User).filter(User.email == body.email).first():
@@ -38,7 +43,7 @@ async def register(body: RegisterRequest, db: Session = Depends(get_db)):
         created_at=datetime.now(timezone.utc),
     )
     db.add(user)
-    db.flush()  # get user.id without committing
+    db.flush()
 
     household_name = "Mein Haushalt" if user.language == "de" else "My Household"
     now = datetime.now(timezone.utc)
@@ -49,7 +54,7 @@ async def register(body: RegisterRequest, db: Session = Depends(get_db)):
         updated_at=now,
     )
     db.add(household)
-    db.flush()  # get household.id
+    db.flush()
 
     db.add(HouseholdMember(
         household_id=household.id,
@@ -58,9 +63,26 @@ async def register(body: RegisterRequest, db: Session = Depends(get_db)):
         created_at=now,
     ))
     user.active_household_id = household.id
+
+    raw_refresh, refresh_hash = create_refresh_token()
+    expires = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    db.add(RefreshToken(
+        user_id=user.id,
+        token_hash=refresh_hash,
+        expires_at=expires,
+        created_at=datetime.now(timezone.utc),
+    ))
     db.commit()
     db.refresh(user)
-    return user
+    response.set_cookie(
+        key="refresh_token",
+        value=raw_refresh,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 86400,
+    )
+    return TokenResponse(access_token=create_access_token(user.id))
 
 
 @router.post("/login", response_model=TokenResponse)

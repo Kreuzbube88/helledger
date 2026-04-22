@@ -19,12 +19,16 @@ const auth = useAuthStore()
 const activeTab = ref(route.path === '/register' ? 'register' : 'login')
 const loading = ref(false)
 const oidcEnabled = ref(false)
+const needsSetup = ref(false)
 
 onMounted(async () => {
   try {
-    const r = await fetch('/api/auth/oidc/enabled')
-    const data = await r.json()
-    oidcEnabled.value = data.enabled
+    const [oidcRes, setupRes] = await Promise.all([
+      fetch('/api/auth/oidc/enabled'),
+      fetch('/api/auth/setup-status'),
+    ])
+    oidcEnabled.value = (await oidcRes.json()).enabled
+    needsSetup.value = (await setupRes.json()).needs_setup
   } catch {}
 })
 
@@ -32,13 +36,25 @@ function loginWithOidc() {
   window.location.href = '/api/auth/oidc/login'
 }
 
-const loginForm = ref({ email: '', password: '' })
-const registerForm = ref({ name: '', email: '', password: '' })
+const loginForm = ref({ email: '', password: '', rememberMe: true })
+const registerForm = ref({ name: '', email: '', password: '', confirmPassword: '' })
+
+function validateRegister() {
+  if (registerForm.value.password.length < 12) {
+    toast.error(t('auth.passwordTooShort'))
+    return false
+  }
+  if (registerForm.value.password !== registerForm.value.confirmPassword) {
+    toast.error(t('auth.passwordMismatch'))
+    return false
+  }
+  return true
+}
 
 async function handleLogin() {
   loading.value = true
   try {
-    await auth.login(loginForm.value.email, loginForm.value.password)
+    await auth.login(loginForm.value.email, loginForm.value.password, loginForm.value.rememberMe)
     router.push('/dashboard')
   } catch (err) {
     const detail = err?.detail || ''
@@ -52,6 +68,7 @@ async function handleLogin() {
 }
 
 async function handleRegister() {
+  if (!validateRegister()) return
   loading.value = true
   try {
     await auth.register(registerForm.value.name, registerForm.value.email, registerForm.value.password)
@@ -76,7 +93,50 @@ async function handleRegister() {
         <p class="text-sm text-muted-foreground mt-1">{{ t('app.tagline') }}</p>
       </div>
 
-      <Tabs v-model="activeTab">
+      <!-- First-time setup: no users exist yet -->
+      <Card v-if="needsSetup">
+        <CardHeader>
+          <CardTitle>{{ t('auth.setupTitle') }}</CardTitle>
+          <CardDescription>{{ t('auth.setupDescription') }}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form @submit.prevent="handleRegister" class="space-y-4">
+            <div class="space-y-1">
+              <Label>{{ t('auth.name') }}</Label>
+              <Input v-model="registerForm.name" type="text" required autocomplete="name" />
+            </div>
+            <div class="space-y-1">
+              <Label>{{ t('auth.email') }}</Label>
+              <Input v-model="registerForm.email" type="email" required autocomplete="email" />
+            </div>
+            <div class="space-y-1">
+              <Label>{{ t('auth.password') }}</Label>
+              <Input
+                v-model="registerForm.password"
+                type="password"
+                required
+                autocomplete="new-password"
+                :placeholder="t('auth.passwordHint')"
+              />
+            </div>
+            <div class="space-y-1">
+              <Label>{{ t('auth.confirmPassword') }}</Label>
+              <Input
+                v-model="registerForm.confirmPassword"
+                type="password"
+                required
+                autocomplete="new-password"
+              />
+            </div>
+            <Button type="submit" class="w-full" :disabled="loading">
+              {{ t('auth.setupCreate') }}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <!-- Normal login / register tabs -->
+      <Tabs v-else v-model="activeTab">
         <TabsList class="w-full">
           <TabsTrigger value="login" class="flex-1">{{ t('auth.login') }}</TabsTrigger>
           <TabsTrigger value="register" class="flex-1">{{ t('auth.register') }}</TabsTrigger>
@@ -91,12 +151,7 @@ async function handleRegister() {
               <form @submit.prevent="handleLogin" class="space-y-4">
                 <div class="space-y-1">
                   <Label>{{ t('auth.email') }}</Label>
-                  <Input
-                    v-model="loginForm.email"
-                    type="email"
-                    required
-                    autocomplete="email"
-                  />
+                  <Input v-model="loginForm.email" type="email" required autocomplete="email" />
                 </div>
                 <div class="space-y-1">
                   <Label>{{ t('auth.password') }}</Label>
@@ -106,6 +161,17 @@ async function handleRegister() {
                     required
                     autocomplete="current-password"
                   />
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    id="rememberMe"
+                    type="checkbox"
+                    v-model="loginForm.rememberMe"
+                    class="h-4 w-4 rounded border-input accent-primary cursor-pointer"
+                  />
+                  <label for="rememberMe" class="text-sm cursor-pointer select-none">
+                    {{ t('auth.rememberMe') }}
+                  </label>
                 </div>
                 <Button type="submit" class="w-full" :disabled="loading">
                   {{ t('auth.login') }}
@@ -131,21 +197,11 @@ async function handleRegister() {
               <form @submit.prevent="handleRegister" class="space-y-4">
                 <div class="space-y-1">
                   <Label>{{ t('auth.name') }}</Label>
-                  <Input
-                    v-model="registerForm.name"
-                    type="text"
-                    required
-                    autocomplete="name"
-                  />
+                  <Input v-model="registerForm.name" type="text" required autocomplete="name" />
                 </div>
                 <div class="space-y-1">
                   <Label>{{ t('auth.email') }}</Label>
-                  <Input
-                    v-model="registerForm.email"
-                    type="email"
-                    required
-                    autocomplete="email"
-                  />
+                  <Input v-model="registerForm.email" type="email" required autocomplete="email" />
                 </div>
                 <div class="space-y-1">
                   <Label>{{ t('auth.password') }}</Label>
@@ -155,6 +211,15 @@ async function handleRegister() {
                     required
                     autocomplete="new-password"
                     :placeholder="t('auth.passwordHint')"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <Label>{{ t('auth.confirmPassword') }}</Label>
+                  <Input
+                    v-model="registerForm.confirmPassword"
+                    type="password"
+                    required
+                    autocomplete="new-password"
                   />
                 </div>
                 <Button type="submit" class="w-full" :disabled="loading">

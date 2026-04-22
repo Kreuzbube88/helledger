@@ -4,20 +4,33 @@ import { ref, computed } from 'vue'
 const TOKEN_KEY = 'helledger_token'
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem(TOKEN_KEY))
+  const token = ref(localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY))
   const user = ref(null)
 
   const isAuthenticated = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
 
-  function setToken(newToken) {
+  function setToken(newToken, remember = true) {
     token.value = newToken
-    newToken
-      ? localStorage.setItem(TOKEN_KEY, newToken)
-      : localStorage.removeItem(TOKEN_KEY)
+    if (newToken) {
+      if (remember) {
+        localStorage.setItem(TOKEN_KEY, newToken)
+        sessionStorage.removeItem(TOKEN_KEY)
+      } else {
+        sessionStorage.setItem(TOKEN_KEY, newToken)
+        localStorage.removeItem(TOKEN_KEY)
+      }
+    } else {
+      localStorage.removeItem(TOKEN_KEY)
+      sessionStorage.removeItem(TOKEN_KEY)
+    }
   }
 
-  async function login(email, password) {
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY)
+  }
+
+  async function login(email, password, remember = true) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -29,7 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
       throw err
     }
     const { access_token } = await res.json()
-    setToken(access_token)
+    setToken(access_token, remember)
     await fetchUser()
   }
 
@@ -45,12 +58,12 @@ export const useAuthStore = defineStore('auth', () => {
       throw err
     }
     const { access_token } = await res.json()
-    setToken(access_token)
+    setToken(access_token, true)
     await fetchUser()
   }
 
   async function fetchUser() {
-    const t = localStorage.getItem(TOKEN_KEY)
+    const t = getToken()
     if (!t) return
     const res = await fetch('/api/auth/me', {
       headers: { Authorization: `Bearer ${t}` },
