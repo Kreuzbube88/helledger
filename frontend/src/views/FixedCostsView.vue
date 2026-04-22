@@ -156,7 +156,7 @@ async function deactivate(fc) {
   const res = await api.delete(`/fixed-costs/${fc.id}`)
   if (res.ok) {
     await load()
-    toast.success(t('fixedCosts.confirmDeactivate'))
+    toast.success(t('fixedCosts.deactivated'))
   } else {
     toast.error(t('errors.generic'))
   }

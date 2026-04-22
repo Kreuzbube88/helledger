@@ -30,7 +30,7 @@ const flatCategories = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
 const editingTx = ref(null)
-const updateExpected = ref(false)
+
 const form = ref({
   transaction_type: 'expense',
   date: new Date().toISOString().slice(0, 10),
@@ -125,7 +125,7 @@ function openCreate() {
 function openEdit(tx) {
   editingId.value = tx.id
   editingTx.value = tx
-  updateExpected.value = !!tx.is_auto_generated
+
   form.value = {
     transaction_type: tx.transaction_type,
     date: tx.date,
@@ -164,21 +164,7 @@ async function save() {
     ? await api.patch(`/transactions/${editingId.value}`, body)
     : await api.post('/transactions', body)
   if (res.ok) {
-    // Update expected value if requested for auto-generated transactions
-    if (
-      editingId.value &&
-      editingTx.value?.is_auto_generated &&
-      updateExpected.value &&
-      body.category_id &&
-      body.amount !== Math.abs(parseFloat(editingTx.value.amount))
-    ) {
-      const firstOfMonth = form.value.date.slice(0, 7) + '-01'
-      await api.post('/expected-values', {
-        category_id: body.category_id,
-        amount: body.amount,
-        valid_from: firstOfMonth,
-      })
-    }
+
     showDialog.value = false
     await load()
     toast.success(t('transactions.save'))
@@ -370,10 +356,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
               </Select>
             </div>
           </template>
-          <div v-if="editingTx?.is_auto_generated && form.category_id && form.category_id !== '__none__'" class="flex items-center gap-2">
-            <input id="updateExpected" type="checkbox" v-model="updateExpected" class="h-4 w-4 rounded border-input accent-primary cursor-pointer" />
-            <label for="updateExpected" class="text-sm cursor-pointer select-none">{{ t('transactions.updateExpected') }}</label>
-          </div>
+
           <DialogFooter>
             <Button type="button" variant="outline" @click="showDialog = false">{{ t('transactions.cancel') }}</Button>
             <Button type="submit">{{ t('transactions.save') }}</Button>
