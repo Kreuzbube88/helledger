@@ -171,6 +171,7 @@ async def get_expiring_categories(
         .filter(
             Category.household_id == hh_id,
             Category.archived.is_(False),
+            ExpectedValue.household_id == hh_id,
             ExpectedValue.valid_until.isnot(None),
             ExpectedValue.valid_until >= today,
             ExpectedValue.valid_until <= cutoff,

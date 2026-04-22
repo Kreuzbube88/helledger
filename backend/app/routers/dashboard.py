@@ -194,8 +194,6 @@ def get_month_view(
     ).all()
     total_debt = 0.0
     for loan in active_loans:
-        if not loan.include_in_net_worth:
-            continue
         extra_payments = []
         monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
         stats = calc_stats(
@@ -241,7 +239,7 @@ def get_month_view(
         ).scalar() or 0.0
         monthly_expenses.append(float(exp))
     avg_expense = sum(monthly_expenses) / len(monthly_expenses) if monthly_expenses else 0.0
-    emergency_months = (liquid_balance / avg_expense) if avg_expense > 0 else 0.0
+    emergency_months = max(0.0, liquid_balance / avg_expense) if avg_expense > 0 else 0.0
 
     return MonthViewResponse(
         year=year,

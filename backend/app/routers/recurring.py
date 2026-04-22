@@ -138,9 +138,9 @@ async def trigger_due(
             )
             db.add(tx)
             count += 1
-        # advance next_date
-        months = MONTHS_MAP.get(tmpl.interval, 1)
-        tmpl.next_date = _add_months(tmpl.next_date, months)
+            # only advance next_date when a transaction was actually created
+            months = MONTHS_MAP.get(tmpl.interval, 1)
+            tmpl.next_date = _add_months(tmpl.next_date, months)
     db.commit()
     return {"status": "triggered", "count": count}
 
@@ -154,21 +154,20 @@ async def auto_book(
     today = date_type.today()
     first_of_month = date_type(today.year, today.month, 1)
 
-    # Idempotency check
-    existing = (
-        db.query(Transaction)
-        .filter(
-            Transaction.household_id == hh_id,
-            Transaction.is_auto_generated.is_(True),
-            Transaction.date == first_of_month,
-        )
-        .first()
-    )
-    if existing is not None:
-        return {"status": "already_booked"}
-
     now = datetime.now(timezone.utc)
     count = 0
+
+    def _already_booked(category_id: int) -> bool:
+        return (
+            db.query(Transaction)
+            .filter(
+                Transaction.household_id == hh_id,
+                Transaction.category_id == category_id,
+                Transaction.is_auto_generated.is_(True),
+                Transaction.date == first_of_month,
+            )
+            .first()
+        ) is not None
 
     # 1. Fixed-cost categories with default_account_id and active ExpectedValue
     fixed_cats = (
@@ -182,6 +181,8 @@ async def auto_book(
         .all()
     )
     for cat in fixed_cats:
+        if _already_booked(cat.id):
+            continue
         ev = (
             db.query(ExpectedValue)
             .filter(
@@ -226,6 +227,8 @@ async def auto_book(
     for loan in active_loans:
         cat = db.get(Category, loan.category_id)
         if cat is None or cat.default_account_id is None:
+            continue
+        if _already_booked(loan.category_id):
             continue
         tx = Transaction(
             household_id=hh_id,

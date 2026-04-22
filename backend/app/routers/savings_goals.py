@@ -22,6 +22,7 @@ def _calc_balance(account_id: int, hh_id: int, db: Session) -> float:
     tx_sum = (
         db.query(func.sum(Transaction.amount))
         .filter(
+            Transaction.household_id == hh_id,
             Transaction.account_id == account_id,
             Transaction.transaction_type.in_(["income", "expense", "transfer"]),
         )

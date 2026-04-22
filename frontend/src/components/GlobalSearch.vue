@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Search, X } from 'lucide-vue-next'
@@ -30,6 +30,8 @@ watch(query, (val) => {
 watch(() => props.open, (v) => {
   if (!v) { query.value = ''; results.value = [] }
 })
+
+onUnmounted(() => { if (debounceTimer) clearTimeout(debounceTimer) })
 
 function navigate(result) {
   const [year, month] = result.date.split('-')

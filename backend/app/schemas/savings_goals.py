@@ -38,5 +38,5 @@ class SavingsGoalResponse(BaseModel):
     model_config = {"from_attributes": True}
 
     @field_serializer("target_amount")
-    def serialize_target(self, v: Decimal) -> str:
-        return f"{v:.2f}"
+    def serialize_target(self, v: Decimal) -> float:
+        return float(v)
