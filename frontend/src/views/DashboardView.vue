@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Doughnut } from 'vue-chartjs'
@@ -30,6 +30,8 @@ const sollIst  = ref([])
 const balances = ref([])
 const loaded   = ref(false)
 const expiringCats = ref([])
+const monthlyReserve = ref(null)
+const reserveOpen = ref(false)
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, balance: 0 })
@@ -119,6 +121,11 @@ async function loadExpiring() {
   if (res.ok) expiringCats.value = await res.json()
 }
 
+async function loadMonthlyReserve() {
+  const res = await api.get('/recurring/monthly-reserve')
+  if (res.ok) monthlyReserve.value = await res.json()
+}
+
 async function load() {
   loaded.value = false
   const [sumRes, siRes, balRes] = await Promise.all([
@@ -146,7 +153,12 @@ function fmt(val) {
 const balancePositive = computed(() => display.balance >= 0)
 
 // Load once a household is active; also re-runs after wizard sets active_household_id
-watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring() } }, { immediate: true })
+watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpiring(); loadMonthlyReserve() } }, { immediate: true })
+
+onMounted(() => {
+  // fire-and-forget auto-book
+  api.post('/recurring/auto-book', {}).catch(() => {})
+})
 </script>
 
 <template>
@@ -297,6 +309,45 @@ watch(() => auth.user?.active_household_id, (id) => { if (id) { load(); loadExpi
         <p v-else class="text-sm text-muted-foreground text-center py-12">
           {{ t('dashboard.noData') }}
         </p>
+      </div>
+    </div>
+
+    <!-- ── Monthly reserve ─────────────────────────────────────────── -->
+    <div v-if="monthlyReserve && monthlyReserve.total > 0" class="anim-fade-up delay-300">
+      <div
+        class="rounded-2xl border overflow-hidden"
+        :class="theme.isDark
+          ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]'
+          : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <button
+          class="w-full px-5 py-4 flex items-center justify-between text-left"
+          @click="reserveOpen = !reserveOpen"
+        >
+          <span class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            {{ t('recurring.reserve') }}
+          </span>
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-bold tabular-nums">
+              {{ monthlyReserve.total.toFixed(2).replace('.', ',') }} € / {{ t('month.label', 'Monat') }}
+            </span>
+            <span class="text-muted-foreground text-xs">{{ reserveOpen ? '▲' : '▼' }}</span>
+          </div>
+        </button>
+        <div v-if="reserveOpen" class="border-t" :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-50'">
+          <div
+            v-for="item in monthlyReserve.items"
+            :key="item.name"
+            class="px-5 py-2.5 flex items-center justify-between text-sm border-b last:border-0"
+            :class="theme.isDark ? 'border-white/[0.03]' : 'border-gray-50'"
+          >
+            <span>{{ item.name }}</span>
+            <div class="flex gap-4 text-xs tabular-nums text-muted-foreground">
+              <span>{{ item.amount.toFixed(2).replace('.', ',') }} € / {{ t(`recurring.intervals.${item.interval}`) }}</span>
+              <span class="font-semibold text-foreground">= {{ item.monthly_equiv.toFixed(2).replace('.', ',') }} € / Mon.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -9,6 +9,7 @@ const routes = [
   { path: '/accounts', component: () => import('@/views/AccountsView.vue'), meta: { requiresAuth: true } },
   { path: '/loans', component: () => import('@/views/LoansView.vue'), meta: { requiresAuth: true } },
   { path: '/loans/:id', component: () => import('@/views/LoanDetailView.vue'), meta: { requiresAuth: true } },
+  { path: '/recurring', component: () => import('@/views/RecurringView.vue'), meta: { requiresAuth: true } },
   { path: '/categories', component: () => import('@/views/CategoriesView.vue'), meta: { requiresAuth: true } },
   { path: '/transactions', component: () => import('@/views/TransactionsView.vue'), meta: { requiresAuth: true } },
   { path: '/reports', component: () => import('@/views/ReportsView.vue'), meta: { requiresAuth: true } },

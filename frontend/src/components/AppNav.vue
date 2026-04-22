@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Wallet, Tag, ArrowLeftRight, BarChart3,
   CalendarDays, CalendarRange, TrendingUp, Upload, Settings,
   HardDrive, Shield, LogOut, MoreHorizontal, Sun, Moon, X,
-  ChevronDown, Landmark,
+  ChevronDown, Landmark, RefreshCw,
 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
@@ -32,6 +32,7 @@ const allNavItems = computed(() => {
     { key: 'transactions', path: '/transactions', icon: ArrowLeftRight },
     { key: 'accounts',     path: '/accounts',     icon: Wallet },
     { key: 'loans',        path: '/loans',        icon: Landmark },
+    { key: 'recurring',    path: '/recurring',    icon: RefreshCw },
     { key: 'categories',   path: '/categories',   icon: Tag },
     { key: 'reports',      path: '/reports',      icon: BarChart3 },
     { key: 'year',         path: '/year',         icon: CalendarDays },
