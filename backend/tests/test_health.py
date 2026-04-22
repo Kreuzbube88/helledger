@@ -1,4 +1,7 @@
 def test_health(client):
     r = client.get("/api/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "service": "helledger"}
+    data = r.json()
+    assert data["status"] == "ok"
+    assert data["service"] == "helledger"
+    assert "version" in data
