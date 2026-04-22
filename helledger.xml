@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>HELLEDGER</Name>
+  <Repository>ghcr.io/kreuzbube88/helledger:latest</Repository>
+  <Registry>https://ghcr.io/kreuzbube88/helledger</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Kreuzbube88/helledger/issues</Support>
+  <Project>https://github.com/Kreuzbube88/helledger</Project>
+  <ReadMe>https://github.com/Kreuzbube88/helledger/blob/main/README.md</ReadMe>
+  <Overview>HELLEDGER is a self-hosted, privacy-first household finance tracker. All data stays on your server in a local SQLite database — no cloud, no subscriptions.[br][br]
+[b]Features:[/b][br]
+[b]Transactions[/b] — Income and expense tracking with categories, accounts, and recurring entries[br]
+[b]Accounts[/b] — Multiple bank accounts per household[br]
+[b]Budget[/b] — Expected vs. actual comparison (Soll/Ist) per category and month[br]
+[b]Year View[/b] — Full-year category x month breakdown at a glance[br]
+[b]Month View[/b] — Detailed monthly Soll/Ist comparison with variance and savings rate[br]
+[b]Net Worth[/b] — Snapshot tracking of total assets and liabilities over time[br]
+[b]Excel Import/Export[/b] — Bulk transaction import and export to XLSX[br]
+[b]Backups[/b] — Automated scheduled backups[br]
+[b]Admin Panel[/b] — SMTP email notifications, OIDC single sign-on (Authentik, Keycloak), user management, registration control[br]
+[b]Multi-Household[/b] — Separate financial spaces; users can belong to multiple households[br]
+[b]PWA[/b] — Installable on desktop and mobile, works offline[br]
+[b]i18n[/b] — German (default) and English, per-user language preference[br]
+[b]Dark/Light Mode[/b] — Manual toggle[br][br]
+[b]Documentation:[/b] https://github.com/Kreuzbube88/helledger/tree/main/docs</Overview>
+  <Category>Productivity: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:3000]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/Kreuzbube88/helledger/main/helledger.xml</TemplateURL>
+  <Icon>https://github.com/Kreuzbube88/helledger/blob/main/frontend/public/favicon.png?raw=true</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled></DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Web UI Port" Target="3000" Default="3000" Mode="tcp"
+    Description="Port for the HELLEDGER web interface"
+    Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/helledger" Mode="rw"
+    Description="Database and persistent configuration storage"
+    Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/helledger</Config>
+  <Config Name="Backups" Target="/backups" Default="/mnt/user/appdata/helledger/backups" Mode="rw"
+    Description="Backup storage path"
+    Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/helledger/backups</Config>
+  <Config Name="SECRET_KEY" Target="SECRET_KEY" Default="" Mode=""
+    Description="Required: random secret for session encryption. Generate with: openssl rand -hex 32"
+    Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode=""
+    Description="Container timezone"
+    Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Berlin</Config>
+  <Config Name="DEFAULT_LANGUAGE" Target="DEFAULT_LANGUAGE" Default="de" Mode=""
+    Description="Default UI language (de or en)"
+    Type="Variable" Display="advanced" Required="false" Mask="false">de</Config>
+  <Config Name="DATABASE_PATH" Target="DATABASE_PATH" Default="/data/helledger.db" Mode=""
+    Description="Path to SQLite database file inside the container"
+    Type="Variable" Display="advanced" Required="false" Mask="false">/data/helledger.db</Config>
+  <Config Name="BACKUP_INTERVAL_HOURS" Target="BACKUP_INTERVAL_HOURS" Default="24" Mode=""
+    Description="Hours between automatic backups (0 to disable)"
+    Type="Variable" Display="advanced" Required="false" Mask="false">24</Config>
+  <Config Name="ALLOW_REGISTRATION" Target="ALLOW_REGISTRATION" Default="true" Mode=""
+    Description="Allow new user self-registration"
+    Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+</Container>
