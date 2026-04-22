@@ -7,6 +7,8 @@ import { toast } from 'vue-sonner'
 import {
   Check, Plus, Trash2, Building2, Wallet, CreditCard,
   ChevronRight, ChevronLeft, Sparkles,
+  LayoutDashboard, Receipt, CalendarDays, BarChart3,
+  Tag, RefreshCw, Landmark, LineChart, Target, MapPin,
 } from 'lucide-vue-next'
 
 const emit = defineEmits(['done'])
@@ -14,9 +16,116 @@ const { t, locale } = useI18n()
 const api = useApi()
 const auth = useAuthStore()
 
-// ── Steps: 0=welcome  1=household  2=accounts  3=categories  4=done ──
+// ── Steps: 0=welcome  1=household  2=accounts  3=categories  4=done  5+=tour ──
 const step = ref(0)
 const loading = ref(false)
+
+// ── Tour data ─────────────────────────────────────────────────────────
+const TOUR = [
+  {
+    icon: LayoutDashboard,
+    color: '#10b981',
+    nav: { de: 'Dashboard', en: 'Dashboard' },
+    title: { de: 'Dein Finanz-Cockpit', en: 'Your Finance Cockpit' },
+    bullets: [
+      { de: 'Aktuelle Monatsbilanz: Einnahmen, Ausgaben, Sparquote auf einen Blick', en: 'Current monthly balance: income, expenses, savings rate at a glance' },
+      { de: 'KPIs: Sparquote, Schuldenquote, Notgroschen in Monaten', en: 'KPIs: savings rate, debt-to-income, emergency fund in months' },
+      { de: 'Sparziele & Warnung bei ablaufenden Fixkosten', en: 'Savings goals & alerts for expiring fixed costs' },
+    ],
+  },
+  {
+    icon: Receipt,
+    color: '#6366f1',
+    nav: { de: 'Transaktionen', en: 'Transactions' },
+    title: { de: 'Buchungen erfassen', en: 'Record Transactions' },
+    bullets: [
+      { de: 'Einnahmen, Ausgaben und Umbuchungen manuell eintragen', en: 'Manually enter income, expenses, and transfers' },
+      { de: 'Monatlich blättern, nach Konto oder Kategorie filtern', en: 'Browse by month, filter by account or category' },
+      { de: 'CSV/OFX-Import für schnellen Massenimport aus dem Banking', en: 'CSV/OFX import for bulk import from your bank export' },
+    ],
+  },
+  {
+    icon: CalendarDays,
+    color: '#f59e0b',
+    nav: { de: 'Monatsübersicht', en: 'Month Overview' },
+    title: { de: 'Soll-Ist-Vergleich', en: 'Budget vs. Actual' },
+    bullets: [
+      { de: 'Für jede Kategorie: Geplant (Soll), Ist-Ausgaben und Differenz', en: 'Per category: planned (budget), actual spending, and difference' },
+      { de: 'Soll-Wert einfach anklicken → direkt bearbeiten, sofort gespeichert', en: 'Click any budget value → edit inline, saved immediately' },
+      { de: 'Summen je Abschnitt (Einnahmen / Fixkosten / Variable)', en: 'Totals per section (income / fixed / variable)' },
+    ],
+  },
+  {
+    icon: BarChart3,
+    color: '#8b5cf6',
+    nav: { de: 'Jahresübersicht', en: 'Year Overview' },
+    title: { de: '12-Monate auf einen Blick', en: '12 Months at a Glance' },
+    bullets: [
+      { de: 'Alle Kategorien als Tabelle über das gesamte Jahr', en: 'All categories as a table across the full year' },
+      { de: 'Vergangene Monate = echte Buchungen, Zukunft = Planwerte (kursiv)', en: 'Past months = real bookings, future = planned values (italic)' },
+      { de: 'Einnahmen grün, Ausgaben rot — auf einen Blick erkennbar', en: 'Income in green, expenses in red — recognizable at a glance' },
+    ],
+  },
+  {
+    icon: Tag,
+    color: '#ec4899',
+    nav: { de: 'Kategorien', en: 'Categories' },
+    title: { de: 'Deine Budgetstruktur', en: 'Your Budget Structure' },
+    bullets: [
+      { de: 'Drei Typen: Einnahmen, Fixkosten, Variable Ausgaben', en: 'Three types: income, fixed costs, variable expenses' },
+      { de: 'Unterkategorien möglich — z.B. "Wohnen → Miete, Strom, Wasser"', en: 'Sub-categories supported — e.g. "Housing → Rent, Electricity, Water"' },
+      { de: 'Bei Fixkosten: Ablaufdatum setzen wenn ein Vertrag endet', en: 'For fixed costs: set an expiry date when a contract ends' },
+    ],
+  },
+  {
+    icon: RefreshCw,
+    color: '#14b8a6',
+    nav: { de: 'Wiederk. Buchungen', en: 'Recurring' },
+    title: { de: 'Automatische Buchungen', en: 'Automatic Bookings' },
+    bullets: [
+      { de: 'Template anlegen: Name, Betrag, Konto, Kategorie, Intervall', en: 'Create a template: name, amount, account, category, interval' },
+      { de: 'Beim Dashboard-Aufruf werden fällige Templates automatisch gebucht', en: 'Due templates are booked automatically when opening the dashboard' },
+      { de: 'Monatliche Reserve für quartals-/jahresweise Kosten (z.B. Versicherung)', en: 'Monthly reserve for quarterly/annual costs (e.g. insurance)' },
+    ],
+  },
+  {
+    icon: Landmark,
+    color: '#f97316',
+    nav: { de: 'Kredite', en: 'Loans' },
+    title: { de: 'Kredite & Tilgung', en: 'Loans & Repayment' },
+    bullets: [
+      { de: 'Kredit anlegen: Betrag, Zinssatz, Rate — eines wird berechnet', en: 'Create a loan: amount, rate, payment — one gets computed automatically' },
+      { de: 'Konto wählen → monatliche Rate wird automatisch gebucht', en: 'Choose an account → monthly payment is booked automatically' },
+      { de: 'Sondertilgungen eintragen, Tilgungsplan als CSV exportieren', en: 'Add extra payments, export amortization schedule as CSV' },
+    ],
+  },
+  {
+    icon: LineChart,
+    color: '#3b82f6',
+    nav: { de: 'Berichte', en: 'Reports' },
+    title: { de: 'Auswertungen & Charts', en: 'Reports & Charts' },
+    bullets: [
+      { de: 'Ausgaben nach Kategorie (Donut), Trend (Balken), Soll-Ist (Querbalken)', en: 'Expenses by category (donut), trend (bar), budget vs. actual (horizontal bar)' },
+      { de: 'Kontostand-Verlauf für ein einzelnes Konto im Zeitraum', en: 'Balance history for a single account over a period' },
+      { de: 'Zeitraum frei wählen: Monat, Jahr oder individuell — CSV-Export', en: 'Flexible period: month, year, or custom range — CSV export' },
+    ],
+  },
+  {
+    icon: Target,
+    color: '#d946ef',
+    nav: { de: 'Sparziele', en: 'Goals' },
+    title: { de: 'Sparziele tracken', en: 'Track Savings Goals' },
+    bullets: [
+      { de: 'Ziel anlegen: Name, Zielbetrag, Zieldatum, verknüpftes Konto', en: 'Create a goal: name, target amount, target date, linked account' },
+      { de: 'Fortschritt wird live aus dem Kontostand berechnet', en: 'Progress is calculated live from the account balance' },
+      { de: 'Alle Ziele im Dashboard als Fortschrittsbalken sichtbar', en: 'All goals visible as progress bars in the dashboard' },
+    ],
+  },
+]
+
+const tourIdx = computed(() => Math.max(0, step.value - 5))
+const tourStep = computed(() => TOUR[tourIdx.value])
+const isTour = computed(() => step.value >= 5)
 
 // ── Step 1: Household ─────────────────────────────────────────────────
 const householdName = ref(`${auth.user?.name || 'Mein'}s Haushalt`)
@@ -138,13 +247,28 @@ async function next() {
 }
 
 function back() {
-  if (step.value > 0) step.value--
+  if (isTour.value) {
+    if (tourIdx.value === 0) { step.value = 4 } else { step.value-- }
+  } else if (step.value > 0) {
+    step.value--
+  }
+}
+
+function startTour() {
+  step.value = 5
+}
+
+function nextTour() {
+  if (tourIdx.value < TOUR.length - 1) {
+    step.value++
+  } else {
+    emit('done')
+  }
 }
 
 async function finish() {
   loading.value = true
   try {
-    // Create accounts
     let accountCount = 0
     for (const acc of accounts.value) {
       const res = await api.post('/accounts', {
@@ -156,7 +280,6 @@ async function finish() {
       if (res.ok) accountCount++
     }
 
-    // Create categories
     let catCount = 0
     for (const i of selectedCats.value) {
       const cat = DEFAULT_CATS[i]
@@ -182,6 +305,10 @@ function skipCategories() {
 function groupLabel(type) {
   return t(`categories.types.${type}`) || type
 }
+
+function loc(obj) {
+  return locale.value === 'de' ? obj.de : obj.en
+}
 </script>
 
 <template>
@@ -194,19 +321,39 @@ function groupLabel(type) {
       class="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border overflow-hidden shadow-2xl shadow-black/60"
       style="background: #09101f; border-color: rgba(255,255,255,0.08); max-height: 92dvh;"
     >
-      <!-- Top accent line -->
-      <div class="h-0.5 w-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-60" />
+      <!-- Top accent line — changes color in tour mode -->
+      <div
+        class="h-0.5 w-full transition-all duration-500"
+        :style="isTour
+          ? `background: linear-gradient(to right, transparent, ${tourStep.color}, transparent); opacity: 0.8`
+          : 'background: linear-gradient(to right, transparent, #10b981, transparent); opacity: 0.6'"
+      />
 
-      <!-- Step progress dots (steps 1–3) -->
+      <!-- Progress: setup dots (steps 1–3) -->
       <div v-if="step >= 1 && step <= 3" class="flex items-center justify-center gap-2 pt-5 pb-1">
         <div
           v-for="n in 3"
           :key="n"
           class="h-1.5 rounded-full transition-all duration-300"
-          :class="n <= step
-            ? 'bg-emerald-400 w-6'
-            : 'bg-white/15 w-3'"
+          :class="n <= step ? 'bg-emerald-400 w-6' : 'bg-white/15 w-3'"
         />
+      </div>
+
+      <!-- Progress: tour steps -->
+      <div v-if="isTour" class="flex items-center justify-between px-7 pt-5 pb-1">
+        <span class="text-xs text-muted-foreground font-medium">
+          {{ locale === 'de' ? 'Feature-Tour' : 'Feature Tour' }}
+        </span>
+        <div class="flex items-center gap-1.5">
+          <div
+            v-for="(_, i) in TOUR"
+            :key="i"
+            class="h-1 rounded-full transition-all duration-300"
+            :class="i <= tourIdx ? 'w-4' : 'w-1.5 bg-white/15'"
+            :style="i <= tourIdx ? `background: ${tourStep.color}; width: 1rem` : ''"
+          />
+        </div>
+        <span class="text-xs text-muted-foreground">{{ tourIdx + 1 }}/{{ TOUR.length }}</span>
       </div>
 
       <!-- Scrollable content area -->
@@ -222,7 +369,6 @@ function groupLabel(type) {
             <p class="text-sm text-muted-foreground leading-relaxed mb-8">
               {{ t('onboarding.welcomeDesc') }}
             </p>
-            <!-- Feature bullets -->
             <div class="space-y-3 text-left mb-8">
               <div v-for="bullet in ['onboarding.f1','onboarding.f2','onboarding.f3']" :key="bullet"
                    class="flex items-center gap-3">
@@ -307,7 +453,6 @@ function groupLabel(type) {
                   </button>
                 </div>
 
-                <!-- Account name -->
                 <input
                   v-model="acc.name"
                   type="text"
@@ -316,7 +461,6 @@ function groupLabel(type) {
                   :placeholder="t('onboarding.accountName')"
                 />
 
-                <!-- Type selector -->
                 <div class="grid grid-cols-3 gap-1.5">
                   <button
                     v-for="type in ACCOUNT_TYPES"
@@ -332,7 +476,6 @@ function groupLabel(type) {
                   </button>
                 </div>
 
-                <!-- Starting balance -->
                 <div class="flex items-center gap-2">
                   <input
                     v-model="acc.starting_balance"
@@ -347,7 +490,6 @@ function groupLabel(type) {
               </div>
             </div>
 
-            <!-- Add account -->
             <button
               @click="addAccount"
               class="w-full h-10 rounded-xl text-sm text-muted-foreground hover:text-emerald-400 transition-colors flex items-center justify-center gap-2 mb-6"
@@ -379,7 +521,6 @@ function groupLabel(type) {
             <h2 class="text-xl font-bold mb-1">{{ t('onboarding.categories') }}</h2>
             <p class="text-sm text-muted-foreground mb-4">{{ t('onboarding.categoriesDesc') }}</p>
 
-            <!-- Select all / none -->
             <div class="flex gap-2 mb-5">
               <button
                 @click="selectAllCats"
@@ -401,7 +542,6 @@ function groupLabel(type) {
               </span>
             </div>
 
-            <!-- Category groups -->
             <div class="space-y-5 mb-6">
               <div v-for="(type, key) in catsByType" :key="key">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
@@ -418,10 +558,7 @@ function groupLabel(type) {
                       : 'text-muted-foreground border-white/10 hover:border-white/20'"
                     :style="selectedCats.has(i) ? `background: ${cat.color}25; border-color: ${cat.color}60; color: ${cat.color}` : ''"
                   >
-                    <span
-                      class="w-2 h-2 rounded-full shrink-0"
-                      :style="`background: ${cat.color}`"
-                    />
+                    <span class="w-2 h-2 rounded-full shrink-0" :style="`background: ${cat.color}`" />
                     {{ catName(cat) }}
                   </button>
                 </div>
@@ -471,11 +608,109 @@ function groupLabel(type) {
               <span class="text-emerald-400 font-semibold">{{ summary.categories }}</span>
               {{ t('onboarding.summaryCategories') }}
             </p>
+
+            <!-- Tour CTA -->
+            <div class="rounded-2xl p-4 mb-5 text-left" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08)">
+              <p class="text-sm font-semibold mb-1">
+                {{ locale === 'de' ? '2-Minuten-Tour gefällig?' : '2-minute tour?' }}
+              </p>
+              <p class="text-xs text-muted-foreground leading-relaxed">
+                {{ locale === 'de'
+                  ? 'Wir zeigen dir kurz, wo was ist — 9 Funktionen, eine pro Slide.'
+                  : 'Let us show you where everything is — 9 features, one slide each.' }}
+              </p>
+            </div>
+
+            <button
+              @click="startTour"
+              class="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 mb-3"
+            >
+              <MapPin class="h-4 w-4" />
+              {{ locale === 'de' ? 'Tour starten' : 'Start tour' }}
+            </button>
             <button
               @click="emit('done')"
-              class="w-full h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-colors shadow-lg shadow-emerald-500/20"
+              class="w-full h-10 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
+              style="border: 1px solid rgba(255,255,255,0.08)"
             >
-              {{ t('onboarding.toDashboard') }}
+              {{ locale === 'de' ? 'Direkt zum Dashboard' : 'Go to Dashboard' }}
+            </button>
+          </div>
+
+          <!-- ══ Steps 5–13: Feature Tour ════════════════════════════ -->
+          <div v-else-if="isTour" :key="`tour-${tourIdx}`" class="px-7 pt-5 pb-7">
+
+            <!-- Icon -->
+            <div
+              class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 mx-auto shadow-lg"
+              :style="`background: ${tourStep.color}20; box-shadow: 0 8px 24px ${tourStep.color}25`"
+            >
+              <component :is="tourStep.icon" class="h-7 w-7" :style="`color: ${tourStep.color}`" />
+            </div>
+
+            <!-- Nav badge -->
+            <div class="flex justify-center mb-3">
+              <span
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wide"
+                :style="`background: ${tourStep.color}15; color: ${tourStep.color}; border: 1px solid ${tourStep.color}30`"
+              >
+                <MapPin class="h-3 w-3" />
+                {{ loc(tourStep.nav) }}
+              </span>
+            </div>
+
+            <!-- Title -->
+            <h2 class="text-xl font-bold text-center mb-5">{{ loc(tourStep.title) }}</h2>
+
+            <!-- Bullets -->
+            <div class="space-y-3 mb-8">
+              <div
+                v-for="(bullet, bi) in tourStep.bullets"
+                :key="bi"
+                class="flex items-start gap-3"
+              >
+                <div
+                  class="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                  :style="`background: ${tourStep.color}20`"
+                >
+                  <Check class="h-3 w-3" :style="`color: ${tourStep.color}`" />
+                </div>
+                <p class="text-sm text-muted-foreground leading-relaxed">{{ loc(bullet) }}</p>
+              </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-3">
+              <button
+                @click="back"
+                class="h-11 px-4 rounded-xl text-sm text-muted-foreground transition-colors flex items-center gap-1.5 shrink-0"
+                style="background: rgba(255,255,255,0.05)"
+              >
+                <ChevronLeft class="h-4 w-4" />
+              </button>
+              <button
+                @click="nextTour"
+                class="flex-1 h-11 rounded-xl text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg"
+                :style="`background: ${tourStep.color}; box-shadow: 0 4px 16px ${tourStep.color}35`"
+              >
+                <template v-if="tourIdx < TOUR.length - 1">
+                  {{ locale === 'de' ? 'Weiter' : 'Next' }}
+                  <ChevronRight class="h-4 w-4" />
+                </template>
+                <template v-else>
+                  <Sparkles class="h-4 w-4" />
+                  {{ locale === 'de' ? 'Los geht\'s!' : 'Let\'s go!' }}
+                </template>
+              </button>
+            </div>
+
+            <!-- Skip tour link -->
+            <button
+              v-if="tourIdx < TOUR.length - 1"
+              @click="emit('done')"
+              class="w-full mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
+            >
+              {{ locale === 'de' ? 'Tour überspringen' : 'Skip tour' }}
             </button>
           </div>
 
