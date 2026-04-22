@@ -116,6 +116,30 @@ def get_year_view(
 
     monthly_balance = [monthly_income[i] - monthly_expense[i] for i in range(12)]
 
+    # Pre-fetch all EVs for the household valid within this year (single query)
+    year_start = date_type(year, 1, 1)
+    year_end = date_type(year, 12, 31)
+    all_evs = (
+        db.query(ExpectedValue)
+        .filter(
+            ExpectedValue.household_id == hh_id,
+            ExpectedValue.valid_from <= year_end,
+            or_(ExpectedValue.valid_until.is_(None), ExpectedValue.valid_until >= year_start),
+        )
+        .order_by(ExpectedValue.valid_from.desc())
+        .all()
+    )
+
+    def _ev_for(cat_id: int, first_of_month: date_type):
+        for ev in all_evs:
+            if (
+                ev.category_id == cat_id
+                and ev.valid_from <= first_of_month
+                and (ev.valid_until is None or ev.valid_until >= first_of_month)
+            ):
+                return ev
+        return None
+
     category_rows = []
     for cat in cats:
         months_vals = []
@@ -128,20 +152,7 @@ def get_year_view(
                 is_planned_flags.append(False)
             else:
                 first_of_month = date_type(year, m, 1)
-                ev = (
-                    db.query(ExpectedValue)
-                    .filter(
-                        ExpectedValue.household_id == hh_id,
-                        ExpectedValue.category_id == cat.id,
-                        ExpectedValue.valid_from <= first_of_month,
-                        or_(
-                            ExpectedValue.valid_until.is_(None),
-                            ExpectedValue.valid_until >= first_of_month,
-                        ),
-                    )
-                    .order_by(ExpectedValue.valid_from.desc())
-                    .first()
-                )
+                ev = _ev_for(cat.id, first_of_month)
                 soll = float(ev.amount) if ev else template_soll.get(cat.id, 0.0)
                 months_vals.append(soll)
                 is_planned_flags.append(True)

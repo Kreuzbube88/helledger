@@ -141,11 +141,6 @@ const ACCOUNT_TYPES = [
   { value: 'credit_card', labelDe: 'Kreditkarte', labelEn: 'Credit Card', icon: CreditCard },
 ]
 
-function accountTypeLabel(v) {
-  const t = ACCOUNT_TYPES.find((x) => x.value === v)
-  return t ? (locale.value === 'de' ? t.labelDe : t.labelEn) : v
-}
-
 function addAccount() {
   accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR' })
 }
