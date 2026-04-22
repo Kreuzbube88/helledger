@@ -46,10 +46,15 @@ async def lifespan(app: FastAPI):
     try:
         if not settings.TESTING:
             logger.info("Running database migrations")
+            print("DEBUG 1: migrations starting", flush=True)
             _run_migrations()
+            print("DEBUG 2: migrations done", flush=True)
             asyncio.get_event_loop().create_task(_backup_loop())
+            print("DEBUG 3: backup task created", flush=True)
         logger.info("HELLEDGER started")
-    except BaseException:
+        print("DEBUG 4: startup complete", flush=True)
+    except BaseException as exc:
+        print(f"DEBUG ERROR: {exc!r}", flush=True)
         logger.exception("Startup failed")
         sys.stderr.flush()
         raise
