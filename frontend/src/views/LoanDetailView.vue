@@ -33,6 +33,7 @@ const amortization = ref([])
 const extraPayments = ref([])
 const stats = ref(null)
 const accounts = ref([])
+const baselineAmortization = ref([])
 const activeTab = ref('overview')
 
 const editForm = ref({
@@ -127,6 +128,8 @@ async function load() {
   ])
   if (loanRes.ok) loan.value = await loanRes.json()
   if (amoRes.ok) amortization.value = await amoRes.json()
+  const baselineRes = await api.get(`/loans/${loanId}/amortization/baseline`)
+  if (baselineRes.ok) baselineAmortization.value = await baselineRes.json()
   if (epsRes.ok) extraPayments.value = await epsRes.json()
   if (statsRes.ok) stats.value = await statsRes.json()
   if (accRes.ok) accounts.value = await accRes.json()
@@ -135,27 +138,46 @@ async function load() {
 // Chart: balance over time
 const balanceChartData = computed(() => {
   const rows = amortization.value
+  if (!rows.length) return { labels: [], datasets: [] }
   const step = Math.max(1, Math.floor(rows.length / 60))
   const sampled = rows.filter((_, i) => i % step === 0 || i === rows.length - 1)
-  return {
-    labels: sampled.map(r => r.date.slice(0, 7)),
-    datasets: [{
-      label: t('loans.currentBalance'),
-      data: sampled.map(r => r.balance),
-      borderColor: '#6366f1',
-      backgroundColor: 'rgba(99,102,241,0.1)',
-      fill: true,
+
+  const datasets = [{
+    label: t('loans.currentBalance'),
+    data: sampled.map(r => r.balance),
+    borderColor: '#6366f1',
+    backgroundColor: 'rgba(99,102,241,0.1)',
+    fill: true,
+    tension: 0.3,
+    pointRadius: 0,
+  }]
+
+  if (extraPayments.value.length > 0 && baselineAmortization.value.length > 0) {
+    const bRows = baselineAmortization.value
+    const bStep = Math.max(1, Math.floor(bRows.length / 60))
+    const bSampled = bRows.filter((_, i) => i % bStep === 0 || i === bRows.length - 1)
+    datasets.push({
+      label: t('loans.baselineBalance'),
+      data: bSampled.map(r => r.balance),
+      borderColor: '#94a3b8',
+      borderDash: [5, 5],
+      backgroundColor: 'transparent',
       tension: 0.3,
       pointRadius: 0,
-    }],
+    })
+  }
+
+  return {
+    labels: sampled.map(r => r.date.slice(0, 7)),
+    datasets,
   }
 })
 
-const lineOptions = {
+const lineOptions = computed(() => ({
   responsive: true,
-  plugins: { legend: { display: false } },
+  plugins: { legend: { display: extraPayments.value.length > 0 && baselineAmortization.value.length > 0 } },
   scales: { x: { ticks: { maxTicksLimit: 10 } }, y: { beginAtZero: true } },
-}
+}))
 
 async function addExtraPayment() {
   const intervalMonths = parseInt(epForm.value.interval_months) || 0
