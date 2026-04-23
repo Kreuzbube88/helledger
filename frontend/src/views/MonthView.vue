@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -12,6 +12,7 @@ const now = new Date()
 const year = ref(now.getFullYear())
 const month = ref(now.getMonth() + 1)
 const data = ref(null)
+const balances = ref([])
 
 function prevMonth() {
   if (month.value === 1) { month.value = 12; year.value-- }
@@ -25,7 +26,17 @@ function nextMonth() {
 async function load() {
   const r = await api.get(`/dashboard/month?year=${year.value}&month=${month.value}`)
   if (r.ok) data.value = await r.json()
+  const balRes = await api.get('/accounts/balances')
+  if (balRes.ok) balances.value = await balRes.json()
 }
+
+const fixedCostsBalance = computed(() =>
+  balances.value.filter(b => b.account_role === 'fixed_costs').reduce((s, b) => s + b.balance, 0)
+)
+const variableBalance = computed(() =>
+  balances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + b.balance, 0)
+)
+const totalAvailable = computed(() => fixedCostsBalance.value + variableBalance.value)
 
 watch([year, month], load)
 onMounted(load)
@@ -87,11 +98,39 @@ onMounted(load)
             </div>
             <div class="flex-1 text-center px-4 space-y-1">
               <p class="text-sm text-muted-foreground">{{ $t('monthView.savingsRate') }}</p>
-              <p class="text-xl font-bold text-indigo-500">{{ data.summary.savings_rate.toFixed(1) }}%</p>
+              <p class="text-xl font-bold text-indigo-500">{{ data.summary.real_savings_rate.toFixed(1) }}%</p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      <section v-if="data?.savings_rows?.length" class="mt-4">
+        <h3 class="text-sm font-semibold text-muted-foreground mb-2">{{ t('monthView.savings') }}</h3>
+        <div
+          v-for="row in data.savings_rows"
+          :key="row.date + row.description"
+          class="flex justify-between items-center py-1 border-b border-border/50"
+        >
+          <span class="text-sm">{{ row.description }}</span>
+          <span class="text-sm text-muted-foreground">{{ row.date }}</span>
+          <span class="text-sm font-medium text-emerald-400">{{ row.amount.toFixed(2) }}</span>
+        </div>
+      </section>
+
+      <div class="grid grid-cols-3 gap-3 mt-4">
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">{{ t('monthView.availableFixed') }}</p>
+          <p class="text-lg font-bold">{{ fixedCostsBalance.toFixed(2) }}</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">{{ t('monthView.availableVariable') }}</p>
+          <p class="text-lg font-bold">{{ variableBalance.toFixed(2) }}</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-4">
+          <p class="text-xs text-muted-foreground">{{ t('monthView.availableTotal') }}</p>
+          <p class="text-lg font-bold">{{ totalAvailable.toFixed(2) }}</p>
+        </div>
+      </div>
     </template>
   </div>
 </template>
