@@ -188,7 +188,8 @@
     "chart": {
       "expensesByCategory": "Ausgaben nach Kategorie",
       "monthlyTrend": "Einnahmen & Ausgaben",
-      "balanceHistory": "Kontostand-Verlauf"
+      "balanceHistory": "Kontostand-Verlauf",
+      "savings": "Sparen"
     },
     "export": { "png": "PNG", "csv": "CSV", "all": "Alle Charts (PNG)" },
     "noData": "Keine Daten für diesen Zeitraum",
@@ -226,6 +227,7 @@
   "yearView": {
     "title": "Jahresübersicht",
     "category": "Kategorie",
+    "savings": "Sparen",
     "noData": "Keine Daten für dieses Jahr"
   },
   "monthView": {
@@ -237,6 +239,10 @@
     "savingsRate": "Sparquote",
     "balance": "Bilanz",
     "gesamt": "Gesamt",
+    "savings": "Sparen",
+    "availableFixed": "Fixkosten-Konto",
+    "availableVariable": "Variables Konto",
+    "availableTotal": "Gesamt verfügbar",
     "months": ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
     "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
   },
@@ -342,6 +348,15 @@
     "placeholder": "Transaktionen suchen…",
     "noResults": "Keine Ergebnisse gefunden."
   },
+  "forecast": {
+    "title": "Prognose",
+    "subtitle": "12-Monats-Vorschau auf Basis der Fixkosten",
+    "income": "Einnahmen",
+    "fixedExpenses": "Fixkosten",
+    "savingsTransfers": "Sparen",
+    "totalBalance": "Gesamtvermögen",
+    "noData": "Keine Fixkosten vorhanden"
+  },
   "loans": {
     "title": "Kredite",
     "add": "Kredit hinzufügen",
@@ -365,7 +380,8 @@
     "propertyValue": "Aktueller Immobilienwert (€)",
     "fixedRateUntil": "Zinsbindung bis",
     "landCharge": "Grundschuld (€)",
-    "currentBalance": "Aktuelle Restschuld",
+    "baselineBalance": "Ohne Sondertilgung",
+    "currentBalance": "Aktueller Saldo",
     "payoffDate": "Voraussichtliches Ende",
     "monthlyRate": "Monatliche Rate",
     "interestRateLabel": "Zinssatz",

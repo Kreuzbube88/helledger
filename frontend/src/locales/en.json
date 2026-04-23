@@ -188,7 +188,8 @@
     "chart": {
       "expensesByCategory": "Expenses by Category",
       "monthlyTrend": "Income & Expenses",
-      "balanceHistory": "Balance History"
+      "balanceHistory": "Balance History",
+      "savings": "Savings"
     },
     "export": { "png": "PNG", "csv": "CSV", "all": "All Charts (PNG)" },
     "noData": "No data for this period",
@@ -226,6 +227,7 @@
   "yearView": {
     "title": "Year Overview",
     "category": "Category",
+    "savings": "Savings",
     "noData": "No data for this year"
   },
   "monthView": {
@@ -237,6 +239,10 @@
     "savingsRate": "Savings Rate",
     "balance": "Balance",
     "gesamt": "Total",
+    "savings": "Savings",
+    "availableFixed": "Fixed Costs Account",
+    "availableVariable": "Variable Account",
+    "availableTotal": "Total Available",
     "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"]
   },
@@ -342,6 +348,15 @@
     "placeholder": "Search transactions…",
     "noResults": "No results found."
   },
+  "forecast": {
+    "title": "Forecast",
+    "subtitle": "12-month projection based on fixed costs",
+    "income": "Income",
+    "fixedExpenses": "Fixed Costs",
+    "savingsTransfers": "Savings",
+    "totalBalance": "Total Balance",
+    "noData": "No fixed costs configured"
+  },
   "loans": {
     "title": "Loans",
     "add": "Add Loan",
@@ -365,6 +380,7 @@
     "propertyValue": "Current Property Value (€)",
     "fixedRateUntil": "Fixed Rate Until",
     "landCharge": "Land Charge (€)",
+    "baselineBalance": "Without Extra Payments",
     "currentBalance": "Current Balance",
     "payoffDate": "Estimated Payoff",
     "monthlyRate": "Monthly Payment",
