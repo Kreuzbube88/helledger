@@ -356,8 +356,6 @@
     "subtitle": "12-month projection based on fixed costs",
     "income": "Income",
     "fixedExpenses": "Fixed Costs",
-    "variableExpenses": "Variable Expenses",
-    "totalExpenses": "Total Expenses",
     "savings": "Savings Transfers",
     "savingsTotal": "Total Saved",
     "noData": "No fixed costs configured"

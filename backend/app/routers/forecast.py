@@ -109,8 +109,6 @@ def get_forecast(
             month=f"{target_year}-{target_month:02d}",
             income=month_income,
             fixed_expenses=month_fixed_expenses,
-            variable_expenses=0.0,
-            total_expenses=month_fixed_expenses,
             savings=month_savings,
             savings_total=savings_total,
             accounts=account_snapshots,

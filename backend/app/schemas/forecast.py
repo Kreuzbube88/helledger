@@ -12,8 +12,6 @@ class ForecastMonth(BaseModel):
     month: str
     income: float
     fixed_expenses: float
-    variable_expenses: float
-    total_expenses: float
     savings: float
     savings_total: float
     accounts: list[AccountForecastBalance]

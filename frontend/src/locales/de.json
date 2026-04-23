@@ -356,8 +356,6 @@
     "subtitle": "12-Monats-Vorschau auf Basis der Fixkosten",
     "income": "Einnahmen",
     "fixedExpenses": "Fixkosten",
-    "variableExpenses": "Variable Ausgaben",
-    "totalExpenses": "Gesamt Ausgaben",
     "savings": "Sparbeträge",
     "savingsTotal": "Gespartes Gesamt",
     "noData": "Keine Fixkosten vorhanden"
