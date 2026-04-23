@@ -481,13 +481,8 @@ watch(() => auth.user?.active_household_id, async (id) => {
           ]"
         >
           <span class="flex flex-col gap-0.5">
-            <span class="flex items-center gap-1">
-              <span class="text-sm text-muted-foreground">{{ acc.name }}</span>
-              <Badge v-if="acc.account_role" variant="outline" class="text-xs ml-1">
-                {{ roleLabel(acc.account_role) }}
-              </Badge>
-            </span>
-            <span class="text-[10px] text-muted-foreground/60">{{ t('accounts.types.' + acc.account_type) }}</span>
+            <span class="text-sm text-muted-foreground">{{ acc.name }}</span>
+            <span v-if="acc.account_role" class="text-[10px] text-muted-foreground/60">{{ roleLabel(acc.account_role) }}</span>
           </span>
           <span
             class="text-sm font-bold tabular-nums"
