@@ -69,7 +69,7 @@ watch(() => form.value.account_type, (t) => {
   }
 })
 
-const FIXED_ROLES = ['main', 'fixed_costs', 'variable', 'savings']
+const FIXED_ROLES = ['main', 'fixed_costs', 'variable', 'savings', 'separat']
 function roleLabel(role) {
   if (!role) return ''
   if (FIXED_ROLES.includes(role)) return t('accounts.roles.' + role)
@@ -169,6 +169,7 @@ onMounted(load)
                 <SelectItem value="fixed_costs">{{ t('accounts.roles.fixed_costs') }}</SelectItem>
                 <SelectItem value="variable">{{ t('accounts.roles.variable') }}</SelectItem>
                 <SelectItem value="savings">{{ t('accounts.roles.savings') }}</SelectItem>
+                <SelectItem value="separat">{{ t('accounts.roles.separat') }}</SelectItem>
                 <SelectItem value="__custom__">{{ t('accounts.customRole') }}</SelectItem>
               </SelectContent>
             </Select>

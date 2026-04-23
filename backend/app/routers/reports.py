@@ -128,6 +128,14 @@ async def monthly_trend(
             case((Transaction.transaction_type == "expense", Transaction.amount), else_=0)
         )
     )
+    fixed_exp_col = func.abs(func.sum(case(
+        (and_(Transaction.transaction_type == "expense", Category.category_type == "fixed"), Transaction.amount),
+        else_=0,
+    )))
+    variable_exp_col = func.abs(func.sum(case(
+        (and_(Transaction.transaction_type == "expense", Category.category_type == "variable"), Transaction.amount),
+        else_=0,
+    )))
     savings_col = func.sum(case(
         (
             and_(
@@ -146,8 +154,11 @@ async def monthly_trend(
             extract("month", Transaction.date).label("month"),
             income_col.label("income"),
             expense_col.label("expenses"),
+            fixed_exp_col.label("fixed_expenses"),
+            variable_exp_col.label("variable_expenses"),
             savings_col.label("savings"),
         )
+        .outerjoin(Category, Transaction.category_id == Category.id)
         .filter(
             Transaction.household_id == hh_id,
             Transaction.date >= from_date,
@@ -169,6 +180,8 @@ async def monthly_trend(
             month=int(r.month),
             income=f"{r.income or Decimal('0'):.2f}",
             expenses=f"{r.expenses or Decimal('0'):.2f}",
+            fixed_expenses=f"{float(r.fixed_expenses or 0):.2f}",
+            variable_expenses=f"{float(r.variable_expenses or 0):.2f}",
             savings=f"{float(r.savings or 0):.2f}",
         )
         for r in rows

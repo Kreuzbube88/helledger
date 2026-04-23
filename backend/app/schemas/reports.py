@@ -12,6 +12,8 @@ class MonthlyTrendItem(BaseModel):
     month: int
     income: str
     expenses: str
+    fixed_expenses: str
+    variable_expenses: str
     savings: str
 
 

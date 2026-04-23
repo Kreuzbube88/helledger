@@ -116,7 +116,8 @@
       "main": "Main Account",
       "fixed_costs": "Fixed Costs Account",
       "variable": "Variable Account",
-      "savings": "Savings Account"
+      "savings": "Savings Account",
+      "separat": "Separate (excluded from calculations)"
     }
   },
   "categories": {
@@ -241,6 +242,7 @@
     "balance": "Balance",
     "gesamt": "Total",
     "savings": "Savings",
+    "savingsSection": "Savings Transfers",
     "availableFixed": "Fixed Costs Account",
     "availableVariable": "Variable Account",
     "availableTotal": "Total Available",
@@ -354,8 +356,10 @@
     "subtitle": "12-month projection based on fixed costs",
     "income": "Income",
     "fixedExpenses": "Fixed Costs",
-    "savingsTransfers": "Savings",
-    "totalBalance": "Total Balance",
+    "variableExpenses": "Variable Expenses",
+    "totalExpenses": "Total Expenses",
+    "savings": "Savings Transfers",
+    "savingsTotal": "Total Saved",
     "noData": "No fixed costs configured"
   },
   "loans": {

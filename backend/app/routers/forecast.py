@@ -93,7 +93,7 @@ def get_forecast(
                         month_savings += amount
                     balances[fc.to_account_id] = balances.get(fc.to_account_id, 0.0) + amount
 
-        total_balance = sum(balances.values())
+        savings_total = sum(balances.get(acc_id, 0.0) for acc_id in savings_acc_ids)
 
         account_snapshots = [
             AccountForecastBalance(
@@ -109,8 +109,10 @@ def get_forecast(
             month=f"{target_year}-{target_month:02d}",
             income=month_income,
             fixed_expenses=month_fixed_expenses,
-            savings_transfers=month_savings,
-            total_balance=total_balance,
+            variable_expenses=0.0,
+            total_expenses=month_fixed_expenses,
+            savings=month_savings,
+            savings_total=savings_total,
             accounts=account_snapshots,
         ))
 

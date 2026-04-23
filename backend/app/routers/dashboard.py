@@ -279,9 +279,6 @@ def get_month_view(
         if len(sections) > 1
         else 0.0
     )
-    balance = total_income - total_expense
-    savings_rate = (balance / total_income * 100) if total_income > 0 else 0.0
-
     # Real savings rate: transfers INTO savings accounts + expenses in is_savings categories
     savings_acc_ids = [
         a.id for a in db.query(Account).filter(
@@ -322,8 +319,6 @@ def get_month_view(
 
     real_savings_rate = (real_savings / total_income * 100) if total_income > 0 else 0.0
     savings_amount = real_savings
-    # is_savings category expenses are already in total_expense; only subtract transfers (not in expenses)
-    available = total_income - total_expense - transfer_savings
 
     # savings transfer rows for the month
     savings_rows = []
@@ -405,11 +400,8 @@ def get_month_view(
         summary=MonthSummary(
             total_income=total_income,
             total_expense=total_expense,
-            balance=balance,
-            savings_rate=savings_rate,
-            real_savings_rate=real_savings_rate,
+            savings_rate=real_savings_rate,
             savings_amount=savings_amount,
-            available=available,
             debt_to_income=debt_to_income,
             emergency_months=emergency_months,
         ),

@@ -36,7 +36,7 @@ const chartData = computed(() => ({
   datasets: [
     {
       label: t('forecast.income'),
-      data: months.value.map((m) => m.income),
+      data: months.value.map(m => m.income),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16,185,129,0.1)',
       tension: 0.3,
@@ -44,28 +44,36 @@ const chartData = computed(() => ({
     },
     {
       label: t('forecast.fixedExpenses'),
-      data: months.value.map((m) => m.fixed_expenses),
-      borderColor: '#ef4444',
-      backgroundColor: 'rgba(239,68,68,0.1)',
+      data: months.value.map(m => m.fixed_expenses),
+      borderColor: '#f43f5e',
+      backgroundColor: 'rgba(244,63,94,0.1)',
       tension: 0.3,
       pointRadius: 3,
     },
     {
-      label: t('forecast.savingsTransfers'),
-      data: months.value.map((m) => m.savings_transfers),
-      borderColor: '#34d399',
-      backgroundColor: 'rgba(52,211,153,0.1)',
+      label: t('forecast.variableExpenses'),
+      data: months.value.map(m => m.variable_expenses),
+      borderColor: '#f97316',
+      backgroundColor: 'rgba(249,115,22,0.1)',
       tension: 0.3,
       pointRadius: 3,
     },
     {
-      label: t('forecast.totalBalance'),
-      data: months.value.map((m) => m.total_balance),
+      label: t('forecast.savings'),
+      data: months.value.map(m => m.savings),
+      borderColor: '#8b5cf6',
+      backgroundColor: 'rgba(139,92,246,0.1)',
+      tension: 0.3,
+      pointRadius: 3,
+    },
+    {
+      label: t('forecast.savingsTotal'),
+      data: months.value.map(m => m.savings_total),
       borderColor: '#6366f1',
       backgroundColor: 'rgba(99,102,241,0.1)',
+      borderWidth: 3,
       tension: 0.3,
       pointRadius: 3,
-      borderWidth: 3,
     },
   ],
 }))
@@ -100,8 +108,10 @@ onMounted(loadData)
               <th class="px-4 py-3 font-medium">{{ t('reports.period.month') }}</th>
               <th class="px-4 py-3 font-medium text-right">{{ t('forecast.income') }}</th>
               <th class="px-4 py-3 font-medium text-right">{{ t('forecast.fixedExpenses') }}</th>
-              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.savingsTransfers') }}</th>
-              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.totalBalance') }}</th>
+              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.variableExpenses') }}</th>
+              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.totalExpenses') }}</th>
+              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.savings') }}</th>
+              <th class="px-4 py-3 font-medium text-right">{{ t('forecast.savingsTotal') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -109,8 +119,10 @@ onMounted(loadData)
               <td class="px-4 py-3 tabular-nums">{{ formatMonth(m) }}</td>
               <td class="px-4 py-3 tabular-nums text-right text-emerald-500">{{ m.income.toFixed(2) }}</td>
               <td class="px-4 py-3 tabular-nums text-right text-rose-500">{{ m.fixed_expenses.toFixed(2) }}</td>
-              <td class="px-4 py-3 tabular-nums text-right text-emerald-400">{{ m.savings_transfers.toFixed(2) }}</td>
-              <td class="px-4 py-3 tabular-nums text-right font-medium text-indigo-500">{{ m.total_balance.toFixed(2) }}</td>
+              <td class="px-4 py-3 tabular-nums text-right text-orange-500">{{ m.variable_expenses.toFixed(2) }}</td>
+              <td class="px-4 py-3 tabular-nums text-right text-rose-400">{{ m.total_expenses.toFixed(2) }}</td>
+              <td class="px-4 py-3 tabular-nums text-right text-violet-500">{{ m.savings.toFixed(2) }}</td>
+              <td class="px-4 py-3 tabular-nums text-right font-medium text-indigo-500">{{ m.savings_total.toFixed(2) }}</td>
             </tr>
           </tbody>
         </table>

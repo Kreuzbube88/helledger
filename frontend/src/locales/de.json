@@ -116,7 +116,8 @@
       "main": "Giro/Hauptkonto",
       "fixed_costs": "Fixkosten-Konto",
       "variable": "Variabel-Konto",
-      "savings": "Sparkonto"
+      "savings": "Sparkonto",
+      "separat": "Separat (nicht berücksichtigt)"
     }
   },
   "categories": {
@@ -241,6 +242,7 @@
     "balance": "Bilanz",
     "gesamt": "Gesamt",
     "savings": "Sparen",
+    "savingsSection": "Sparüberweisungen",
     "availableFixed": "Fixkosten-Konto",
     "availableVariable": "Variables Konto",
     "availableTotal": "Gesamt verfügbar",
@@ -354,8 +356,10 @@
     "subtitle": "12-Monats-Vorschau auf Basis der Fixkosten",
     "income": "Einnahmen",
     "fixedExpenses": "Fixkosten",
-    "savingsTransfers": "Sparen",
-    "totalBalance": "Gesamtvermögen",
+    "variableExpenses": "Variable Ausgaben",
+    "totalExpenses": "Gesamt Ausgaben",
+    "savings": "Sparbeträge",
+    "savingsTotal": "Gespartes Gesamt",
     "noData": "Keine Fixkosten vorhanden"
   },
   "loans": {
