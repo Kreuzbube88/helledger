@@ -35,10 +35,6 @@ function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
 <template>
   <!-- Ambient layers — visible only in dark mode via CSS -->
   <div aria-hidden="true">
-    <div class="ambient-orb ambient-orb-1" />
-    <div class="ambient-orb ambient-orb-2" />
-    <div class="ambient-orb ambient-orb-3" />
-    <div class="ambient-orb ambient-orb-4" />
     <div class="aurora-sweep" />
   </div>
 

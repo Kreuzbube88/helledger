@@ -62,58 +62,21 @@
   ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
 }
 
-/* ── AI tech grid overlay (dark mode) ────────────────────────────── */
+/* ── Dark mode background ─────────────────────────────────────────── */
 .dark body {
   background-image:
-    linear-gradient(rgba(16, 185, 129, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.04) 1px, transparent 1px);
-  background-size: 52px 52px;
+    radial-gradient(ellipse at 0% 0%, rgba(16,185,129,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 100%, rgba(139,92,246,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 0%, rgba(59,130,246,0.06) 0%, transparent 45%),
+    linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 52px 52px, 52px 52px;
 }
 
 /* ── PWA safe areas ──────────────────────────────────────────────── */
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 .safe-top    { padding-top:    env(safe-area-inset-top); }
 
-/* ── Ambient orbs (controlled via DOM elements in App.vue) ────────── */
-.ambient-orb {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1s ease;
-  will-change: transform;
-  z-index: 0;
-}
-.dark .ambient-orb { opacity: 1; }
-
-.ambient-orb-1 {
-  width: 900px; height: 900px;
-  top: -280px; left: -280px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(16,185,129,0.06) 45%, transparent 70%);
-  filter: blur(80px);
-  animation: orb-float-1 24s ease-in-out infinite;
-}
-.ambient-orb-2 {
-  width: 750px; height: 750px;
-  bottom: -200px; right: -200px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(139,92,246,0.06) 45%, transparent 70%);
-  filter: blur(80px);
-  animation: orb-float-2 30s ease-in-out infinite;
-}
-.ambient-orb-3 {
-  width: 550px; height: 550px;
-  top: 38%; left: 52%;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.14) 0%, rgba(59,130,246,0.04) 50%, transparent 70%);
-  filter: blur(70px);
-  animation: orb-float-3 20s ease-in-out infinite;
-}
-.ambient-orb-4 {
-  width: 400px; height: 400px;
-  top: 15%; right: 12%;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, rgba(236,72,153,0.04) 50%, transparent 70%);
-  filter: blur(60px);
-  animation: orb-float-4 26s ease-in-out infinite 4s;
-}
 
 /* ── Aurora sweep ─────────────────────────────────────────────────── */
 .aurora-sweep {
@@ -146,24 +109,6 @@
 }
 
 
-@keyframes orb-float-1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(40px, -30px) scale(1.05); }
-  66%       { transform: translate(-25px, 40px) scale(0.96); }
-}
-@keyframes orb-float-2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33%       { transform: translate(-50px, 30px) scale(1.04); }
-  66%       { transform: translate(30px, -40px) scale(0.97); }
-}
-@keyframes orb-float-3 {
-  0%, 100% { transform: translate(0, 0); }
-  50%       { transform: translate(-35px, -25px); }
-}
-@keyframes orb-float-4 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50%       { transform: translate(20px, 30px) scale(1.08); }
-}
 
 /* ── Entrance animations ──────────────────────────────────────────── */
 @keyframes fade-up {
