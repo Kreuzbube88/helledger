@@ -156,6 +156,10 @@ def get_year_view(
                 is_planned_flags.append(False)
             else:
                 soll = _fc_amount_for_month(cat.id, m)
+                if soll == 0.0:
+                    past_vals = [float(agg.get(cat.id, {}).get(pm, 0)) for pm in range(1, planned_from)]
+                    nonzero = [v for v in past_vals if v > 0]
+                    soll = sum(nonzero) / len(nonzero) if nonzero else 0.0
                 months_vals.append(soll)
                 is_planned_flags.append(True)
         category_rows.append(YearCategoryRow(

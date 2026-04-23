@@ -141,6 +141,9 @@ const trendChartData = computed(() => {
         backgroundColor: 'rgba(139,92,246,0.1)',
         tension: 0.3,
         pointRadius: 3,
+        yAxisID: 'y1',
+        order: -1,
+        borderWidth: 2,
       },
     ],
   }
@@ -166,7 +169,11 @@ const balanceChartData = computed(() => {
 const barOptions = {
   responsive: true,
   plugins: { legend: { position: 'top' } },
-  scales: { x: { grid: { display: false } }, y: { beginAtZero: true } },
+  scales: {
+    x: { grid: { display: false } },
+    y: { beginAtZero: true },
+    y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } },
+  },
 }
 
 const hBarOptions = {

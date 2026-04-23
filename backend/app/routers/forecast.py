@@ -46,6 +46,7 @@ def get_forecast(
     ).all()
 
     balances: dict[int, float] = {}
+    savings_acc_ids = {acc.id for acc in accounts if acc.account_role == "savings"}
     for acc in accounts:
         tx_sum = db.query(func.sum(Transaction.amount)).filter(
             Transaction.account_id == acc.id,
@@ -88,7 +89,8 @@ def get_forecast(
                 if fc.account_id is not None and fc.account_id in balances:
                     balances[fc.account_id] = balances.get(fc.account_id, 0.0) - amount
                 if fc.to_account_id is not None and fc.to_account_id in balances:
-                    month_savings += amount
+                    if fc.to_account_id in savings_acc_ids:
+                        month_savings += amount
                     balances[fc.to_account_id] = balances.get(fc.to_account_id, 0.0) + amount
 
         total_balance = sum(balances.values())

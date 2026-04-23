@@ -31,10 +31,10 @@ async function load() {
 }
 
 const fixedCostsBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'fixed_costs').reduce((s, b) => s + b.balance, 0)
+  balances.value.filter(b => b.account_role === 'fixed_costs').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
 )
 const variableBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + b.balance, 0)
+  balances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
 )
 const totalAvailable = computed(() => fixedCostsBalance.value + variableBalance.value)
 
