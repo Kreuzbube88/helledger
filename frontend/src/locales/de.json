@@ -55,14 +55,16 @@
     "accounts": "Kontenübersicht",
     "noData": "Keine Daten für diesen Monat.",
     "addTransaction": "Transaktion hinzufügen",
-    "savingsRate": "Pot. Sparquote",
+    "savingsRate": "Sparquote",
     "realSavingsRate": "Reelle Sparquote",
     "debtToIncome": "Kreditlastquote",
     "emergencyMonths": "Rücklagenreichweite",
     "months": "Monate",
     "ofIncome": "des Einkommens",
     "savings": "Sparen",
-    "available": "Diesen Monat noch verfügbar"
+    "available": "Diesen Monat noch verfügbar",
+    "availableFixed": "Fixkostenkonto verfügbar",
+    "availableVariable": "Variables Konto verfügbar"
   },
   "transactions": {
     "title": "Transaktionen",

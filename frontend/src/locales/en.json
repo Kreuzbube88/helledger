@@ -55,14 +55,16 @@
     "accounts": "Account Balances",
     "noData": "No data for this month.",
     "addTransaction": "Add Transaction",
-    "savingsRate": "Pot. Savings Rate",
+    "savingsRate": "Savings Rate",
     "realSavingsRate": "Real Savings Rate",
     "debtToIncome": "Debt Ratio",
     "emergencyMonths": "Reserve Coverage",
     "months": "months",
     "ofIncome": "of income",
     "savings": "Savings",
-    "available": "Available this month"
+    "available": "Available this month",
+    "availableFixed": "Fixed Costs Account",
+    "availableVariable": "Variable Account"
   },
   "transactions": {
     "title": "Transactions",

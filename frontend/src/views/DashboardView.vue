@@ -37,7 +37,7 @@ const topGoals = ref([])
 const kpis = ref(null)
 
 // ── Animated display values ────────────────────────────────────────
-const display = reactive({ income: 0, expenses: 0, balance: 0, savings: 0, available: 0 })
+const display = reactive({ income: 0, expenses: 0, savings: 0 })
 
 function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3) }
 
@@ -58,13 +58,11 @@ function animateTo(key, target, duration = 950) {
 watch(summary, (val) => {
   animateTo('income',   parseFloat(val.income)   || 0)
   animateTo('expenses', parseFloat(val.expenses) || 0)
-  animateTo('balance',  parseFloat(val.balance)  || 0)
 }, { deep: true })
 
 watch(kpis, (val) => {
   if (!val) return
-  animateTo('savings',   val.savings_amount || 0)
-  animateTo('available', val.available      || 0)
+  animateTo('savings', val.savings_amount || 0)
 }, { deep: true })
 
 // ── Month label ────────────────────────────────────────────────────
@@ -122,6 +120,17 @@ const donutOptions = computed(() => ({
   },
 }))
 
+const fixedCostsBalance = computed(() =>
+  balances.value.filter(b => b.account_role === 'fixed_costs' && !b.archived)
+    .reduce((s, a) => s + parseFloat(a.balance), 0)
+)
+const variableBalance = computed(() =>
+  balances.value.filter(b => b.account_role === 'variable' && !b.archived)
+    .reduce((s, a) => s + parseFloat(a.balance), 0)
+)
+const hasFixedCosts = computed(() => balances.value.some(b => b.account_role === 'fixed_costs' && !b.archived))
+const hasVariable = computed(() => balances.value.some(b => b.account_role === 'variable' && !b.archived))
+
 // ── Data loading ───────────────────────────────────────────────────
 async function loadExpiring() {
   const res = await api.get('/fixed-costs/expiring-soon?days=30')
@@ -172,7 +181,6 @@ function nextMonth() {
 function fmt(val) {
   return val.toFixed(2).replace('.', ',') + ' €'
 }
-const balancePositive = computed(() => display.balance >= 0)
 
 function roleLabel(role) {
   const fixed = {
@@ -226,16 +234,6 @@ watch(() => auth.user?.active_household_id, async (id) => {
         <p class="text-[11px] text-muted-foreground uppercase tracking-widest mb-2 font-medium">
           {{ monthLabel }}
         </p>
-        <!-- Animated balance number -->
-        <h1
-          class="text-4xl font-black tracking-tight tabular-nums leading-none"
-          :class="balancePositive
-            ? 'bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent number-glow-emerald'
-            : 'bg-gradient-to-r from-rose-400 via-pink-300 to-rose-400 bg-clip-text text-transparent number-glow-rose'"
-        >
-          {{ fmt(display.balance) }}
-        </h1>
-        <p class="text-xs text-muted-foreground mt-2">{{ t('dashboard.balance') }}</p>
       </div>
       <div class="flex items-center gap-2 mt-1">
         <button
@@ -323,49 +321,52 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
     </div>
 
-    <!-- ── Available this month bar ──────────────────────────────── -->
-    <div
-      class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
-      :class="theme.isDark
-        ? (display.available >= 0 ? 'bg-emerald-500/[0.07] border-emerald-500/[0.15]' : 'bg-rose-500/[0.07] border-rose-500/[0.15]')
-        : (display.available >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100')"
-    >
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-        {{ t('dashboard.available') }}
-      </p>
-      <p
-        class="text-xl font-bold tabular-nums"
-        :class="display.available >= 0 ? 'text-emerald-400' : 'text-rose-400'"
+    <!-- ── Available by account ──────────────────────────────────── -->
+    <div v-if="hasFixedCosts || hasVariable" class="grid grid-cols-2 gap-3">
+      <div
+        v-if="hasFixedCosts"
+        class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
+        :class="theme.isDark
+          ? (fixedCostsBalance >= 0 ? 'bg-emerald-500/[0.07] border-emerald-500/[0.15]' : 'bg-rose-500/[0.07] border-rose-500/[0.15]')
+          : (fixedCostsBalance >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100')"
       >
-        {{ fmt(display.available) }}
-      </p>
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {{ t('dashboard.availableFixed') }}
+        </p>
+        <p class="text-xl font-bold tabular-nums" :class="fixedCostsBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+          {{ fmt(fixedCostsBalance) }}
+        </p>
+      </div>
+      <div
+        v-if="hasVariable"
+        class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
+        :class="theme.isDark
+          ? (variableBalance >= 0 ? 'bg-emerald-500/[0.07] border-emerald-500/[0.15]' : 'bg-rose-500/[0.07] border-rose-500/[0.15]')
+          : (variableBalance >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100')"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {{ t('dashboard.availableVariable') }}
+        </p>
+        <p class="text-xl font-bold tabular-nums" :class="variableBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+          {{ fmt(variableBalance) }}
+        </p>
+      </div>
     </div>
 
     <!-- ── KPI tiles ──────────────────────────────────────────────── -->
     <div v-if="kpis" class="grid grid-cols-3 gap-4">
-      <!-- Pot. Savings Rate -->
+      <!-- Sparquote -->
       <div
         class="anim-fade-up delay-150 rounded-2xl p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
       >
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.savingsRate') }}</p>
         <p class="text-2xl font-bold tabular-nums"
-           :class="kpis.savings_rate >= 20 ? 'text-emerald-400' : kpis.savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
-          {{ kpis.savings_rate.toFixed(1) }}%
-        </p>
-      </div>
-      <!-- Real Savings Rate -->
-      <div
-        class="anim-fade-up delay-150 rounded-2xl p-4 border"
-        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
-      >
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.realSavingsRate') }}</p>
-        <p class="text-2xl font-bold tabular-nums"
            :class="kpis.real_savings_rate >= 20 ? 'text-emerald-400' : kpis.real_savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
           {{ kpis.real_savings_rate.toFixed(1) }}%
         </p>
       </div>
-      <!-- Debt-to-Income -->
+      <!-- Kreditlastquote -->
       <div
         class="anim-fade-up delay-150 rounded-2xl p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
@@ -376,6 +377,18 @@ watch(() => auth.user?.active_household_id, async (id) => {
           {{ kpis.debt_to_income.toFixed(1) }}%
         </p>
         <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.ofIncome') }}</p>
+      </div>
+      <!-- Rücklagenreichweite -->
+      <div
+        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.emergencyMonths') }}</p>
+        <p class="text-2xl font-bold tabular-nums"
+           :class="kpis.emergency_months >= 3 ? 'text-emerald-400' : kpis.emergency_months >= 1 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.emergency_months.toFixed(1) }}
+        </p>
+        <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.months') }}</p>
       </div>
     </div>
 
@@ -389,36 +402,16 @@ watch(() => auth.user?.active_household_id, async (id) => {
       <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-5">
         {{ t('reports.chart.expensesByCategory') }}
       </h2>
-      <div class="flex gap-4 items-start">
-        <!-- Doughnut chart -->
-        <div class="flex-1 min-w-0">
-          <Doughnut
-            v-if="donutData.length > 0"
-            :data="donutChartData"
-            :options="donutOptions"
-            class="max-h-52"
-          />
-          <p v-else class="text-sm text-muted-foreground text-center py-12">
-            {{ t('dashboard.noData') }}
-          </p>
-        </div>
-        <!-- Rücklagenreichweite -->
-        <div
-          v-if="kpis"
-          class="w-48 shrink-0 rounded-2xl p-4 border"
-          :class="theme.isDark ? 'bg-card/70 border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
-        >
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-            {{ t('dashboard.emergencyMonths') }}
-          </p>
-          <p
-            class="text-2xl font-bold tabular-nums"
-            :class="kpis.emergency_months >= 3 ? 'text-emerald-400' : kpis.emergency_months >= 1 ? 'text-amber-400' : 'text-rose-400'"
-          >
-            {{ kpis.emergency_months.toFixed(1) }}
-          </p>
-          <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.months') }}</p>
-        </div>
+      <div>
+        <Doughnut
+          v-if="donutData.length > 0"
+          :data="donutChartData"
+          :options="donutOptions"
+          class="max-h-52"
+        />
+        <p v-else class="text-sm text-muted-foreground text-center py-12">
+          {{ t('dashboard.noData') }}
+        </p>
       </div>
     </div>
 
