@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
@@ -32,22 +32,104 @@ const loan = ref(null)
 const amortization = ref([])
 const extraPayments = ref([])
 const stats = ref(null)
+const accounts = ref([])
 const activeTab = ref('overview')
+
+const editForm = ref({
+  name: '', lender: '', account_id: '__none__',
+  principal: '', interest_rate: '', monthly_payment: '', term_months: '',
+  purchase_price: '', equity: '', property_value: '', fixed_rate_until: '', land_charge: '',
+})
+
+const editLockedField = ref(null)
+
+function setLocked(field) {
+  if (editLockedField.value === field) {
+    editLockedField.value = null
+  } else {
+    editLockedField.value = field
+    editForm.value[field] = ''
+  }
+}
+
+function isLocked(field) {
+  return editLockedField.value === field
+}
+
+const financialFields = ['principal', 'interest_rate', 'monthly_payment', 'term_months']
+
+const editFinancialsChanged = computed(() => {
+  if (!loan.value) return false
+  return financialFields.some(f => {
+    const formVal = editForm.value[f]
+    const loanVal = loan.value[f]
+    if (formVal === '' || formVal === null) return loanVal !== null
+    return parseFloat(formVal) !== parseFloat(loanVal)
+  })
+})
+
+watch(loan, (val) => {
+  if (!val) return
+  editForm.value = {
+    name: val.name ?? '',
+    lender: val.lender ?? '',
+    account_id: '__none__',
+    principal: val.principal ?? '',
+    interest_rate: val.interest_rate ?? '',
+    monthly_payment: val.monthly_payment ?? '',
+    term_months: val.term_months ?? '',
+    purchase_price: val.purchase_price ?? '',
+    equity: val.equity ?? '',
+    property_value: val.property_value ?? '',
+    fixed_rate_until: val.fixed_rate_until ?? '',
+    land_charge: val.land_charge ?? '',
+  }
+  editLockedField.value = null
+}, { immediate: true })
+
+async function saveEdit() {
+  const body = {
+    name: editForm.value.name,
+    lender: editForm.value.lender || null,
+  }
+  if (editForm.value.account_id && editForm.value.account_id !== '__none__') {
+    body.account_id = parseInt(editForm.value.account_id)
+  }
+  for (const f of financialFields) {
+    body[f] = editForm.value[f] !== '' ? (f === 'term_months' ? parseInt(editForm.value[f]) : parseFloat(editForm.value[f])) : null
+  }
+  if (loan.value.loan_type === 'mortgage') {
+    body.purchase_price = editForm.value.purchase_price ? parseFloat(editForm.value.purchase_price) : null
+    body.equity = editForm.value.equity ? parseFloat(editForm.value.equity) : null
+    body.property_value = editForm.value.property_value ? parseFloat(editForm.value.property_value) : null
+    body.fixed_rate_until = editForm.value.fixed_rate_until || null
+    body.land_charge = editForm.value.land_charge ? parseFloat(editForm.value.land_charge) : null
+  }
+  const res = await api.patch(`/loans/${loan.value.id}`, body)
+  if (res.ok) {
+    await load()
+    toast.success(t('loans.save'))
+  } else {
+    toast.error(t('errors.generic'))
+  }
+}
 
 const showEpDialog = ref(false)
 const epForm = ref({ payment_date: new Date().toISOString().slice(0, 10), amount: '', effect: 'shorten_term', notes: '', interval_months: '0', end_date: '' })
 
 async function load() {
-  const [loanRes, amoRes, epsRes, statsRes] = await Promise.all([
+  const [loanRes, amoRes, epsRes, statsRes, accRes] = await Promise.all([
     api.get(`/loans/${loanId}`),
     api.get(`/loans/${loanId}/amortization`),
     api.get(`/loans/${loanId}/extra-payments`),
     api.get(`/loans/${loanId}/stats`),
+    api.get('/accounts'),
   ])
   if (loanRes.ok) loan.value = await loanRes.json()
   if (amoRes.ok) amortization.value = await amoRes.json()
   if (epsRes.ok) extraPayments.value = await epsRes.json()
   if (statsRes.ok) stats.value = await statsRes.json()
+  if (accRes.ok) accounts.value = await accRes.json()
 }
 
 // Chart: balance over time
@@ -319,6 +401,103 @@ onMounted(load)
 
         <!-- Settings tab -->
         <TabsContent value="settings" class="space-y-4">
+          <!-- Edit loan -->
+          <Card>
+            <CardHeader class="pb-2">
+              <CardTitle class="text-sm">{{ t('loans.edit') }}</CardTitle>
+            </CardHeader>
+            <CardContent class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <Label>{{ t('loans.name') }}</Label>
+                  <Input v-model="editForm.name" />
+                </div>
+                <div class="space-y-1">
+                  <Label>{{ t('loans.lender') }}</Label>
+                  <Input v-model="editForm.lender" />
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <Label>{{ t('loans.bookingAccount') }}</Label>
+                <Select v-model="editForm.account_id">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">{{ t('loans.noAccount') }}</SelectItem>
+                    <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">
+                      {{ acc.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <!-- Financial fields 2-col grid -->
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <Label>{{ t('loans.principal') }}</Label>
+                  <div class="flex gap-1">
+                    <Input v-model="editForm.principal" type="number" step="any" :disabled="isLocked('principal')" class="flex-1" />
+                    <Button type="button" size="sm" :variant="isLocked('principal') ? 'default' : 'outline'" @click="setLocked('principal')" class="text-xs px-2 shrink-0">≈</Button>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <Label>{{ t('loans.interestRate') }}</Label>
+                  <div class="flex gap-1">
+                    <Input v-model="editForm.interest_rate" type="number" step="any" :disabled="isLocked('interest_rate')" class="flex-1" />
+                    <Button type="button" size="sm" :variant="isLocked('interest_rate') ? 'default' : 'outline'" @click="setLocked('interest_rate')" class="text-xs px-2 shrink-0">≈</Button>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <Label>{{ t('loans.monthlyPayment') }}</Label>
+                  <div class="flex gap-1">
+                    <Input v-model="editForm.monthly_payment" type="number" step="any" :disabled="isLocked('monthly_payment')" class="flex-1" />
+                    <Button type="button" size="sm" :variant="isLocked('monthly_payment') ? 'default' : 'outline'" @click="setLocked('monthly_payment')" class="text-xs px-2 shrink-0">≈</Button>
+                  </div>
+                </div>
+                <div class="space-y-1">
+                  <Label>{{ t('loans.termMonths') }}</Label>
+                  <div class="flex gap-1">
+                    <Input v-model="editForm.term_months" type="number" step="1" :disabled="isLocked('term_months')" class="flex-1" />
+                    <Button type="button" size="sm" :variant="isLocked('term_months') ? 'default' : 'outline'" @click="setLocked('term_months')" class="text-xs px-2 shrink-0">≈</Button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mortgage extra fields -->
+              <template v-if="loan?.loan_type === 'mortgage'">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <Label>{{ t('loans.purchasePrice') }}</Label>
+                    <Input v-model="editForm.purchase_price" type="number" step="any" />
+                  </div>
+                  <div class="space-y-1">
+                    <Label>{{ t('loans.equity') }}</Label>
+                    <Input v-model="editForm.equity" type="number" step="any" />
+                  </div>
+                  <div class="space-y-1">
+                    <Label>{{ t('loans.propertyValue') }}</Label>
+                    <Input v-model="editForm.property_value" type="number" step="any" />
+                  </div>
+                  <div class="space-y-1">
+                    <Label>{{ t('loans.fixedRateUntil') }}</Label>
+                    <Input v-model="editForm.fixed_rate_until" type="date" />
+                  </div>
+                  <div class="space-y-1">
+                    <Label>{{ t('loans.landCharge') }}</Label>
+                    <Input v-model="editForm.land_charge" type="number" step="any" />
+                  </div>
+                </div>
+              </template>
+
+              <div v-if="editFinancialsChanged" class="rounded-md border border-amber-400 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-800 dark:text-amber-300">
+                ⚠ Tilgungsplan wird neu berechnet. Verknüpfte Rate wird aktualisiert. Bestehende Transaktionen bleiben unverändert.
+              </div>
+
+              <Button @click="saveEdit">{{ t('loans.save') }}</Button>
+            </CardContent>
+          </Card>
+
+          <!-- Mark paid off -->
           <Card>
             <CardContent class="pt-6 space-y-4">
               <div>

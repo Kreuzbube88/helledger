@@ -35,6 +35,13 @@ class LoanCreate(BaseModel):
 class LoanUpdate(BaseModel):
     name: str | None = None
     lender: str | None = None
+    account_id: int | None = None
+    principal: Decimal | None = None
+    interest_rate: Decimal | None = None
+    monthly_payment: Decimal | None = None
+    term_months: int | None = None
+    purchase_price: Decimal | None = None
+    equity: Decimal | None = None
     property_value: Decimal | None = None
     fixed_rate_until: date | None = None
     land_charge: Decimal | None = None

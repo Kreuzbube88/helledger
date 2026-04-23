@@ -222,8 +222,94 @@ async def update_loan(
 ):
     hh_id = _require_active_hh(user)
     loan = _get_loan(loan_id, hh_id, db)
-    for field, value in body.model_dump(exclude_unset=True).items():
-        setattr(loan, field, value)
+
+    updated = body.model_dump(exclude_unset=True)
+    financial_fields = {"principal", "interest_rate", "monthly_payment", "term_months"}
+    financials_changed = bool(financial_fields & updated.keys())
+
+    if financials_changed:
+        # Determine which field is null (to be computed)
+        raw_p = updated.get("principal") if "principal" in updated else loan.principal
+        raw_r = updated.get("interest_rate") if "interest_rate" in updated else loan.interest_rate
+        raw_pmt = updated.get("monthly_payment") if "monthly_payment" in updated else loan.monthly_payment
+        raw_n = updated.get("term_months") if "term_months" in updated else loan.term_months
+
+        nones = sum(1 for v in [raw_p, raw_r, raw_pmt, raw_n] if v is None)
+        if nones > 1:
+            raise HTTPException(status_code=422, detail="provide3of4")
+
+        try:
+            if raw_p is None:
+                from app.services.loan_calc import calc_principal
+                p_val = calc_principal(float(raw_pmt), float(raw_r), int(raw_n))
+                loan.principal = Decimal(str(round(p_val, 2)))
+                loan.interest_rate = Decimal(str(raw_r))
+                loan.monthly_payment = Decimal(str(raw_pmt))
+                loan.term_months = int(raw_n)
+            elif raw_r is None:
+                from app.services.loan_calc import calc_rate_newton
+                r_val = calc_rate_newton(float(raw_p), float(raw_pmt), int(raw_n))
+                loan.principal = Decimal(str(raw_p))
+                loan.interest_rate = Decimal(str(round(r_val, 6)))
+                loan.monthly_payment = Decimal(str(raw_pmt))
+                loan.term_months = int(raw_n)
+            elif raw_pmt is None:
+                pmt_val = calc_payment(float(raw_p), float(raw_r), int(raw_n))
+                loan.principal = Decimal(str(raw_p))
+                loan.interest_rate = Decimal(str(raw_r))
+                loan.monthly_payment = Decimal(str(round(pmt_val, 2)))
+                loan.term_months = int(raw_n)
+            elif raw_n is None:
+                from app.services.loan_calc import calc_term
+                n_val = calc_term(float(raw_p), float(raw_r), float(raw_pmt))
+                loan.principal = Decimal(str(raw_p))
+                loan.interest_rate = Decimal(str(raw_r))
+                loan.monthly_payment = Decimal(str(raw_pmt))
+                loan.term_months = int(n_val)
+            else:
+                # All 4 provided — recalculate payment to keep consistent
+                pmt_val = calc_payment(float(raw_p), float(raw_r), int(raw_n))
+                loan.principal = Decimal(str(raw_p))
+                loan.interest_rate = Decimal(str(raw_r))
+                loan.monthly_payment = Decimal(str(round(pmt_val, 2)))
+                loan.term_months = int(raw_n)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
+
+        # Sync linked FixedCost amount
+        fc = db.query(FixedCost).filter(
+            FixedCost.loan_id == loan.id,
+            FixedCost.is_active.is_(True),
+        ).first()
+        if fc:
+            fc.amount = loan.monthly_payment
+
+    # Sync FixedCost name if name changed
+    if "name" in updated:
+        loan.name = updated["name"]
+        fc = db.query(FixedCost).filter(
+            FixedCost.loan_id == loan.id,
+            FixedCost.is_active.is_(True),
+        ).first()
+        if fc:
+            fc.name = updated["name"]
+
+    # Sync FixedCost account_id if changed
+    if "account_id" in updated:
+        loan_account_id = updated["account_id"]
+        fc = db.query(FixedCost).filter(
+            FixedCost.loan_id == loan.id,
+            FixedCost.is_active.is_(True),
+        ).first()
+        if fc:
+            fc.account_id = loan_account_id
+
+    # Apply remaining scalar fields
+    skip = financial_fields | {"name", "account_id"}
+    for field, value in updated.items():
+        if field not in skip:
+            setattr(loan, field, value)
+
     loan.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(loan)
