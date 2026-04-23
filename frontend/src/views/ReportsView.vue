@@ -136,7 +136,7 @@ const trendChartData = computed(() => {
       {
         type: 'line',
         label: t('reports.chart.savings'),
-        data: trendData.value.map(d => parseFloat(d.savings || '0')),
+        data: data.map(d => parseFloat(d.savings || '0')),
         borderColor: '#8b5cf6',
         backgroundColor: 'rgba(139,92,246,0.1)',
         tension: 0.3,
