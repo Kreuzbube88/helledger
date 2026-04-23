@@ -143,7 +143,7 @@ const householdName = ref(`${auth.user?.name || 'Mein'}s Haushalt`)
 
 // ── Step 2: Accounts ──────────────────────────────────────────────────
 const accounts = ref([
-  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: null },
+  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'main' },
 ])
 
 const ACCOUNT_TYPES = [
@@ -153,7 +153,6 @@ const ACCOUNT_TYPES = [
 ]
 
 const ACCOUNT_ROLES = [
-  { value: null,          labelDe: 'Keine Rolle',      labelEn: 'No Role' },
   { value: 'main',        labelDe: 'Hauptkonto',        labelEn: 'Main Account' },
   { value: 'fixed_costs', labelDe: 'Fixkosten-Konto',   labelEn: 'Fixed Costs' },
   { value: 'variable',    labelDe: 'Variabel-Konto',    labelEn: 'Variable' },
@@ -161,7 +160,7 @@ const ACCOUNT_ROLES = [
 ]
 
 function addAccount() {
-  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: null })
+  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'main' })
 }
 
 function removeAccount(i) {

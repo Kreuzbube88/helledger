@@ -55,6 +55,7 @@ async def create_account(
         account_type=body.account_type,
         starting_balance=body.starting_balance,
         currency=body.currency,
+        account_role=body.account_role,
         created_at=now,
         updated_at=now,
     )

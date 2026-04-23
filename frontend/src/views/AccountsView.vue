@@ -20,7 +20,7 @@ const accounts = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
 const showCustomInput = ref(false)
-const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null })
+const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: 'main' })
 
 async function load() {
   const res = await api.get('/accounts')
@@ -30,7 +30,7 @@ async function load() {
 function openCreate() {
   editingId.value = null
   showCustomInput.value = false
-  form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null }
+  form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: 'main' }
   showDialog.value = true
 }
 
@@ -111,7 +111,6 @@ onMounted(load)
               <TableCell>{{ acc.currency }}</TableCell>
               <TableCell>
                 <Badge v-if="acc.account_role" variant="outline" class="text-xs">{{ roleLabel(acc.account_role) }}</Badge>
-                <span v-else class="text-muted-foreground text-xs">—</span>
               </TableCell>
               <TableCell>
                 <Badge :variant="!acc.archived ? 'default' : 'secondary'">
@@ -154,12 +153,11 @@ onMounted(load)
           <div class="space-y-1">
             <Label>{{ t('accounts.role') }}</Label>
             <Select
-              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? '__none__')"
-              @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v === '__none__' ? null : v } }"
+              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? 'main')"
+              @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v } }"
             >
-              <SelectTrigger><SelectValue :placeholder="t('accounts.noRole')" /></SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">{{ t('accounts.noRole') }}</SelectItem>
                 <SelectItem value="main">{{ t('accounts.roles.main') }}</SelectItem>
                 <SelectItem value="fixed_costs">{{ t('accounts.roles.fixed_costs') }}</SelectItem>
                 <SelectItem value="variable">{{ t('accounts.roles.variable') }}</SelectItem>
