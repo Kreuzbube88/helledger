@@ -17,7 +17,8 @@
     "menu": "Menu",
     "loans": "Loans",
     "fixedCosts": "Fixed Costs",
-    "goals": "Goals"
+    "goals": "Goals",
+    "forecast": "Forecast"
   },
   "auth": {
     "login": "Sign In", "register": "Create Account",

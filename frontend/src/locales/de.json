@@ -17,7 +17,8 @@
     "menu": "Menü",
     "loans": "Kredite",
     "fixedCosts": "Fixkosten",
-    "goals": "Sparziele"
+    "goals": "Sparziele",
+    "forecast": "Prognose"
   },
   "auth": {
     "login": "Anmelden", "register": "Registrieren",

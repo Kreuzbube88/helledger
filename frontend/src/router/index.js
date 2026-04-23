@@ -13,6 +13,7 @@ const routes = [
   { path: '/categories', component: () => import('@/views/CategoriesView.vue'), meta: { requiresAuth: true } },
   { path: '/transactions', component: () => import('@/views/TransactionsView.vue'), meta: { requiresAuth: true } },
   { path: '/reports', component: () => import('@/views/ReportsView.vue'), meta: { requiresAuth: true } },
+  { path: '/forecast', component: () => import('@/views/ForecastView.vue'), meta: { requiresAuth: true } },
   { path: '/year', component: () => import('@/views/YearView.vue'), meta: { requiresAuth: true } },
   { path: '/month', component: () => import('@/views/MonthView.vue'), meta: { requiresAuth: true } },
   { path: '/goals', component: () => import('@/views/GoalsView.vue'), meta: { requiresAuth: true } },

@@ -40,6 +40,7 @@ const allNavItems = computed(() => {
     { key: 'month',        path: '/month',        icon: CalendarRange },
     { key: 'year',         path: '/year',         icon: CalendarDays },
     { key: 'reports',      path: '/reports',      icon: BarChart3 },
+    { key: 'forecast',     path: '/forecast',     icon: TrendingUp },
     { key: 'import',       path: '/import',       icon: Upload },
     { key: 'settings',     path: '/settings',     icon: Settings },
   ]
