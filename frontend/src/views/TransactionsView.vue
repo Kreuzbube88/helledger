@@ -37,7 +37,7 @@ const form = ref({
   description: '',
   amount: '',
   account_id: '',
-  category_id: '',
+  category_id: '__none__',
   from_account_id: '',
   to_account_id: '',
 })
@@ -115,7 +115,7 @@ function openCreate() {
     description: '',
     amount: '',
     account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '',
-    category_id: '',
+    category_id: '__none__',
     from_account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '',
     to_account_id: accounts.value[1]?.id ? String(accounts.value[1].id) : '',
   }
@@ -140,6 +140,11 @@ function openEdit(tx) {
 }
 
 async function save() {
+  const needsCategory = form.value.transaction_type === 'income' || form.value.transaction_type === 'expense'
+  if (needsCategory && (!form.value.category_id || form.value.category_id === '__none__')) {
+    toast.error(t('transactions.category') + ' erforderlich')
+    return
+  }
   let body
   if (form.value.transaction_type === 'transfer') {
     body = {
