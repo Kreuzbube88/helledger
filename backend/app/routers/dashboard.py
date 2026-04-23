@@ -16,6 +16,7 @@ from app.schemas.dashboard import (
     MonthSection,
     MonthSummary,
     MonthViewResponse,
+    SavingsRow,
     YearCategoryRow,
     YearViewResponse,
 )
@@ -166,6 +167,29 @@ def get_year_view(
             is_planned=is_planned_flags,
         ))
 
+    savings_acc_ids_y = [
+        a.id for a in db.query(Account).filter(
+            Account.household_id == hh_id,
+            Account.account_role == "savings",
+            Account.archived.is_(False),
+        ).all()
+    ]
+    savings_by_month: dict[str, float] = {}
+    if savings_acc_ids_y:
+        s_rows = (
+            db.query(month_col, func.sum(Transaction.amount))
+            .filter(
+                Transaction.household_id == hh_id,
+                year_col == str(year),
+                Transaction.account_id.in_(savings_acc_ids_y),
+                Transaction.transaction_type == "transfer",
+                Transaction.amount > 0,
+            )
+            .group_by(month_col)
+            .all()
+        )
+        savings_by_month = {m: float(v) for m, v in s_rows}
+
     return YearViewResponse(
         year=year,
         categories=category_rows,
@@ -173,6 +197,7 @@ def get_year_view(
         monthly_expense=monthly_expense,
         monthly_balance=monthly_balance,
         planned_from=planned_from,
+        savings_by_month=savings_by_month,
     )
 
 
@@ -276,6 +301,26 @@ def get_month_view(
     # is_savings category expenses are already in total_expense; only subtract transfers (not in expenses)
     available = total_income - total_expense - transfer_savings
 
+    # savings transfer rows for the month
+    savings_rows = []
+    if savings_acc_ids:
+        s_txs = db.query(Transaction).filter(
+            Transaction.household_id == hh_id,
+            Transaction.account_id.in_(savings_acc_ids),
+            Transaction.transaction_type == "transfer",
+            Transaction.amount > 0,
+            func.strftime("%Y", Transaction.date) == year_str,
+            func.strftime("%m", Transaction.date) == month_str,
+        ).all()
+        savings_rows = [
+            SavingsRow(
+                description=t.description or "Sparüberweisung",
+                amount=float(t.amount),
+                date=str(t.date),
+            )
+            for t in s_txs
+        ]
+
     # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(
         Loan.household_id == hh_id,
@@ -344,4 +389,5 @@ def get_month_view(
             debt_to_income=debt_to_income,
             emergency_months=emergency_months,
         ),
+        savings_rows=savings_rows,
     )
