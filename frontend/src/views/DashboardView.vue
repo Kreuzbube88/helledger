@@ -381,8 +381,8 @@ watch(() => auth.user?.active_household_id, async (id) => {
       >
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.savingsRate') }}</p>
         <p class="text-2xl font-bold tabular-nums"
-           :class="kpis.real_savings_rate >= 20 ? 'text-emerald-400' : kpis.real_savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
-          {{ kpis.real_savings_rate.toFixed(1) }}%
+           :class="kpis.savings_rate >= 20 ? 'text-emerald-400' : kpis.savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.savings_rate.toFixed(1) }}%
         </p>
       </div>
       <!-- Kreditlastquote -->
