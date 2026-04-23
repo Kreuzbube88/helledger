@@ -26,8 +26,8 @@ const auth = useAuthStore()
 const year  = ref(new Date().getFullYear())
 const month = ref(new Date().getMonth() + 1)
 const summary  = ref({ income: 0, expenses: 0, balance: 0 })
-const sollIst  = ref([])
 const balances = ref([])
+const monthSections = ref([])
 const loaded   = ref(false)
 const expiringCats = ref([])
 const monthlyReserve = ref(null)
@@ -71,14 +71,12 @@ const monthLabel = computed(() =>
 // ── Donut chart ────────────────────────────────────────────────────
 const donutData = computed(() => {
   const nodes = []
-  function walk(list) {
-    for (const n of list) {
-      if (n.category_type !== 'income' && Math.abs(parseFloat(n.ist)) > 0)
-        nodes.push({ name: n.name, value: Math.abs(parseFloat(n.ist)) })
-      if (n.children) walk(n.children)
+  for (const section of monthSections.value) {
+    if (section.type === 'income') continue
+    for (const row of section.rows) {
+      if (row.ist > 0) nodes.push({ name: row.name, value: row.ist })
     }
   }
-  walk(sollIst.value)
   return nodes
 })
 
@@ -141,17 +139,19 @@ async function loadGoals() {
 
 async function load() {
   loaded.value = false
-  const [sumRes, siRes, balRes, kpiRes] = await Promise.all([
+  const [sumRes, balRes, kpiRes] = await Promise.all([
     api.get(`/transactions/summary?year=${year.value}&month=${month.value}`),
-    api.get(`/categories/soll-ist?year=${year.value}&month=${month.value}`),
     api.get('/accounts/balances'),
     api.get(`/dashboard/month?year=${year.value}&month=${month.value}`),
   ])
-  if (!sumRes.ok || !siRes.ok || !balRes.ok) { toast.error(t('errors.generic')); return }
+  if (!sumRes.ok || !balRes.ok) { toast.error(t('errors.generic')); return }
   summary.value  = await sumRes.json()
-  sollIst.value  = await siRes.json()
   balances.value = await balRes.json()
-  if (kpiRes.ok) kpis.value = (await kpiRes.json()).summary
+  if (kpiRes.ok) {
+    const data = await kpiRes.json()
+    kpis.value = data.summary
+    monthSections.value = data.sections || []
+  }
   loaded.value   = true
 }
 
@@ -320,50 +320,25 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
     </div>
 
-    <!-- ── Budget vs. Actual + Donut ────────────────────────────── -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <!-- Soll/Ist -->
-      <div
-        class="anim-fade-up delay-200 rounded-2xl border overflow-hidden"
-        :class="theme.isDark
-          ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]'
-          : 'bg-white border-gray-100 shadow-sm'"
-      >
-        <div class="px-5 py-4 border-b flex items-center justify-between"
-             :class="theme.isDark ? 'border-white/[0.05]' : 'border-gray-50'">
-          <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {{ t('dashboard.sollIst') }}
-          </h2>
-          <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 nav-dot" style="box-shadow: 0 0 6px rgba(16,185,129,0.8)" />
-        </div>
-        <div v-if="sollIst.length === 0" class="px-5 py-12 text-sm text-muted-foreground text-center">
-          {{ t('dashboard.noData') }}
-        </div>
-        <div v-else>
-          <SollIstRow v-for="node in sollIst" :key="node.id" :node="node" :depth="0" />
-        </div>
-      </div>
-
-      <!-- Donut -->
-      <div
-        class="anim-fade-up delay-250 rounded-2xl border p-5"
-        :class="theme.isDark
-          ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]'
-          : 'bg-white border-gray-100 shadow-sm'"
-      >
-        <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-5">
-          {{ t('reports.chart.expensesByCategory') }}
-        </h2>
-        <Doughnut
-          v-if="donutData.length > 0"
-          :data="donutChartData"
-          :options="donutOptions"
-          class="max-h-52"
-        />
-        <p v-else class="text-sm text-muted-foreground text-center py-12">
-          {{ t('dashboard.noData') }}
-        </p>
-      </div>
+    <!-- ── Expenses donut ────────────────────────────────────────── -->
+    <div
+      class="anim-fade-up delay-200 rounded-2xl border p-5"
+      :class="theme.isDark
+        ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]'
+        : 'bg-white border-gray-100 shadow-sm'"
+    >
+      <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-5">
+        {{ t('reports.chart.expensesByCategory') }}
+      </h2>
+      <Doughnut
+        v-if="donutData.length > 0"
+        :data="donutChartData"
+        :options="donutOptions"
+        class="max-h-52"
+      />
+      <p v-else class="text-sm text-muted-foreground text-center py-12">
+        {{ t('dashboard.noData') }}
+      </p>
     </div>
 
     <!-- ── Monthly reserve ─────────────────────────────────────────── -->
@@ -493,25 +468,3 @@ watch(() => auth.user?.active_household_id, async (id) => {
   </main>
 </template>
 
-<script>
-const SollIstRow = {
-  name: 'SollIstRow',
-  props: { node: Object, depth: Number },
-  template: `
-    <div>
-      <div class="px-5 py-2.5 border-b border-white/[0.04] last:border-0"
-           :style="{ paddingLeft: (depth * 12 + 20) + 'px' }">
-        <div class="flex justify-between items-center">
-          <span class="text-sm">{{ node.name }}</span>
-          <span class="text-xs tabular-nums text-foreground">
-            {{ parseFloat(node.ist).toFixed(2).replace('.', ',') }} €
-          </span>
-        </div>
-      </div>
-      <SollIstRow v-for="child in node.children" :key="child.id" :node="child" :depth="depth + 1" />
-    </div>
-  `,
-  components: { SollIstRow: null },
-}
-SollIstRow.components.SollIstRow = SollIstRow
-</script>
