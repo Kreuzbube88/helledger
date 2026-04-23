@@ -149,12 +149,12 @@ onMounted(load)
           <div class="space-y-1">
             <Label>{{ t('accounts.role') }}</Label>
             <Select
-              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? '')"
-              @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v || null } }"
+              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? '__none__')"
+              @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v === '__none__' ? null : v } }"
             >
               <SelectTrigger><SelectValue :placeholder="t('accounts.noRole')" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{{ t('accounts.noRole') }}</SelectItem>
+                <SelectItem value="__none__">{{ t('accounts.noRole') }}</SelectItem>
                 <SelectItem value="main">{{ t('accounts.roles.main') }}</SelectItem>
                 <SelectItem value="fixed_costs">{{ t('accounts.roles.fixed_costs') }}</SelectItem>
                 <SelectItem value="variable">{{ t('accounts.roles.variable') }}</SelectItem>
