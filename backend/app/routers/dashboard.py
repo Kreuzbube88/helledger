@@ -270,6 +270,8 @@ def get_month_view(
         real_savings += float(sc)
 
     real_savings_rate = (real_savings / total_income * 100) if total_income > 0 else 0.0
+    savings_amount = real_savings
+    available = total_income - total_expense - savings_amount
 
     # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(
@@ -314,6 +316,14 @@ def get_month_view(
         ).scalar() or 0.0
         monthly_expenses.append(float(exp))
     avg_expense = sum(monthly_expenses) / len(monthly_expenses) if monthly_expenses else 0.0
+    if avg_expense == 0.0:
+        cur_expense = db.query(func.sum(func.abs(Transaction.amount))).filter(
+            Transaction.household_id == hh_id,
+            Transaction.transaction_type == "expense",
+            func.strftime("%Y", Transaction.date) == year_str,
+            func.strftime("%m", Transaction.date) == month_str,
+        ).scalar() or 0.0
+        avg_expense = float(cur_expense)
     emergency_months = max(0.0, liquid_balance / avg_expense) if avg_expense > 0 else 0.0
 
     return MonthViewResponse(
@@ -326,6 +336,8 @@ def get_month_view(
             balance=balance,
             savings_rate=savings_rate,
             real_savings_rate=real_savings_rate,
+            savings_amount=savings_amount,
+            available=available,
             debt_to_income=debt_to_income,
             emergency_months=emergency_months,
         ),

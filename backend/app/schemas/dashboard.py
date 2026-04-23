@@ -37,6 +37,8 @@ class MonthSummary(BaseModel):
     balance: float
     savings_rate: float
     real_savings_rate: float
+    savings_amount: float
+    available: float
     debt_to_income: float
     emergency_months: float
 
