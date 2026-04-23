@@ -18,6 +18,7 @@ class YearViewResponse(BaseModel):
     monthly_balance: list[float]
     planned_from: int
     savings_by_month: dict[str, float] = {}
+    savings_planned_by_month: dict[str, float] = {}
 
 
 class MonthCategoryRow(BaseModel):

@@ -190,6 +190,25 @@ def get_year_view(
         )
         savings_by_month = {m: float(v) for m, v in s_rows}
 
+    savings_planned_by_month: dict[str, float] = {}
+    transfer_fcs = [
+        fc for fc in active_fcs
+        if fc.cost_type == "transfer"
+        and fc.to_account_id is not None
+        and fc.to_account_id in savings_acc_ids_y
+    ]
+    for m in range(1, 13):
+        month_key = f"{m:02d}"
+        if month_key in savings_by_month:
+            continue  # already have actual data
+        total = sum(
+            float(fc.amount)
+            for fc in transfer_fcs
+            if _fc_active_in_month(fc, m) and _fc_bills_in_month(fc, m)
+        )
+        if total > 0:
+            savings_planned_by_month[month_key] = total
+
     return YearViewResponse(
         year=year,
         categories=category_rows,
@@ -198,6 +217,7 @@ def get_year_view(
         monthly_balance=monthly_balance,
         planned_from=planned_from,
         savings_by_month=savings_by_month,
+        savings_planned_by_month=savings_planned_by_month,
     )
 
 
@@ -336,13 +356,13 @@ def get_month_view(
         Account.archived.is_(False),
     ).all()
     liquid_ids = [a.id for a in liquid_accounts]
-    liquid_balance = sum(float(a.starting_balance) for a in liquid_accounts)
+    liquid_balance = sum(float(a.starting_balance or 0) for a in liquid_accounts)
     if liquid_ids:
         tx_sum = db.query(func.sum(Transaction.amount)).filter(
             Transaction.household_id == hh_id,
             Transaction.account_id.in_(liquid_ids),
         ).scalar() or 0.0
-        liquid_balance += float(tx_sum)
+        liquid_balance += float(tx_sum or 0)
 
     # avg expense over 3 months prior to selected month
     from datetime import date as _date
