@@ -246,6 +246,7 @@ def change_amount(
         cost_type=fc.cost_type,
         category_id=fc.category_id,
         account_id=fc.account_id,
+        to_account_id=fc.to_account_id,
         interval_months=fc.interval_months,
         show_split=fc.show_split,
         start_date=body.valid_from,
