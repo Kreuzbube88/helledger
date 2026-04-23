@@ -5,7 +5,7 @@ import { useApi } from '@/lib/api'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
-const { t } = useI18n()
+const { t, tm } = useI18n()
 const api = useApi()
 
 const now = new Date()
@@ -38,6 +38,14 @@ const variableBalance = computed(() =>
 )
 const totalAvailable = computed(() => fixedCostsBalance.value + variableBalance.value)
 
+const monthLabel = computed(() => {
+  const months = tm('monthView.monthsFull')
+  if (Array.isArray(months) && months[month.value - 1]) {
+    return months[month.value - 1]
+  }
+  return new Date(year.value, month.value - 1).toLocaleString('default', { month: 'long' })
+})
+
 watch([year, month], load)
 onMounted(load)
 </script>
@@ -46,7 +54,7 @@ onMounted(load)
   <div class="container mx-auto py-6 space-y-4">
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="prevMonth">&#8249;</Button>
-      <h1 class="text-2xl font-bold">{{ $tm('monthView.monthsFull')[month - 1] }} {{ year }}</h1>
+      <h1 class="text-2xl font-bold">{{ monthLabel }} {{ year }}</h1>
       <Button variant="ghost" size="icon" @click="nextMonth">&#8250;</Button>
     </div>
 
@@ -84,21 +92,21 @@ onMounted(load)
           <div class="flex divide-x">
             <div class="flex-1 text-center px-4 space-y-1">
               <p class="text-sm text-muted-foreground">{{ $t('dashboard.income') }}</p>
-              <p class="text-xl font-bold text-emerald-500">{{ data.summary.total_income.toFixed(2) }}</p>
+              <p class="text-xl font-bold text-emerald-500">{{ (data.summary?.total_income ?? 0).toFixed(2) }}</p>
             </div>
             <div class="flex-1 text-center px-4 space-y-1">
               <p class="text-sm text-muted-foreground">{{ $t('dashboard.expenses') }}</p>
-              <p class="text-xl font-bold text-rose-500">{{ data.summary.total_expense.toFixed(2) }}</p>
+              <p class="text-xl font-bold text-rose-500">{{ (data.summary?.total_expense ?? 0).toFixed(2) }}</p>
             </div>
             <div class="flex-1 text-center px-4 space-y-1">
               <p class="text-sm text-muted-foreground">{{ $t('monthView.balance') }}</p>
-              <p class="text-xl font-bold" :class="data.summary.balance >= 0 ? 'text-emerald-500' : 'text-rose-500'">
-                {{ data.summary.balance.toFixed(2) }}
+              <p class="text-xl font-bold" :class="(data.summary?.balance ?? 0) >= 0 ? 'text-emerald-500' : 'text-rose-500'">
+                {{ (data.summary?.balance ?? 0).toFixed(2) }}
               </p>
             </div>
             <div class="flex-1 text-center px-4 space-y-1">
               <p class="text-sm text-muted-foreground">{{ $t('monthView.savingsRate') }}</p>
-              <p class="text-xl font-bold text-indigo-500">{{ data.summary.real_savings_rate.toFixed(1) }}%</p>
+              <p class="text-xl font-bold text-indigo-500">{{ (data.summary?.real_savings_rate ?? 0).toFixed(1) }}%</p>
             </div>
           </div>
         </CardContent>
