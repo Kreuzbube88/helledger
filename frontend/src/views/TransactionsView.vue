@@ -171,7 +171,7 @@ function openEdit(tx) {
 async function save() {
   const needsCategory = form.value.transaction_type === 'income' || form.value.transaction_type === 'expense'
   if (needsCategory && (!form.value.category_id || form.value.category_id === '__none__')) {
-    toast.error(t('transactions.category') + ' erforderlich')
+    toast.error(t('transactions.categoryRequired'))
     return
   }
   let body
@@ -179,7 +179,7 @@ async function save() {
     const fromId = parseInt(form.value.from_account_id)
     const toId = parseInt(form.value.to_account_id)
     if (!fromId || !toId) {
-      toast.error(t('transactions.account') + ' erforderlich')
+      toast.error(t('transactions.accountRequired'))
       return
     }
     body = {

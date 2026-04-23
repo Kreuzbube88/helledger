@@ -242,6 +242,7 @@ def get_month_view(
         ).all()
     ]
     real_savings = 0.0
+    transfer_savings = 0.0
     if savings_acc_ids:
         rs = db.query(func.sum(Transaction.amount)).filter(
             Transaction.household_id == hh_id,
@@ -251,7 +252,8 @@ def get_month_view(
             func.strftime("%Y", Transaction.date) == year_str,
             func.strftime("%m", Transaction.date) == month_str,
         ).scalar() or 0.0
-        real_savings += float(rs)
+        transfer_savings = float(rs)
+        real_savings += transfer_savings
 
     savings_cat_ids = [
         c.id for c in db.query(Category).filter(
@@ -271,7 +273,8 @@ def get_month_view(
 
     real_savings_rate = (real_savings / total_income * 100) if total_income > 0 else 0.0
     savings_amount = real_savings
-    available = total_income - total_expense - savings_amount
+    # is_savings category expenses are already in total_expense; only subtract transfers (not in expenses)
+    available = total_income - total_expense - transfer_savings
 
     # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(

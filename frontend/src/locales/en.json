@@ -92,7 +92,9 @@
     "autoLabel": "Auto",
     "filterAll": "All",
     "filterManual": "Manual only",
-    "filterAutoOnly": "Auto only"
+    "filterAutoOnly": "Auto only",
+    "categoryRequired": "Category required",
+    "accountRequired": "Account required"
   },
   "accounts": {
     "title": "Accounts", "add": "Add Account",

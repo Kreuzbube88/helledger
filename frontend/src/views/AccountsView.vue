@@ -19,6 +19,7 @@ const api = useApi()
 const accounts = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
+const showCustomInput = ref(false)
 const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null })
 
 async function load() {
@@ -28,13 +29,16 @@ async function load() {
 
 function openCreate() {
   editingId.value = null
+  showCustomInput.value = false
   form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null }
   showDialog.value = true
 }
 
 function openEdit(acc) {
   editingId.value = acc.id
-  form.value = { name: acc.name, account_type: acc.account_type, starting_balance: String(acc.starting_balance), currency: acc.currency, account_role: acc.account_role ?? null }
+  const role = acc.account_role ?? null
+  showCustomInput.value = role !== null && role !== '' && !FIXED_ROLES.includes(role)
+  form.value = { name: acc.name, account_type: acc.account_type, starting_balance: String(acc.starting_balance), currency: acc.currency, account_role: role }
   showDialog.value = true
 }
 
@@ -144,7 +148,10 @@ onMounted(load)
           </div>
           <div class="space-y-1">
             <Label>{{ t('accounts.role') }}</Label>
-            <Select v-model="form.account_role" @update:modelValue="v => { if (v === '__custom__') form.account_role = '' }">
+            <Select
+              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? '')"
+              @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v || null } }"
+            >
               <SelectTrigger><SelectValue :placeholder="t('accounts.noRole')" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="">{{ t('accounts.noRole') }}</SelectItem>
@@ -156,7 +163,7 @@ onMounted(load)
               </SelectContent>
             </Select>
             <Input
-              v-if="form.account_role !== null && form.account_role !== '' && !['main','fixed_costs','variable','savings'].includes(form.account_role)"
+              v-if="showCustomInput"
               v-model="form.account_role"
               :placeholder="t('accounts.customRolePlaceholder')"
               class="mt-1"
