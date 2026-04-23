@@ -153,13 +153,19 @@ async function save() {
   }
   let body
   if (form.value.transaction_type === 'transfer') {
+    const fromId = parseInt(form.value.from_account_id)
+    const toId = parseInt(form.value.to_account_id)
+    if (!fromId || !toId) {
+      toast.error(t('transactions.account') + ' erforderlich')
+      return
+    }
     body = {
       transaction_type: 'transfer',
       date: form.value.date,
       description: form.value.description,
       amount: parseFloat(form.value.amount),
-      from_account_id: parseInt(form.value.from_account_id),
-      to_account_id: parseInt(form.value.to_account_id),
+      from_account_id: fromId,
+      to_account_id: toId,
     }
   } else {
     body = {
@@ -285,7 +291,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
                 {{ fmtAmount(tx) }}
               </TableCell>
               <TableCell class="text-right space-x-1 whitespace-nowrap">
-                <Button variant="ghost" size="sm" @click="openEdit(tx)">{{ t('transactions.edit') }}</Button>
+                <Button v-if="tx.transaction_type !== 'transfer'" variant="ghost" size="sm" @click="openEdit(tx)">{{ t('transactions.edit') }}</Button>
                 <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="remove(tx.id)">
                   {{ t('transactions.delete') }}
                 </Button>

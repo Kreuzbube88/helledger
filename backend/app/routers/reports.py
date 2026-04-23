@@ -11,7 +11,6 @@ from app.models.household import Account, Category
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.reports import BalanceHistoryItem, ExpensesByCategoryItem, MonthlyTrendItem
-from app.schemas.transaction import SollIstNode
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -196,64 +195,3 @@ async def balance_history(
     return result
 
 
-@router.get("/soll-ist", response_model=list[SollIstNode])
-async def reports_soll_ist(
-    from_date: date_type = Query(...),
-    to_date: date_type = Query(...),
-    account_id: int | None = Query(None),
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    hh_id = _require_active_hh(user)
-    _validate_dates(from_date, to_date)
-    cats = db.query(Category).filter(
-        Category.household_id == hh_id,
-        Category.archived.is_(False),
-    ).all()
-    if not cats:
-        return []
-
-    tx_q = (
-        db.query(Transaction.category_id, func.sum(Transaction.amount))
-        .filter(
-            Transaction.household_id == hh_id,
-            Transaction.date >= from_date,
-            Transaction.date <= to_date,
-            Transaction.transaction_type.in_(["income", "expense"]),
-            Transaction.category_id.isnot(None),
-        )
-    )
-    if account_id is not None:
-        acc = db.get(Account, account_id)
-        if acc is None:
-            raise HTTPException(status_code=404, detail="not_found")
-        if acc.household_id != hh_id:
-            raise HTTPException(status_code=403, detail="forbidden")
-        tx_q = tx_q.filter(Transaction.account_id == account_id)
-    tx_map: dict[int, Decimal] = {
-        cat_id: amt for cat_id, amt in tx_q.group_by(Transaction.category_id).all()
-    }
-
-    def _build(parent_id: int | None) -> list[SollIstNode]:
-        result = []
-        for cat in cats:
-            if cat.parent_id != parent_id:
-                continue
-            children = _build(cat.id)
-            ist_self = tx_map.get(cat.id, Decimal("0"))
-            ist_children = sum(Decimal(c.ist) for c in children)
-            ist = ist_self + ist_children
-            result.append(
-                SollIstNode(
-                    id=cat.id,
-                    name=cat.name,
-                    category_type=cat.category_type,
-                    soll="0.00",
-                    ist=f"{ist:.2f}",
-                    diff=f"{-ist:.2f}",
-                    children=children,
-                )
-            )
-        return result
-
-    return _build(None)

@@ -1,18 +1,14 @@
-from datetime import datetime, timezone, date as date_type
-from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import extract, func
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.user import User
 from app.models.household import Category
-from app.models.transaction import Transaction
 from app.schemas.categories import (
     CategoryCreate, CategoryUpdate, CategoryResponse, CategoryTreeNode
 )
-from app.schemas.transaction import SollIstNode
 
 router = APIRouter(prefix="/categories")
 
@@ -84,56 +80,6 @@ async def create_category(
     db.commit()
     db.refresh(cat)
     return cat
-
-
-@router.get("/soll-ist", response_model=list[SollIstNode])
-async def get_soll_ist(
-    year: int = Query(...),
-    month: int = Query(...),
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    hh_id = _require_active_hh(user)
-
-    cats = db.query(Category).filter(
-        Category.household_id == hh_id,
-        Category.archived.is_(False),
-    ).all()
-
-    if not cats:
-        return []
-
-    tx_rows = (
-        db.query(Transaction.category_id, func.sum(Transaction.amount))
-        .filter(
-            Transaction.household_id == hh_id,
-            extract("year", Transaction.date) == year,
-            extract("month", Transaction.date) == month,
-            Transaction.transaction_type.in_(["income", "expense"]),
-            Transaction.category_id.isnot(None),
-        )
-        .group_by(Transaction.category_id)
-        .all()
-    )
-    tx_map: dict[int, Decimal] = {cat_id: amt for cat_id, amt in tx_rows}
-
-    def _build(parent_id: int | None) -> list[SollIstNode]:
-        result = []
-        for cat in cats:
-            if cat.parent_id != parent_id:
-                continue
-            children = _build(cat.id)
-            ist_self = tx_map.get(cat.id, Decimal("0"))
-            ist_children = sum(Decimal(c.ist) for c in children)
-            ist = ist_self + ist_children
-            result.append(SollIstNode(
-                id=cat.id, name=cat.name, category_type=cat.category_type,
-                soll="0.00", ist=f"{ist:.2f}", diff=f"{-ist:.2f}",
-                children=children,
-            ))
-        return result
-
-    return _build(None)
 
 
 

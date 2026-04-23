@@ -36,7 +36,7 @@ const form = ref({
   property_value: '',
   fixed_rate_until: '',
   land_charge: '',
-  account_id: '',
+  account_id: '__none__',
 })
 
 const isExistingLoan = computed(() => form.value.start_date < new Date().toISOString().slice(0, 10))
@@ -81,7 +81,7 @@ function openCreate() {
     property_value: '',
     fixed_rate_until: '',
     land_charge: '',
-    account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '',
+    account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '__none__',
   }
   lockedField.value = null
   showDialog.value = true
@@ -115,7 +115,7 @@ async function save() {
     body.land_charge = form.value.land_charge ? parseFloat(form.value.land_charge) : null
   }
 
-  if (form.value.account_id) body.account_id = parseInt(form.value.account_id)
+  if (form.value.account_id && form.value.account_id !== '__none__') body.account_id = parseInt(form.value.account_id)
 
   const res = await api.post('/loans', body)
   if (res.ok) {
@@ -245,6 +245,7 @@ onMounted(load)
             <Select v-model="form.account_id">
               <SelectTrigger><SelectValue :placeholder="t('loans.noAccount')" /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">{{ t('loans.noAccount') }}</SelectItem>
                 <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
               </SelectContent>
             </Select>

@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class FixedCostCreate(BaseModel):
@@ -15,9 +15,18 @@ class FixedCostCreate(BaseModel):
     end_date: date | None = None
     next_date: date | None = None
 
+    @field_validator("interval_months")
+    @classmethod
+    def interval_must_be_positive(cls, v: int) -> int:
+        if v < 1:
+            raise ValueError("interval_months must be >= 1")
+        return v
+
 
 class FixedCostUpdate(BaseModel):
     name: str | None = None
+    amount: Decimal | None = None
+    cost_type: str | None = None
     category_id: int | None = None
     account_id: int | None = None
     interval_months: int | None = None
@@ -25,6 +34,13 @@ class FixedCostUpdate(BaseModel):
     start_date: date | None = None
     end_date: date | None = None
     next_date: date | None = None
+
+    @field_validator("interval_months")
+    @classmethod
+    def interval_must_be_positive(cls, v: int | None) -> int | None:
+        if v is not None and v < 1:
+            raise ValueError("interval_months must be >= 1")
+        return v
 
 
 class FixedCostAmountChange(BaseModel):

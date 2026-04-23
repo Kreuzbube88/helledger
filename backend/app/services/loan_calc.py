@@ -6,6 +6,8 @@ from decimal import Decimal, ROUND_HALF_UP
 
 def calc_payment(principal: float, annual_rate: float, term_months: int) -> float:
     """P, r, n → PMT"""
+    if term_months <= 0:
+        raise ValueError("term_months must be positive")
     if annual_rate == 0:
         return principal / term_months
     r = annual_rate / 100 / 12

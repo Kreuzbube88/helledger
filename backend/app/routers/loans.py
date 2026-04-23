@@ -101,6 +101,11 @@ def _resolve_loan_fields(body: LoanCreate) -> tuple[Decimal, Decimal, Decimal, i
     pmt = float(body.monthly_payment) if body.monthly_payment is not None else None
     n = body.term_months
 
+    provided = sum(1 for x in [p, r, pmt, n] if x is not None)
+    if provided != 3:
+        raise HTTPException(status_code=422, detail="provide3of4")
+    if p is not None and p <= 0:
+        raise HTTPException(status_code=422, detail="principal must be positive")
     try:
         if p is None:
             p = calc_principal(pmt, r, n)

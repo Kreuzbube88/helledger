@@ -1,6 +1,6 @@
 from datetime import date as Date, datetime
 from decimal import Decimal
-from pydantic import BaseModel, model_validator, field_serializer
+from pydantic import BaseModel, field_serializer, model_validator
 
 
 class TransactionCreate(BaseModel):
@@ -70,14 +70,3 @@ class BalanceResponse(BaseModel):
     archived: bool
 
 
-class SollIstNode(BaseModel):
-    id: int
-    name: str
-    category_type: str
-    soll: str
-    ist: str
-    diff: str
-    children: list["SollIstNode"] = []
-
-
-SollIstNode.model_rebuild()
