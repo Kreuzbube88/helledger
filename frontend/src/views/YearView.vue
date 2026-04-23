@@ -50,6 +50,7 @@ onMounted(load)
                 class="text-right py-2 px-2 min-w-16"
                 :class="data.planned_from <= i + 1 ? 'text-muted-foreground italic' : ''"
               >{{ m }}</th>
+              <th class="text-right py-2 px-2 min-w-16 font-semibold">{{ $t('monthView.gesamt') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +69,9 @@ onMounted(load)
                 ]"
               >
                 {{ val > 0 ? (cat.is_planned[i] ? '~' : '') + val.toFixed(0) : '—' }}
+              </td>
+              <td class="text-right py-1 px-2 tabular-nums font-semibold">
+                {{ cat.months.reduce((s, v) => s + v, 0) > 0 ? cat.months.reduce((s, v) => s + v, 0).toFixed(0) : '—' }}
               </td>
             </tr>
             <tr v-if="hasSavings" class="border-t-2 border-border">
