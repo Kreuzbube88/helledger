@@ -240,14 +240,12 @@ async def update_loan(
 
         try:
             if raw_p is None:
-                from app.services.loan_calc import calc_principal
                 p_val = calc_principal(float(raw_pmt), float(raw_r), int(raw_n))
                 loan.principal = Decimal(str(round(p_val, 2)))
                 loan.interest_rate = Decimal(str(raw_r))
                 loan.monthly_payment = Decimal(str(raw_pmt))
                 loan.term_months = int(raw_n)
             elif raw_r is None:
-                from app.services.loan_calc import calc_rate_newton
                 r_val = calc_rate_newton(float(raw_p), float(raw_pmt), int(raw_n))
                 loan.principal = Decimal(str(raw_p))
                 loan.interest_rate = Decimal(str(round(r_val, 6)))
@@ -260,7 +258,6 @@ async def update_loan(
                 loan.monthly_payment = Decimal(str(round(pmt_val, 2)))
                 loan.term_months = int(raw_n)
             elif raw_n is None:
-                from app.services.loan_calc import calc_term
                 n_val = calc_term(float(raw_p), float(raw_r), float(raw_pmt))
                 loan.principal = Decimal(str(raw_p))
                 loan.interest_rate = Decimal(str(raw_r))

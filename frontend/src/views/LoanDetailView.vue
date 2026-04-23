@@ -73,7 +73,7 @@ watch(loan, (val) => {
   editForm.value = {
     name: val.name ?? '',
     lender: val.lender ?? '',
-    account_id: '__none__',
+    account_id: val.account_id ? String(val.account_id) : '__none__',
     principal: val.principal ?? '',
     interest_rate: val.interest_rate ?? '',
     monthly_payment: val.monthly_payment ?? '',
