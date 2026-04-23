@@ -16,9 +16,11 @@ async function load() {
   if (r.ok) data.value = await r.json()
 }
 
-const hasSavings = computed(() =>
-  Object.values(data.value?.savings_by_month || {}).some(v => v > 0)
-)
+const hasSavings = computed(() => {
+  const actual = Object.values(data.value?.savings_by_month || {}).some(v => v > 0)
+  const planned = Object.values(data.value?.savings_planned_by_month || {}).some(v => v > 0)
+  return actual || planned
+})
 
 watch(year, load)
 onMounted(load)
@@ -69,18 +71,28 @@ onMounted(load)
               </td>
             </tr>
             <tr v-if="hasSavings" class="border-t-2 border-border">
-              <td class="sticky left-0 bg-background py-2 pr-4 font-semibold text-emerald-400">
+              <td class="py-2 pr-4 font-semibold text-emerald-400">
                 {{ t('yearView.savings') }}
               </td>
               <td
                 v-for="m in 12"
                 :key="m"
-                class="px-3 py-2 text-right tabular-nums text-emerald-400"
+                class="px-3 py-2 text-right tabular-nums"
+                :class="data.savings_by_month[String(m).padStart(2,'0')] ? 'text-emerald-400' : 'text-emerald-400/60 italic'"
               >
-                {{ (data.savings_by_month[String(m).padStart(2, '0')] || 0).toFixed(0) }}
+                <template v-if="data.savings_by_month[String(m).padStart(2,'0')]">
+                  {{ data.savings_by_month[String(m).padStart(2,'0')].toFixed(0) }}
+                </template>
+                <template v-else-if="data.savings_planned_by_month && data.savings_planned_by_month[String(m).padStart(2,'0')]">
+                  ~{{ data.savings_planned_by_month[String(m).padStart(2,'0')].toFixed(0) }}
+                </template>
+                <template v-else>—</template>
               </td>
               <td class="px-3 py-2 text-right tabular-nums font-semibold text-emerald-400">
-                {{ Object.values(data.savings_by_month).reduce((s, v) => s + v, 0).toFixed(0) }}
+                {{ (
+                  Object.values(data.savings_by_month || {}).reduce((s, v) => s + v, 0) +
+                  Object.values(data.savings_planned_by_month || {}).reduce((s, v) => s + v, 0)
+                ).toFixed(0) }}
               </td>
             </tr>
           </tbody>
