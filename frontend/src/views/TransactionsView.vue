@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
@@ -69,6 +69,10 @@ function flattenCats(list) {
   return result
 }
 
+function accountByRole(role) {
+  return accounts.value.find(a => a.account_role === role)?.id ?? null
+}
+
 function accountName(id) {
   return accounts.value.find(a => a.id === id)?.name || '—'
 }
@@ -125,8 +129,27 @@ function openCreate() {
     from_account_id: accounts.value[0]?.id ? String(accounts.value[0].id) : '',
     to_account_id: accounts.value[1]?.id ? String(accounts.value[1].id) : '',
   }
+  const txType = form.value.transaction_type
+  if (txType === 'expense') {
+    const id = accountByRole('variable')
+    if (id) form.value.account_id = String(id)
+  } else if (txType === 'income') {
+    const id = accountByRole('main')
+    if (id) form.value.account_id = String(id)
+  }
   showDialog.value = true
 }
+
+watch(() => form.value.transaction_type, (newType) => {
+  if (!showDialog.value) return
+  if (newType === 'expense') {
+    const id = accountByRole('variable')
+    if (id) form.value.account_id = String(id)
+  } else if (newType === 'income') {
+    const id = accountByRole('main')
+    if (id) form.value.account_id = String(id)
+  }
+})
 
 function openEdit(tx) {
   editingId.value = tx.id

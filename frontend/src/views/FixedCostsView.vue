@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
@@ -55,6 +55,10 @@ function intervalLabel(months) {
 
 function fmtAmount(amount) {
   return parseFloat(amount).toFixed(2).replace('.', ',') + ' €'
+}
+
+function accountByRole(role) {
+  return accounts.value.find(a => a.account_role === role)?.id ?? null
 }
 
 // ── Derived lists ─────────────────────────────────────────────────────
@@ -116,6 +120,19 @@ function openCreate() {
     start_date: new Date().toISOString().slice(0, 10),
     end_date: '',
   }
+  const costType = form.value.cost_type
+  if (costType === 'expense') {
+    const id = accountByRole('fixed_costs')
+    if (id) form.value.account_id = String(id)
+  } else if (costType === 'income') {
+    const id = accountByRole('main')
+    if (id) form.value.account_id = String(id)
+  } else if (costType === 'transfer') {
+    const fromId = accountByRole('fixed_costs') ?? accountByRole('variable')
+    if (fromId) form.value.account_id = String(fromId)
+    const toId = accountByRole('savings')
+    if (toId) form.value.to_account_id = String(toId)
+  }
   showDialog.value = true
 }
 
@@ -135,6 +152,22 @@ function openEdit(fc) {
   }
   showDialog.value = true
 }
+
+watch(() => form.value.cost_type, (newType) => {
+  if (!showDialog.value) return
+  if (newType === 'expense') {
+    const id = accountByRole('fixed_costs')
+    if (id) form.value.account_id = String(id)
+  } else if (newType === 'income') {
+    const id = accountByRole('main')
+    if (id) form.value.account_id = String(id)
+  } else if (newType === 'transfer') {
+    const fromId = accountByRole('fixed_costs') ?? accountByRole('variable')
+    if (fromId) form.value.account_id = String(fromId)
+    const toId = accountByRole('savings')
+    if (toId) form.value.to_account_id = String(toId)
+  }
+})
 
 async function save() {
   const body = {
