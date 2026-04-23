@@ -40,7 +40,6 @@ function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
     <div class="ambient-orb ambient-orb-3" />
     <div class="ambient-orb ambient-orb-4" />
     <div class="aurora-sweep" />
-    <div class="scan-line" />
   </div>
 
   <AppNav v-if="showNav" />
