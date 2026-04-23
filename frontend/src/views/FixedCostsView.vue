@@ -125,7 +125,7 @@ function openCreate() {
     const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   } else if (costType === 'income') {
-    const id = accountByRole('main')
+    const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   } else if (costType === 'transfer') {
     const fromId = accountByRole('fixed_costs') ?? accountByRole('variable')
@@ -159,7 +159,7 @@ watch(() => form.value.cost_type, (newType) => {
     const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   } else if (newType === 'income') {
-    const id = accountByRole('main')
+    const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   } else if (newType === 'transfer') {
     const fromId = accountByRole('fixed_costs') ?? accountByRole('variable')

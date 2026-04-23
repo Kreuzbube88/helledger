@@ -64,7 +64,8 @@
     "savings": "Savings",
     "available": "Available this month",
     "availableFixed": "Fixed Costs Account",
-    "availableVariable": "Variable Account"
+    "availableVariable": "Variable Account",
+    "availableSavings": "Savings Account"
   },
   "transactions": {
     "title": "Transactions",

@@ -147,7 +147,7 @@ function openCreate() {
     const id = accountByRole('variable')
     if (id) form.value.account_id = String(id)
   } else if (txType === 'income') {
-    const id = accountByRole('main')
+    const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   }
   showDialog.value = true
@@ -159,7 +159,7 @@ watch(() => form.value.transaction_type, (newType) => {
     const id = accountByRole('variable')
     if (id) form.value.account_id = String(id)
   } else if (newType === 'income') {
-    const id = accountByRole('main')
+    const id = accountByRole('fixed_costs')
     if (id) form.value.account_id = String(id)
   }
 })

@@ -64,7 +64,8 @@
     "savings": "Sparen",
     "available": "Diesen Monat noch verfügbar",
     "availableFixed": "Fixkostenkonto verfügbar",
-    "availableVariable": "Variables Konto verfügbar"
+    "availableVariable": "Variables Konto verfügbar",
+    "availableSavings": "Sparkonto"
   },
   "transactions": {
     "title": "Transaktionen",

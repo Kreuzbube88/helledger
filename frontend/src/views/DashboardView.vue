@@ -130,6 +130,11 @@ const variableBalance = computed(() =>
 )
 const hasFixedCosts = computed(() => balances.value.some(b => b.account_role === 'fixed_costs' && !b.archived))
 const hasVariable = computed(() => balances.value.some(b => b.account_role === 'variable' && !b.archived))
+const savingsBalance = computed(() =>
+  balances.value.filter(b => b.account_role === 'savings' && !b.archived)
+    .reduce((s, a) => s + parseFloat(a.balance), 0)
+)
+const hasSavings = computed(() => balances.value.some(b => b.account_role === 'savings' && !b.archived))
 
 // ── Data loading ───────────────────────────────────────────────────
 async function loadExpiring() {
@@ -322,7 +327,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── Available by account ──────────────────────────────────── -->
-    <div v-if="hasFixedCosts || hasVariable" class="grid grid-cols-2 gap-3">
+    <div v-if="hasFixedCosts || hasVariable || hasSavings" :class="['grid gap-3', (hasFixedCosts?1:0)+(hasVariable?1:0)+(hasSavings?1:0) === 3 ? 'grid-cols-3' : 'grid-cols-2']">
       <div
         v-if="hasFixedCosts"
         class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
@@ -349,6 +354,20 @@ watch(() => auth.user?.active_household_id, async (id) => {
         </p>
         <p class="text-xl font-bold tabular-nums" :class="variableBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'">
           {{ fmt(variableBalance) }}
+        </p>
+      </div>
+      <div
+        v-if="hasSavings"
+        class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
+        :class="theme.isDark
+          ? (savingsBalance >= 0 ? 'bg-emerald-500/[0.07] border-emerald-500/[0.15]' : 'bg-rose-500/[0.07] border-rose-500/[0.15]')
+          : (savingsBalance >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100')"
+      >
+        <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {{ t('dashboard.availableSavings') }}
+        </p>
+        <p class="text-xl font-bold tabular-nums" :class="savingsBalance >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+          {{ fmt(savingsBalance) }}
         </p>
       </div>
     </div>

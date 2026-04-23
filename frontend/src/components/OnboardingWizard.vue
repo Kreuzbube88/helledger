@@ -143,7 +143,7 @@ const householdName = ref(`${auth.user?.name || 'Mein'}s Haushalt`)
 
 // ── Step 2: Accounts ──────────────────────────────────────────────────
 const accounts = ref([
-  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'main' },
+  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'fixed_costs' },
 ])
 
 const ACCOUNT_TYPES = [
@@ -153,14 +153,13 @@ const ACCOUNT_TYPES = [
 ]
 
 const ACCOUNT_ROLES = [
-  { value: 'main',        labelDe: 'Hauptkonto',        labelEn: 'Main Account' },
   { value: 'fixed_costs', labelDe: 'Fixkosten-Konto',   labelEn: 'Fixed Costs' },
   { value: 'variable',    labelDe: 'Variabel-Konto',    labelEn: 'Variable' },
   { value: 'savings',     labelDe: 'Sparkonto',         labelEn: 'Savings' },
 ]
 
 function addAccount() {
-  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'main' })
+  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: 'fixed_costs' })
 }
 
 function removeAccount(i) {
@@ -479,7 +478,7 @@ function loc(obj) {
                   <button
                     v-for="type in ACCOUNT_TYPES"
                     :key="type.value"
-                    @click="acc.account_type = type.value"
+                    @click="acc.account_type = type.value; if (type.value === 'savings') acc.account_role = 'savings'"
                     class="flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl text-[11px] font-medium transition-all"
                     :class="acc.account_type === type.value
                       ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
@@ -495,8 +494,9 @@ function loc(obj) {
                     v-for="role in ACCOUNT_ROLES"
                     :key="String(role.value)"
                     type="button"
+                    :disabled="acc.account_type === 'savings'"
                     @click="acc.account_role = role.value"
-                    class="flex items-center justify-center py-2 px-2 rounded-xl text-[11px] font-medium transition-all"
+                    class="flex items-center justify-center py-2 px-2 rounded-xl text-[11px] font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     :class="acc.account_role === role.value
                       ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                       : 'text-muted-foreground border border-transparent hover:bg-white/5'"

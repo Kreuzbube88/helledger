@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
 import { toast } from 'vue-sonner'
@@ -61,6 +61,13 @@ async function save() {
     toast.error(t('errors.generic'))
   }
 }
+
+watch(() => form.value.account_type, (t) => {
+  if (t === 'savings') {
+    showCustomInput.value = false
+    form.value.account_role = 'savings'
+  }
+})
 
 const FIXED_ROLES = ['main', 'fixed_costs', 'variable', 'savings']
 function roleLabel(role) {
@@ -153,12 +160,12 @@ onMounted(load)
           <div class="space-y-1">
             <Label>{{ t('accounts.role') }}</Label>
             <Select
-              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? 'main')"
+              :model-value="showCustomInput ? '__custom__' : (form.account_role ?? 'fixed_costs')"
+              :disabled="form.account_type === 'savings'"
               @update:modelValue="v => { if (v === '__custom__') { showCustomInput = true; form.account_role = '' } else { showCustomInput = false; form.account_role = v } }"
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="main">{{ t('accounts.roles.main') }}</SelectItem>
                 <SelectItem value="fixed_costs">{{ t('accounts.roles.fixed_costs') }}</SelectItem>
                 <SelectItem value="variable">{{ t('accounts.roles.variable') }}</SelectItem>
                 <SelectItem value="savings">{{ t('accounts.roles.savings') }}</SelectItem>

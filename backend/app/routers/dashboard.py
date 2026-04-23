@@ -237,7 +237,7 @@ def get_month_view(
     savings_acc_ids = [
         a.id for a in db.query(Account).filter(
             Account.household_id == hh_id,
-            Account.account_type == "savings",
+            Account.account_role == "savings",
             Account.archived.is_(False),
         ).all()
     ]
@@ -287,7 +287,7 @@ def get_month_view(
     # emergency_months: liquid account balances / avg monthly expenses (last 3 months)
     liquid_accounts = db.query(Account).filter(
         Account.household_id == hh_id,
-        Account.account_type.in_(["checking", "savings"]),
+        Account.account_role.in_(["fixed_costs", "variable", "savings"]),
         Account.archived.is_(False),
     ).all()
     liquid_ids = [a.id for a in liquid_accounts]
