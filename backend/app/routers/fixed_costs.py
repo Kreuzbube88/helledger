@@ -96,17 +96,43 @@ def trigger_due(
     ).all()
     count = 0
     for fc in due:
-        sign = Decimal("1") if fc.cost_type == "income" else Decimal("-1")
-        db.add(Transaction(
-            household_id=hh_id,
-            account_id=fc.account_id,
-            category_id=fc.category_id,
-            amount=sign * abs(fc.amount),
-            date=fc.next_date,
-            description=fc.name,
-            transaction_type=fc.cost_type,
-            is_auto_generated=True,
-        ))
+        if fc.cost_type == 'transfer':
+            debit = Transaction(
+                household_id=hh_id,
+                account_id=fc.account_id,
+                amount=-abs(fc.amount),
+                date=fc.next_date,
+                description=fc.name,
+                transaction_type='transfer',
+                is_auto_generated=True,
+            )
+            db.add(debit)
+            db.flush()
+            credit = Transaction(
+                household_id=hh_id,
+                account_id=fc.to_account_id,
+                amount=abs(fc.amount),
+                date=fc.next_date,
+                description=fc.name,
+                transaction_type='transfer',
+                is_auto_generated=True,
+                transfer_peer_id=debit.id,
+            )
+            db.add(credit)
+            db.flush()
+            debit.transfer_peer_id = credit.id
+        else:
+            sign = Decimal("1") if fc.cost_type == "income" else Decimal("-1")
+            db.add(Transaction(
+                household_id=hh_id,
+                account_id=fc.account_id,
+                category_id=fc.category_id,
+                amount=sign * abs(fc.amount),
+                date=fc.next_date,
+                description=fc.name,
+                transaction_type=fc.cost_type,
+                is_auto_generated=True,
+            ))
         fc.next_date = _add_months(fc.next_date, fc.interval_months)
         count += 1
     db.commit()

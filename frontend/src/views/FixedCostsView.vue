@@ -29,6 +29,7 @@ const form = ref({
   cost_type: 'expense',
   category_id: '__none__',
   account_id: '__none__',
+  to_account_id: '',
   amount: '',
   interval_months: '1',
   show_split: false,
@@ -59,14 +60,16 @@ function fmtAmount(amount) {
 // ── Derived lists ─────────────────────────────────────────────────────
 
 const filteredCategories = computed(() => {
-  const typeMap = { expense: 'fixed', income: 'income' }
+  const typeMap: Record<string, string> = { expense: 'fixed', income: 'income' }
   const target = typeMap[form.value.cost_type]
-  return categories.value.filter(c => c.category_type === target)
+  if (!target) return []
+  return categories.value.filter((c: { category_type: string }) => c.category_type === target)
 })
 
-const incomeItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'income' && !fc.loan_id))
-const expenseItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'expense' && !fc.loan_id))
-const loanItems = computed(() => fixedCosts.value.filter(fc => fc.loan_id !== null && fc.loan_id !== undefined))
+const incomeItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'income' && !fc.loan_id))
+const expenseItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'expense' && !fc.loan_id))
+const transferItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'transfer' && !fc.loan_id))
+const loanItems = computed(() => fixedCosts.value.filter((fc: { loan_id: number | null | undefined }) => fc.loan_id !== null && fc.loan_id !== undefined))
 
 // ── Load data ─────────────────────────────────────────────────────────
 
@@ -106,6 +109,7 @@ function openCreate() {
     cost_type: 'expense',
     category_id: '__none__',
     account_id: '__none__',
+    to_account_id: '',
     amount: '',
     interval_months: '1',
     show_split: false,
@@ -115,14 +119,15 @@ function openCreate() {
   showDialog.value = true
 }
 
-function openEdit(fc) {
+function openEdit(fc: { id: number; name: string; cost_type: string; category_id: number | null; account_id: number | null; to_account_id?: number | null; amount: string | number; interval_months: number; show_split: boolean; start_date: string; end_date: string | null }) {
   editingId.value = fc.id
   form.value = {
     name: fc.name,
     cost_type: fc.cost_type,
     category_id: fc.category_id ? String(fc.category_id) : '__none__',
     account_id: fc.account_id ? String(fc.account_id) : '__none__',
-    amount: String(parseFloat(fc.amount)),
+    to_account_id: fc.to_account_id ? String(fc.to_account_id) : '',
+    amount: String(parseFloat(String(fc.amount))),
     interval_months: String(fc.interval_months),
     show_split: fc.show_split,
     start_date: fc.start_date || new Date().toISOString().slice(0, 10),
@@ -132,7 +137,7 @@ function openEdit(fc) {
 }
 
 async function save() {
-  const body = {
+  const body: Record<string, unknown> = {
     name: form.value.name,
     cost_type: form.value.cost_type,
     amount: parseFloat(form.value.amount),
@@ -142,6 +147,9 @@ async function save() {
     end_date: form.value.end_date || null,
     category_id: form.value.category_id && form.value.category_id !== '__none__' ? parseInt(form.value.category_id) : null,
     account_id: form.value.account_id && form.value.account_id !== '__none__' ? parseInt(form.value.account_id) : null,
+  }
+  if (form.value.cost_type === 'transfer' && form.value.to_account_id) {
+    body.to_account_id = parseInt(form.value.to_account_id)
   }
   const res = editingId.value
     ? await api.patch(`/fixed-costs/${editingId.value}`, body)
@@ -288,6 +296,41 @@ async function saveAmount() {
         </div>
       </div>
 
+      <!-- ── Savings Transfers ─────────────────────────────────────── -->
+      <div v-if="transferItems.length > 0" class="mb-8">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {{ t('fixedCosts.sections.transfer') }}
+        </h2>
+        <div class="rounded-lg border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{{ t('accounts.name') }}</TableHead>
+                <TableHead>{{ t('fixedCosts.fromAccount') }}</TableHead>
+                <TableHead>{{ t('fixedCosts.toAccount') }}</TableHead>
+                <TableHead class="text-right">{{ t('transactions.amount') }}</TableHead>
+                <TableHead class="text-right w-52">{{ t('common.actions') }}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="fc in transferItems" :key="fc.id">
+                <TableCell class="font-medium">{{ fc.name }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find((a: { id: number; name: string }) => a.id === fc.account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find((a: { id: number; name: string }) => a.id === fc.to_account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-right tabular-nums font-medium">{{ fmtAmount(fc.amount) }}</TableCell>
+                <TableCell class="text-right space-x-1 whitespace-nowrap">
+                  <Button variant="ghost" size="sm" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="deactivate(fc)">
+                    {{ t('categories.archive') }}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       <!-- ── Loan installments (read-only) ─────────────────────────── -->
       <div v-if="loanItems.length > 0" class="mb-8">
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
@@ -370,10 +413,11 @@ async function saveAmount() {
               <SelectContent>
                 <SelectItem value="income">{{ t('fixedCosts.income') }}</SelectItem>
                 <SelectItem value="expense">{{ t('fixedCosts.expense') }}</SelectItem>
+                <SelectItem value="transfer">{{ t('fixedCosts.transfer') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div class="space-y-1">
+          <div v-if="form.cost_type !== 'transfer'" class="space-y-1">
             <Label>{{ t('transactions.category') }}</Label>
             <Select v-model="form.category_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -384,7 +428,7 @@ async function saveAmount() {
             </Select>
           </div>
           <div class="space-y-1">
-            <Label>{{ t('transactions.account') }}</Label>
+            <Label>{{ form.cost_type === 'transfer' ? t('fixedCosts.fromAccount') : t('transactions.account') }}</Label>
             <Select v-model="form.account_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -393,11 +437,20 @@ async function saveAmount() {
               </SelectContent>
             </Select>
           </div>
+          <div v-if="form.cost_type === 'transfer'" class="space-y-1">
+            <Label>{{ t('fixedCosts.toAccount') }}</Label>
+            <Select v-model="form.to_account_id">
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div class="space-y-1">
             <Label>{{ t('transactions.amount') }}</Label>
             <Input v-model="form.amount" type="number" step="0.01" min="0" required />
           </div>
-          <div class="space-y-1">
+          <div v-if="form.cost_type !== 'transfer'" class="space-y-1">
             <Label>{{ t('fixedCosts.intervalLabel') }}</Label>
             <Select v-model="form.interval_months">
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -409,7 +462,7 @@ async function saveAmount() {
               </SelectContent>
             </Select>
           </div>
-          <div v-if="parseInt(form.interval_months) > 1" class="flex items-center gap-2">
+          <div v-if="form.cost_type !== 'transfer' && parseInt(form.interval_months) > 1" class="flex items-center gap-2">
             <input id="showSplit" type="checkbox" v-model="form.show_split" class="h-4 w-4 rounded border-input accent-primary cursor-pointer" />
             <label for="showSplit" class="text-sm cursor-pointer select-none">{{ t('fixedCosts.showSplit') }}</label>
           </div>

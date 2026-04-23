@@ -281,7 +281,8 @@
     "sections": {
       "income": "Regular income",
       "expense": "Regular expenses",
-      "loans": "Loan installments"
+      "loans": "Loan installments",
+      "transfer": "Savings Transfers"
     },
     "intervalLabel": "Interval",
     "intervals": { "1": "Monthly", "3": "Quarterly", "6": "Semi-annual", "12": "Annual" },
@@ -297,6 +298,9 @@
     "type": "Type",
     "income": "Income",
     "expense": "Expense",
+    "transfer": "Savings Transfer",
+    "toAccount": "Target Account (Savings)",
+    "fromAccount": "Source Account",
     "goToLoans": "→ Loans"
   },
   "goals": {

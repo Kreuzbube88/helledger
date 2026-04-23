@@ -281,7 +281,8 @@
     "sections": {
       "income": "Regelm. Einnahmen",
       "expense": "Regelm. Ausgaben",
-      "loans": "Kreditraten"
+      "loans": "Kreditraten",
+      "transfer": "Sparumbuchungen"
     },
     "intervalLabel": "Intervall",
     "intervals": { "1": "Monatlich", "3": "Vierteljährlich", "6": "Halbjährlich", "12": "Jährlich" },
@@ -297,6 +298,9 @@
     "type": "Typ",
     "income": "Einnahme",
     "expense": "Ausgabe",
+    "transfer": "Umbuchung (Sparen)",
+    "toAccount": "Zielkonto (Sparkonto)",
+    "fromAccount": "Quellkonto",
     "goToLoans": "→ Kredite"
   },
   "goals": {

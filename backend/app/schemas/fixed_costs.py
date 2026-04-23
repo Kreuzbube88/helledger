@@ -1,14 +1,15 @@
 from datetime import date, datetime
 from decimal import Decimal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 
 class FixedCostCreate(BaseModel):
     name: str
     amount: Decimal
-    cost_type: str  # "expense" | "income"
+    cost_type: str  # "expense" | "income" | "transfer"
     category_id: int | None = None
     account_id: int | None = None
+    to_account_id: int | None = None
     interval_months: int = 1
     show_split: bool = False
     start_date: date
@@ -22,6 +23,14 @@ class FixedCostCreate(BaseModel):
             raise ValueError("interval_months must be >= 1")
         return v
 
+    @model_validator(mode='after')
+    def validate_transfer(self) -> 'FixedCostCreate':
+        if self.cost_type == 'transfer':
+            if not self.to_account_id:
+                raise ValueError('to_account_id required for transfer type')
+            self.interval_months = 1
+        return self
+
 
 class FixedCostUpdate(BaseModel):
     name: str | None = None
@@ -29,6 +38,7 @@ class FixedCostUpdate(BaseModel):
     cost_type: str | None = None
     category_id: int | None = None
     account_id: int | None = None
+    to_account_id: int | None = None
     interval_months: int | None = None
     show_split: bool | None = None
     start_date: date | None = None
@@ -56,6 +66,7 @@ class FixedCostResponse(BaseModel):
     cost_type: str
     category_id: int | None
     account_id: int | None
+    to_account_id: int | None
     interval_months: int
     show_split: bool
     start_date: date
