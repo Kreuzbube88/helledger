@@ -19,7 +19,7 @@ const api = useApi()
 const categories = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
-const form = ref({ name: '', category_type: 'variable', color: '#6366f1', parent_id: null })
+const form = ref({ name: '', category_type: 'variable', color: '#6366f1', parent_id: null, is_savings: false })
 
 const TYPE_COLORS = { income: 'default', fixed: 'secondary', variable: 'outline' }
 
@@ -37,18 +37,18 @@ function fmtDate(dateStr) {
 // ── Category CRUD ────────────────────────────────────────────────────
 function openCreate(parentId = null, defaultType = 'variable') {
   editingId.value = null
-  form.value = { name: '', category_type: defaultType, color: '#6366f1', parent_id: parentId }
+  form.value = { name: '', category_type: defaultType, color: '#6366f1', parent_id: parentId, is_savings: false }
   showDialog.value = true
 }
 
 function openEdit(cat) {
   editingId.value = cat.id
-  form.value = { name: cat.name, category_type: cat.category_type, color: cat.color || '#6366f1', parent_id: cat.parent_id }
+  form.value = { name: cat.name, category_type: cat.category_type, color: cat.color || '#6366f1', parent_id: cat.parent_id, is_savings: cat.is_savings ?? false }
   showDialog.value = true
 }
 
 async function save() {
-  const body = { name: form.value.name, category_type: form.value.category_type, color: form.value.color }
+  const body = { name: form.value.name, category_type: form.value.category_type, color: form.value.color, is_savings: form.value.is_savings }
   if (form.value.parent_id) body.parent_id = form.value.parent_id
   const res = editingId.value
     ? await api.patch(`/categories/${editingId.value}`, body)
@@ -173,6 +173,10 @@ onMounted(load)
               <input type="color" v-model="form.color" class="h-9 w-12 rounded border bg-card cursor-pointer" />
               <Input v-model="form.color" class="font-mono" />
             </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="is_savings" v-model="form.is_savings" class="h-4 w-4 rounded border" />
+            <Label for="is_savings">{{ t('categories.isSavings') }}</Label>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" @click="showDialog = false">{{ t('categories.cancel') }}</Button>

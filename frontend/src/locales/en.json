@@ -55,7 +55,8 @@
     "accounts": "Account Balances",
     "noData": "No data for this month.",
     "addTransaction": "Add Transaction",
-    "savingsRate": "Savings Rate",
+    "savingsRate": "Pot. Savings Rate",
+    "realSavingsRate": "Real Savings Rate",
     "debtToIncome": "Debt Ratio",
     "emergencyMonths": "Reserve Coverage",
     "months": "months",
@@ -108,6 +109,7 @@
     "sections": { "income": "Income", "fixed": "Fixed Costs", "variable": "Variable Expenses" },
     "types": { "income": "Income", "fixed": "Fixed", "variable": "Variable" },
     "active": "active",
+    "isSavings": "Counts towards savings rate",
     "expiringWarning": "{n} fixed costs expiring in the next 30 days",
     "goToCategories": "→ Categories"
   },

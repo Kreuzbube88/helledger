@@ -282,8 +282,8 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── KPI tiles ──────────────────────────────────────────────── -->
-    <div v-if="kpis" class="grid grid-cols-3 gap-3">
-      <!-- Savings Rate -->
+    <div v-if="kpis" class="grid grid-cols-2 gap-4">
+      <!-- Pot. Savings Rate -->
       <div
         class="anim-fade-up delay-150 rounded-2xl p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
@@ -292,6 +292,17 @@ watch(() => auth.user?.active_household_id, async (id) => {
         <p class="text-2xl font-bold tabular-nums"
            :class="kpis.savings_rate >= 20 ? 'text-emerald-400' : kpis.savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
           {{ kpis.savings_rate.toFixed(1) }}%
+        </p>
+      </div>
+      <!-- Real Savings Rate -->
+      <div
+        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+      >
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.realSavingsRate') }}</p>
+        <p class="text-2xl font-bold tabular-nums"
+           :class="kpis.real_savings_rate >= 20 ? 'text-emerald-400' : kpis.real_savings_rate >= 10 ? 'text-amber-400' : 'text-rose-400'">
+          {{ kpis.real_savings_rate.toFixed(1) }}%
         </p>
       </div>
       <!-- Debt-to-Income -->

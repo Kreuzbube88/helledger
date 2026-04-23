@@ -233,6 +233,44 @@ def get_month_view(
     balance = total_income - total_expense
     savings_rate = (balance / total_income * 100) if total_income > 0 else 0.0
 
+    # Real savings rate: transfers INTO savings accounts + expenses in is_savings categories
+    savings_acc_ids = [
+        a.id for a in db.query(Account).filter(
+            Account.household_id == hh_id,
+            Account.account_type == "savings",
+            Account.archived.is_(False),
+        ).all()
+    ]
+    real_savings = 0.0
+    if savings_acc_ids:
+        rs = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.household_id == hh_id,
+            Transaction.account_id.in_(savings_acc_ids),
+            Transaction.transaction_type == "transfer",
+            Transaction.amount > 0,
+            func.strftime("%Y", Transaction.date) == year_str,
+            func.strftime("%m", Transaction.date) == month_str,
+        ).scalar() or 0.0
+        real_savings += float(rs)
+
+    savings_cat_ids = [
+        c.id for c in db.query(Category).filter(
+            Category.household_id == hh_id,
+            Category.is_savings.is_(True),
+        ).all()
+    ]
+    if savings_cat_ids:
+        sc = db.query(func.sum(func.abs(Transaction.amount))).filter(
+            Transaction.household_id == hh_id,
+            Transaction.category_id.in_(savings_cat_ids),
+            Transaction.transaction_type.in_(["expense", "income"]),
+            func.strftime("%Y", Transaction.date) == year_str,
+            func.strftime("%m", Transaction.date) == month_str,
+        ).scalar() or 0.0
+        real_savings += float(sc)
+
+    real_savings_rate = (real_savings / total_income * 100) if total_income > 0 else 0.0
+
     # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(
         Loan.household_id == hh_id,
@@ -287,6 +325,7 @@ def get_month_view(
             total_expense=total_expense,
             balance=balance,
             savings_rate=savings_rate,
+            real_savings_rate=real_savings_rate,
             debt_to_income=debt_to_income,
             emergency_months=emergency_months,
         ),
