@@ -14,7 +14,7 @@ from app.models.loan import Loan, LoanExtraPayment
 from app.models.household import Category
 from app.schemas.loans import (
     LoanCreate, LoanUpdate, LoanResponse, LoanStatsResponse,
-    ExtraPaymentCreate, ExtraPaymentResponse, LoanNetWorthSummary,
+    ExtraPaymentCreate, ExtraPaymentResponse,
 )
 from app.services.loan_calc import (
     calc_payment, calc_term, calc_principal, calc_rate_newton,
@@ -79,11 +79,9 @@ def _build_response(loan: Loan, db: Session) -> LoanResponse:
         term_months=loan.term_months,
         start_date=loan.start_date,
         is_existing=loan.is_existing,
-        monthly_extra=loan.monthly_extra,
         status=loan.status,
         paid_off_date=loan.paid_off_date,
         category_id=loan.category_id,
-        include_in_net_worth=loan.include_in_net_worth,
         current_balance=stats["current_balance"],
         payoff_date=stats["payoff_date"],
         purchase_price=loan.purchase_price,
@@ -128,33 +126,6 @@ async def list_loans(
     return [_build_response(loan, db) for loan in loans]
 
 
-@router.get("/net-worth-summary", response_model=LoanNetWorthSummary)
-async def net_worth_summary(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    hh_id = _require_active_hh(user)
-    loans = (
-        db.query(Loan)
-        .filter(Loan.household_id == hh_id, Loan.include_in_net_worth.is_(True), Loan.status == "active")
-        .all()
-    )
-    items = []
-    total = 0.0
-    for loan in loans:
-        extra_payments = _extra_payments_for(loan.id, db)
-        monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
-        stats = calc_stats(
-            float(loan.principal), float(loan.interest_rate),
-            float(loan.monthly_payment), loan.term_months,
-            loan.start_date, extra_payments, monthly_extra,
-        )
-        bal = stats["current_balance"]
-        total += bal
-        items.append({"id": loan.id, "name": loan.name, "current_balance": round(bal, 2)})
-    return LoanNetWorthSummary(total_liability=round(total, 2), loans=items)
-
-
 @router.post("", response_model=LoanResponse, status_code=201)
 async def create_loan(
     body: LoanCreate,
@@ -176,8 +147,6 @@ async def create_loan(
         term_months=term_months,
         start_date=body.start_date,
         is_existing=body.is_existing,
-        monthly_extra=body.monthly_extra,
-        include_in_net_worth=body.include_in_net_worth,
         purchase_price=body.purchase_price,
         equity=body.equity,
         property_value=body.property_value,

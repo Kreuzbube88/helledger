@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
 import { useRouter } from 'vue-router'
@@ -31,9 +31,6 @@ const form = ref({
   monthly_payment: '',
   term_months: '',
   start_date: new Date().toISOString().slice(0, 10),
-  is_existing: false,
-  monthly_extra: '',
-  include_in_net_worth: true,
   purchase_price: '',
   equity: '',
   property_value: '',
@@ -41,6 +38,8 @@ const form = ref({
   land_charge: '',
   account_id: '',
 })
+
+const isExistingLoan = computed(() => form.value.start_date < new Date().toISOString().slice(0, 10))
 
 // 3-of-4 logic: track which field is being left empty for calculation
 const lockedField = ref(null) // 'principal' | 'interest_rate' | 'monthly_payment' | 'term_months' | null
@@ -77,9 +76,6 @@ function openCreate() {
     monthly_payment: '',
     term_months: '',
     start_date: new Date().toISOString().slice(0, 10),
-    is_existing: false,
-    monthly_extra: '',
-    include_in_net_worth: true,
     purchase_price: '',
     equity: '',
     property_value: '',
@@ -97,9 +93,7 @@ async function save() {
     name: form.value.name,
     lender: form.value.lender || null,
     start_date: form.value.start_date,
-    is_existing: form.value.is_existing,
-    include_in_net_worth: form.value.include_in_net_worth,
-    monthly_extra: form.value.monthly_extra ? parseFloat(form.value.monthly_extra) : null,
+    is_existing: isExistingLoan.value,
   }
 
   // Exactly 3 of 4 — send null for the locked/empty one
@@ -234,12 +228,6 @@ onMounted(load)
             </div>
           </div>
 
-          <!-- Existing vs new -->
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="is_existing" v-model="form.is_existing" class="h-4 w-4" />
-            <Label for="is_existing" class="cursor-pointer">{{ t('loans.isExisting') }}</Label>
-          </div>
-
           <div class="space-y-1">
             <Label>{{ t('loans.name') }}</Label>
             <Input v-model="form.name" required />
@@ -267,7 +255,7 @@ onMounted(load)
           <div class="grid grid-cols-2 gap-3">
             <div v-for="f in fields4" :key="f" class="space-y-1">
               <div class="flex items-center justify-between">
-                <Label>{{ t(`loans.${f === 'principal' ? 'principal' : f === 'interest_rate' ? 'interestRate' : f === 'monthly_payment' ? 'monthlyPayment' : 'termMonths'}`) }}</Label>
+                <Label>{{ f === 'principal' ? (isExistingLoan ? t('loans.currentBalance') : t('loans.principal')) : t(`loans.${f === 'interest_rate' ? 'interestRate' : f === 'monthly_payment' ? 'monthlyPayment' : 'termMonths'}`) }}</Label>
                 <button type="button"
                   class="text-[10px] px-1.5 py-0.5 rounded border transition-colors"
                   :class="isLocked(f) ? 'bg-primary text-primary-foreground border-primary' : 'text-muted-foreground border-border hover:bg-muted'"
@@ -283,16 +271,6 @@ onMounted(load)
                 :class="isLocked(f) ? 'opacity-40' : ''"
               />
             </div>
-          </div>
-
-          <div class="space-y-1">
-            <Label>{{ t('loans.monthlyExtra') }}</Label>
-            <Input v-model="form.monthly_extra" type="number" step="0.01" min="0" />
-          </div>
-
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="in_nw" v-model="form.include_in_net_worth" class="h-4 w-4" />
-            <Label for="in_nw" class="cursor-pointer">{{ t('loans.includeInNetWorth') }}</Label>
           </div>
 
           <!-- Mortgage extras -->

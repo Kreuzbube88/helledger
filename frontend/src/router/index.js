@@ -15,7 +15,6 @@ const routes = [
   { path: '/reports', component: () => import('@/views/ReportsView.vue'), meta: { requiresAuth: true } },
   { path: '/year', component: () => import('@/views/YearView.vue'), meta: { requiresAuth: true } },
   { path: '/month', component: () => import('@/views/MonthView.vue'), meta: { requiresAuth: true } },
-  { path: '/net-worth', component: () => import('@/views/NetWorthView.vue'), meta: { requiresAuth: true } },
   { path: '/goals', component: () => import('@/views/GoalsView.vue'), meta: { requiresAuth: true } },
   { path: '/import', component: () => import('@/views/ImportView.vue'), meta: { requiresAuth: true } },
   { path: '/settings', component: () => import('@/views/SettingsView.vue'), meta: { requiresAuth: true } },

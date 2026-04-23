@@ -23,7 +23,6 @@ from app.routers import backup as backup_router
 from app.routers import users as users_router
 from app.routers import admin as admin_router
 from app.routers import dashboard as dashboard_router
-from app.routers import net_worth as net_worth_router
 from app.routers import loans as loans_router
 from app.routers import fixed_costs as fixed_costs_router
 from app.routers import savings_goals as goals_router
@@ -103,7 +102,6 @@ app.include_router(backup_router.router, prefix="/api")
 app.include_router(users_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(dashboard_router.router, prefix="/api")
-app.include_router(net_worth_router.router, prefix="/api")
 app.include_router(loans_router.router, prefix="/api")
 app.include_router(fixed_costs_router.router, prefix="/api")
 app.include_router(goals_router.router, prefix="/api")

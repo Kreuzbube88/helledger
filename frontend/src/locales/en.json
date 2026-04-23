@@ -8,7 +8,6 @@
     "reports": "Reports",
     "year": "Year",
     "month": "Month",
-    "netWorth": "Net Worth",
     "import": "Import",
     "settings": "Settings",
     "backup": "Backups",
@@ -234,19 +233,6 @@
     "gesamt": "Total",
     "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
     "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"]
-  },
-  "netWorth": {
-    "title": "Net Worth",
-    "newSnapshot": "New Snapshot",
-    "totalAssets": "Assets",
-    "totalLiabilities": "Liabilities",
-    "netWorth": "Net Worth",
-    "notes": "Notes",
-    "date": "Date",
-    "delete": "Delete",
-    "confirmDelete": "Really delete this snapshot?",
-    "save": "Save",
-    "cancel": "Cancel"
   },
   "onboarding": {
     "welcome": "Welcome to HELLEDGER",

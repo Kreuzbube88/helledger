@@ -15,8 +15,6 @@ class LoanCreate(BaseModel):
     term_months: int | None = None
     start_date: date
     is_existing: bool = False
-    monthly_extra: Decimal | None = None
-    include_in_net_worth: bool = True
     account_id: int | None = None
     # Mortgage-only
     purchase_price: Decimal | None = None
@@ -37,8 +35,6 @@ class LoanCreate(BaseModel):
 class LoanUpdate(BaseModel):
     name: str | None = None
     lender: str | None = None
-    monthly_extra: Decimal | None = None
-    include_in_net_worth: bool | None = None
     property_value: Decimal | None = None
     fixed_rate_until: date | None = None
     land_charge: Decimal | None = None
@@ -56,11 +52,9 @@ class LoanResponse(BaseModel):
     term_months: int
     start_date: date
     is_existing: bool
-    monthly_extra: Decimal | None
     status: str
     paid_off_date: date | None
     category_id: int | None
-    include_in_net_worth: bool
     current_balance: float
     payoff_date: str | None
     # Mortgage
@@ -77,7 +71,7 @@ class LoanResponse(BaseModel):
     def serialize_decimal(self, v: Decimal) -> str:
         return f"{v:.4f}" if v is not None else None
 
-    @field_serializer("monthly_extra", "purchase_price", "equity", "property_value", "land_charge")
+    @field_serializer("purchase_price", "equity", "property_value", "land_charge")
     def serialize_optional_decimal(self, v: Decimal | None) -> str | None:
         return f"{v:.2f}" if v is not None else None
 
@@ -118,6 +112,3 @@ class LoanStatsResponse(BaseModel):
     total_months: int
 
 
-class LoanNetWorthSummary(BaseModel):
-    total_liability: float
-    loans: list[dict]

@@ -8,7 +8,6 @@
     "reports": "Berichte",
     "year": "Jahr",
     "month": "Monat",
-    "netWorth": "Vermögen",
     "import": "Import",
     "settings": "Einstellungen",
     "backup": "Backups",
@@ -234,19 +233,6 @@
     "gesamt": "Gesamt",
     "months": ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
     "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
-  },
-  "netWorth": {
-    "title": "Nettovermögen",
-    "newSnapshot": "Neuer Snapshot",
-    "totalAssets": "Aktiva",
-    "totalLiabilities": "Passiva",
-    "netWorth": "Nettovermögen",
-    "notes": "Notizen",
-    "date": "Datum",
-    "delete": "Löschen",
-    "confirmDelete": "Snapshot wirklich löschen?",
-    "save": "Speichern",
-    "cancel": "Abbrechen"
   },
   "onboarding": {
     "welcome": "Willkommen bei HELLEDGER",
