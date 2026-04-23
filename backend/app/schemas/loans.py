@@ -72,6 +72,7 @@ class LoanResponse(BaseModel):
     land_charge: Decimal | None
     ltv: float | None
     fixed_rate_expiring_soon: bool
+    account_id: int | None = None
     model_config = {"from_attributes": True}
 
     @field_serializer("principal", "interest_rate", "monthly_payment")

@@ -67,6 +67,10 @@ def _build_response(loan: Loan, db: Session) -> LoanResponse:
     expiring_soon = False
     if loan.fixed_rate_until:
         expiring_soon = loan.fixed_rate_until <= date.today() + timedelta(days=365)
+    fc = db.query(FixedCost).filter(
+        FixedCost.loan_id == loan.id,
+        FixedCost.is_active.is_(True),
+    ).first()
     return LoanResponse(
         id=loan.id,
         household_id=loan.household_id,
@@ -91,6 +95,7 @@ def _build_response(loan: Loan, db: Session) -> LoanResponse:
         land_charge=loan.land_charge,
         ltv=ltv,
         fixed_rate_expiring_soon=expiring_soon,
+        account_id=fc.account_id if fc else None,
     )
 
 
@@ -349,6 +354,26 @@ async def get_amortization(
         float(loan.principal), float(loan.interest_rate),
         float(loan.monthly_payment), loan.term_months,
         loan.start_date, extra_payments, monthly_extra,
+    )
+    return rows
+
+
+@router.get("/{loan_id}/amortization/baseline")
+async def get_amortization_baseline(
+    loan_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    hh_id = _require_active_hh(user)
+    loan = _get_loan(loan_id, hh_id, db)
+    rows = calc_amortization(
+        float(loan.principal),
+        float(loan.interest_rate),
+        float(loan.monthly_payment),
+        loan.term_months,
+        loan.start_date,
+        extra_payments=[],
+        monthly_extra=0.0,
     )
     return rows
 
