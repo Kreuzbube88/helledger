@@ -8,6 +8,7 @@ class CategoryCreate(BaseModel):
     parent_id: int | None = None
     color: str | None = None
     icon: str | None = None
+    is_savings: bool = False
 
 
 class CategoryUpdate(BaseModel):
@@ -16,6 +17,7 @@ class CategoryUpdate(BaseModel):
     parent_id: int | None = None
     color: str | None = None
     icon: str | None = None
+    is_savings: bool = False
 
 
 class CategoryResponse(BaseModel):
@@ -26,6 +28,7 @@ class CategoryResponse(BaseModel):
     parent_id: int | None
     color: str | None
     icon: str | None
+    is_savings: bool
     archived: bool
     created_at: datetime
     updated_at: datetime

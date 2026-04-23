@@ -31,5 +31,8 @@ class FixedCost(Base):
     loan_id: Mapped[int | None] = mapped_column(
         ForeignKey("loans.id", ondelete="SET NULL"), nullable=True
     )
+    to_account_id: Mapped[int | None] = mapped_column(
+        ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
