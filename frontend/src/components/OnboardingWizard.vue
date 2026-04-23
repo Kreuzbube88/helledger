@@ -81,10 +81,10 @@ const TOUR = [
     icon: RefreshCw,
     color: '#14b8a6',
     nav: { de: 'Fixkosten', en: 'Fixed Costs' },
-    title: { de: 'Fixposten & Automatikbuchungen', en: 'Fixed Costs & Auto-Bookings' },
+    title: { de: 'Fixkosten & Automatikbuchungen', en: 'Fixed Costs & Auto-Bookings' },
     bullets: [
-      { de: 'Gehalt, Miete, Versicherungen — alles als Fixposten mit Intervall hinterlegen', en: 'Salary, rent, insurance — set up everything as fixed costs with an interval' },
-      { de: 'Beim Dashboard-Aufruf werden fällige Fixposten automatisch gebucht', en: 'Due fixed costs are booked automatically when opening the dashboard' },
+      { de: 'Gehalt, Miete, Versicherungen — alles als Fixkosten mit Intervall hinterlegen', en: 'Salary, rent, insurance — set up everything as fixed costs with an interval' },
+      { de: 'Beim Dashboard-Aufruf werden fällige Fixkosten automatisch gebucht', en: 'Due fixed costs are booked automatically when opening the dashboard' },
       { de: 'Rücklagen-Übersicht: monatlicher Anteil für quartals-/jahresweise Kosten', en: 'Reserve overview: monthly share for quarterly/annual costs' },
     ],
   },
