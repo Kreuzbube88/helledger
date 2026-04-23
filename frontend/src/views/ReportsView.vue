@@ -35,7 +35,6 @@ const activeTab = ref('expenses')
 
 const catData = ref(null)
 const trendData = ref(null)
-const sollIstData = ref(null)
 const balanceData = ref(null)
 const loanList = ref([])
 const selectedLoanId = ref('')
@@ -69,14 +68,12 @@ function buildQs() {
 async function loadData() {
   const { from, to } = dateRange.value
   if (!from || !to || from > to) return
-  const [catRes, trendRes, siRes] = await Promise.all([
+  const [catRes, trendRes] = await Promise.all([
     api.get(`/reports/expenses-by-category?${buildQs()}`),
     api.get(`/reports/monthly-trend?${buildQs()}`),
-    api.get(`/reports/soll-ist?${buildQs()}`),
   ])
   if (catRes.ok) catData.value = await catRes.json()
   if (trendRes.ok) trendData.value = await trendRes.json()
-  if (siRes.ok) sollIstData.value = await siRes.json()
 
   if (accountId.value && accountId.value !== '__all__') {
     const balRes = await api.get(`/reports/balance-history?from_date=${from}&to_date=${to}&account_id=${accountId.value}`)
@@ -123,39 +120,6 @@ const trendChartData = computed(() => {
   }
 })
 
-const sollIstFlat = computed(() => {
-  const flat = []
-  function walk(nodes) {
-    for (const n of nodes) {
-      if (parseFloat(n.soll) !== 0 || parseFloat(n.ist) !== 0) flat.push(n)
-      if (n.children) walk(n.children)
-    }
-  }
-  walk(sollIstData.value || [])
-  return flat
-})
-
-const sollIstChartData = computed(() => ({
-  labels: sollIstFlat.value.map((n) => n.name),
-  datasets: [
-    {
-      label: t('dashboard.soll'),
-      data: sollIstFlat.value.map((n) => parseFloat(n.soll)),
-      backgroundColor: 'rgba(99,102,241,0.6)',
-      borderColor: '#6366f1',
-      borderWidth: 1,
-      borderRadius: 4,
-    },
-    {
-      label: t('dashboard.ist'),
-      data: sollIstFlat.value.map((n) => Math.abs(parseFloat(n.ist))),
-      backgroundColor: 'rgba(16,185,129,0.6)',
-      borderColor: '#10b981',
-      borderWidth: 1,
-      borderRadius: 4,
-    },
-  ],
-}))
 
 const balanceChartData = computed(() => ({
   labels: (balanceData.value || []).map((d) => d.date),
@@ -296,7 +260,6 @@ onMounted(async () => {
           <TabsTrigger value="expenses">{{ t('reports.chart.expensesByCategory') }}</TabsTrigger>
           <TabsTrigger value="trend">{{ t('reports.chart.monthlyTrend') }}</TabsTrigger>
           <TabsTrigger value="balance">{{ t('reports.chart.balanceHistory') }}</TabsTrigger>
-          <TabsTrigger value="sollist">{{ t('reports.chart.sollIst') }}</TabsTrigger>
           <TabsTrigger value="loans">{{ t('loans.title') }}</TabsTrigger>
         </TabsList>
 
@@ -344,20 +307,6 @@ onMounted(async () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="sollist">
-          <Card>
-            <CardHeader class="flex-row items-center justify-between pb-2">
-              <CardTitle class="text-sm">{{ t('reports.chart.sollIst') }}</CardTitle>
-              <Button variant="outline" size="sm" @click="downloadCsv(sollIstFlat, 'soll-ist.csv')">
-                {{ t('reports.export.csv') }}
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <Bar v-if="sollIstFlat.length" :data="sollIstChartData" :options="hBarOptions" class="max-h-80" />
-              <p v-else class="text-center text-muted-foreground py-12">{{ t('reports.noData') }}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
         <TabsContent value="loans">
           <Card>
             <CardHeader class="pb-2">
