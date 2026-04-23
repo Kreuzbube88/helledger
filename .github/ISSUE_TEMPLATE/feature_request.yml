@@ -1,12 +1,19 @@
-name: Feature Request
+name: 💡 Feature Request
 description: Suggest a new feature or improvement
 labels: ["enhancement"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Feature Request
+        Got an idea that would make HELLEDGER better? We'd love to hear it!
+        > 💬 Please check [existing issues](https://github.com/Kreuzbube88/helledger/issues) first to avoid duplicates.
+
   - type: textarea
     id: problem
     attributes:
-      label: What problem does this solve?
+      label: 🎯 What problem does this solve?
       placeholder: Describe the problem or limitation you're running into.
     validations:
       required: true
@@ -14,7 +21,7 @@ body:
   - type: textarea
     id: solution
     attributes:
-      label: Proposed solution
+      label: 🛠️ Proposed solution
       placeholder: What would you like to see added or changed?
     validations:
       required: true
@@ -22,5 +29,34 @@ body:
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives considered
+      label: 🔄 Alternatives considered
       placeholder: Any other approaches you've thought about?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 📂 Feature area
+      options:
+        - Dashboard
+        - Transactions
+        - Accounts
+        - Categories
+        - Fixed Costs
+        - Loans
+        - Savings Goals
+        - Forecast
+        - Reports
+        - Month / Year View
+        - Import / Export
+        - Backups
+        - Admin / Settings
+        - PWA / Mobile
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 📎 Additional context
+      placeholder: Mockups, screenshots, or any other context that helps explain the idea.

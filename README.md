@@ -21,44 +21,44 @@ HELLEDGER is a self-hosted household budget ledger built for homelab enthusiasts
 
 ---
 
-## Features
+## ✨ Features
 
-### Transactions & Accounts
+### 💳 Transactions & Accounts
 - **Transactions** — Manual income, expense, and transfer entries with category and account assignment
 - **Accounts** — Multiple bank accounts per household with roles: Main, Fixed Costs, Variable, Savings, Separate (excluded from calculations)
 - **Categories** — Income, fixed cost, and variable expense categories with subcategories and color coding
 - **CSV / OFX / QFX Import** — Bulk transaction import with column mapping and duplicate detection
-- **Global Search** — Full-text search across all transactions
+- **🔍 Global Search** — Full-text search across all transactions
 
-### Budget & Planning
+### 📅 Budget & Planning
 - **Fixed Costs** — Recurring income, expenses, and savings transfers with configurable intervals (monthly, quarterly, semi-annual, annual); auto-booking each month; reserve tracking for non-monthly costs
-- **Forecast** — 12-month projection based on fixed costs with cumulative savings account balance
-- **Savings Goals** — Target amount and date, linked savings account, progress tracking
+- **📈 Forecast** — 12-month projection based on fixed costs with cumulative savings account balance
+- **🎯 Savings Goals** — Target amount and date, linked savings account, progress tracking
 
-### Loans
+### 🏦 Loans
 - **Loan Management** — Consumer loans and mortgages with full amortization schedules
 - **Extra Payments** — One-time and recurring extra payments with term-shortening or payment-reduction effect
 - **Loan KPIs** — Interest saved, months saved, current balance, estimated payoff date
-- **CSV Export** — Full amortization schedule export
+- **📤 CSV Export** — Full amortization schedule export
 
-### Reporting & Overview
+### 📊 Reporting & Overview
 - **Dashboard** — Monthly KPIs (savings rate, debt-to-income ratio, reserve coverage), animated account balances by role, expense donut chart, savings goals widget, expiring fixed cost warnings
 - **Month View** — Detailed monthly breakdown by category (income / fixed / variable / savings transfers) with KPI bar and available balance split by account role
 - **Year View** — Full-year category × month grid with totals
 - **Reports** — Expense by category, monthly trend as stacked bar (fixed + variable + savings), balance history
 
-### Infrastructure
-- **Backups** — Scheduled and manual backups to a configurable backup volume with retention policy
-- **OIDC Login** — Optional SSO via any OIDC provider (Authentik, Keycloak, etc.); native login always available
-- **Admin Panel** — User management, SMTP config, OIDC config, registration control
-- **Multi-Household** — Separate financial spaces per household; users can belong to multiple households
-- **PWA** — Installable on desktop and mobile; offline shell via service worker
-- **i18n** — German (default) and English; per-user language preference
-- **Dark / Light Mode** — Manual toggle
+### ⚙️ Infrastructure
+- **💾 Backups** — Scheduled and manual backups to a configurable backup volume with retention policy
+- **🔐 OIDC Login** — Optional SSO via any OIDC provider (Authentik, Keycloak, etc.); native login always available
+- **👥 Multi-Household** — Separate financial spaces per household; users can belong to multiple households
+- **🛡️ Admin Panel** — User management, SMTP config, OIDC config, registration control
+- **📱 PWA** — Installable on desktop and mobile; offline shell via service worker
+- **🌍 i18n** — German (default) and English; per-user language preference
+- **🌙 Dark / Light Mode** — Manual toggle
 
 ---
 
-## Installation
+## 🚀 Installation
 
 ### Unraid Community Apps (recommended)
 
@@ -101,19 +101,19 @@ docker run -d \
 
 ---
 
-## Quick Start
+## 🏁 Quick Start
 
 After installation, open the web UI at `http://YOUR-IP:3000`. The first registered user becomes the admin automatically. Head to the **Admin** panel to configure SMTP, OIDC, default language, and registration settings.
 
 ---
 
-## Documentation
+## 📚 Documentation
 
 Full documentation is available in the [`docs/`](docs/en/installation.md) folder in both German and English, covering installation, first steps, import/export, backups, and admin configuration.
 
 ---
 
-## Configuration
+## 🔧 Configuration
 
 | Variable | Required | Default | Description |
 |----------|---------|----------|-------------|
@@ -130,6 +130,6 @@ All SMTP and OIDC configuration lives in the Admin UI and is stored in the datab
 
 ---
 
-## License
+## 📄 License
 
 GPL-3.0 © HEL*Apps

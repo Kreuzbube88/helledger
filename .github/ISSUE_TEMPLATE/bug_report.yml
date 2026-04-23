@@ -1,12 +1,19 @@
-name: Bug Report
+name: 🐛 Bug Report
 description: Something is not working as expected
 labels: ["bug"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Report
+        Thanks for taking the time to report a bug! Please fill in as much detail as possible so we can reproduce and fix it quickly.
+        > ⚠️ Make sure you are running the latest version of HELLEDGER before submitting.
+
   - type: textarea
     id: description
     attributes:
-      label: What happened?
+      label: 🔍 What happened?
       placeholder: Describe the bug clearly and concisely.
     validations:
       required: true
@@ -14,7 +21,7 @@ body:
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
+      label: 🪜 Steps to reproduce
       placeholder: |
         1. Go to ...
         2. Click on ...
@@ -25,7 +32,7 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
+      label: ✅ Expected behavior
       placeholder: What did you expect to happen?
     validations:
       required: true
@@ -33,26 +40,46 @@ body:
   - type: input
     id: version
     attributes:
-      label: HELLEDGER version
-      placeholder: e.g. 1.0.0
+      label: 🏷️ HELLEDGER version
+      placeholder: e.g. 1.2.0
     validations:
       required: true
 
   - type: dropdown
     id: platform
     attributes:
-      label: Platform
+      label: 🖥️ Platform
       options:
-        - Unraid
+        - Unraid (Community Apps)
         - Docker Compose
         - Docker Run
         - Other
     validations:
       required: true
 
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 🌐 Browser
+      options:
+        - Chrome / Chromium
+        - Firefox
+        - Safari
+        - Edge
+        - Mobile (PWA)
+        - Other
+    validations:
+      required: false
+
   - type: textarea
     id: logs
     attributes:
-      label: Relevant logs
-      description: Paste any relevant container logs here.
+      label: 📋 Relevant logs
+      description: Paste any relevant container logs here (`docker logs helledger`).
       render: shell
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 📎 Additional context
+      placeholder: Screenshots, config snippets, or anything else that might help.
