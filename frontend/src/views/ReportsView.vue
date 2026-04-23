@@ -117,7 +117,7 @@ const trendChartData = computed(() => {
         borderRadius: 4,
       },
       {
-        type: 'line' as const,
+        type: 'line',
         label: t('reports.chart.savings'),
         data: trendData.value.map(d => parseFloat(d.savings || '0')),
         borderColor: '#10b981',
