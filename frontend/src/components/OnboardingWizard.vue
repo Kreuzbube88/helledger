@@ -20,7 +20,7 @@ const auth = useAuthStore()
 const step = ref(0)
 const loading = ref(false)
 
-// ── Tour data ─────────────────────────────────────────────────────────
+// ── Tour data (ordered by sidebar) ────────────────────────────────────
 const TOUR = [
   {
     icon: LayoutDashboard,
@@ -34,6 +34,17 @@ const TOUR = [
     ],
   },
   {
+    icon: Wallet,
+    color: '#0ea5e9',
+    nav: { de: 'Konten', en: 'Accounts' },
+    title: { de: 'Deine Konten', en: 'Your Accounts' },
+    bullets: [
+      { de: 'Giro-, Spar- und Kreditkartenkonten anlegen und verwalten', en: 'Create and manage checking, savings, and credit card accounts' },
+      { de: 'Kontostand wird aus Startguthaben und allen Transaktionen berechnet', en: 'Balance is calculated from starting balance plus all transactions' },
+      { de: 'Konten archivieren wenn sie nicht mehr aktiv sind', en: 'Archive accounts when they are no longer active' },
+    ],
+  },
+  {
     icon: Receipt,
     color: '#6366f1',
     nav: { de: 'Transaktionen', en: 'Transactions' },
@@ -42,39 +53,6 @@ const TOUR = [
       { de: 'Einnahmen, Ausgaben und Umbuchungen manuell eintragen', en: 'Manually enter income, expenses, and transfers' },
       { de: 'Monatlich blättern, nach Konto oder Kategorie filtern', en: 'Browse by month, filter by account or category' },
       { de: 'CSV/OFX-Import für schnellen Massenimport aus dem Banking', en: 'CSV/OFX import for bulk import from your bank export' },
-    ],
-  },
-  {
-    icon: CalendarDays,
-    color: '#f59e0b',
-    nav: { de: 'Monatsübersicht', en: 'Month Overview' },
-    title: { de: 'Monatsübersicht', en: 'Month Overview' },
-    bullets: [
-      { de: 'Alle Buchungen des Monats gruppiert nach Einnahmen, Fixkosten und variablen Ausgaben', en: 'All bookings of the month grouped by income, fixed costs, and variable expenses' },
-      { de: 'Summen je Abschnitt und Gesamtsaldo auf einen Blick', en: 'Totals per section and overall balance at a glance' },
-      { de: 'Sparquote wird automatisch aus Einnahmen und Ausgaben berechnet', en: 'Savings rate is calculated automatically from income and expenses' },
-    ],
-  },
-  {
-    icon: BarChart3,
-    color: '#8b5cf6',
-    nav: { de: 'Jahresübersicht', en: 'Year Overview' },
-    title: { de: '12-Monate auf einen Blick', en: '12 Months at a Glance' },
-    bullets: [
-      { de: 'Alle Kategorien als Tabelle über das gesamte Jahr', en: 'All categories as a table across the full year' },
-      { de: 'Vergangene Monate = echte Buchungen, Zukunft = Planwerte (kursiv)', en: 'Past months = real bookings, future = planned values (italic)' },
-      { de: 'Einnahmen grün, Ausgaben rot — auf einen Blick erkennbar', en: 'Income in green, expenses in red — recognizable at a glance' },
-    ],
-  },
-  {
-    icon: Tag,
-    color: '#ec4899',
-    nav: { de: 'Kategorien', en: 'Categories' },
-    title: { de: 'Deine Budgetstruktur', en: 'Your Budget Structure' },
-    bullets: [
-      { de: 'Drei Typen: Einnahmen, Fixkosten, Variable Ausgaben', en: 'Three types: income, fixed costs, variable expenses' },
-      { de: 'Unterkategorien möglich — z.B. "Wohnen → Miete, Strom, Wasser"', en: 'Sub-categories supported — e.g. "Housing → Rent, Electricity, Water"' },
-      { de: 'Kategorien archivieren wenn sie nicht mehr benötigt werden', en: 'Archive categories when they are no longer needed' },
     ],
   },
   {
@@ -100,17 +78,6 @@ const TOUR = [
     ],
   },
   {
-    icon: LineChart,
-    color: '#3b82f6',
-    nav: { de: 'Berichte', en: 'Reports' },
-    title: { de: 'Auswertungen & Charts', en: 'Reports & Charts' },
-    bullets: [
-      { de: 'Ausgaben nach Kategorie (Donut), Trend (Balken), Soll-Ist (Querbalken)', en: 'Expenses by category (donut), trend (bar), budget vs. actual (horizontal bar)' },
-      { de: 'Kontostand-Verlauf für ein einzelnes Konto im Zeitraum', en: 'Balance history for a single account over a period' },
-      { de: 'Zeitraum frei wählen: Monat, Jahr oder individuell — CSV-Export', en: 'Flexible period: month, year, or custom range — CSV export' },
-    ],
-  },
-  {
     icon: Target,
     color: '#d946ef',
     nav: { de: 'Sparziele', en: 'Goals' },
@@ -119,6 +86,50 @@ const TOUR = [
       { de: 'Ziel anlegen: Name, Zielbetrag, Zieldatum, verknüpftes Konto', en: 'Create a goal: name, target amount, target date, linked account' },
       { de: 'Fortschritt wird live aus dem Kontostand berechnet', en: 'Progress is calculated live from the account balance' },
       { de: 'Alle Ziele im Dashboard als Fortschrittsbalken sichtbar', en: 'All goals visible as progress bars in the dashboard' },
+    ],
+  },
+  {
+    icon: Tag,
+    color: '#ec4899',
+    nav: { de: 'Kategorien', en: 'Categories' },
+    title: { de: 'Deine Budgetstruktur', en: 'Your Budget Structure' },
+    bullets: [
+      { de: 'Drei Typen: Einnahmen, Fixkosten, Variable Ausgaben', en: 'Three types: income, fixed costs, variable expenses' },
+      { de: 'Unterkategorien möglich — z.B. "Wohnen → Miete, Strom, Wasser"', en: 'Sub-categories supported — e.g. "Housing → Rent, Electricity, Water"' },
+      { de: 'Kategorien archivieren wenn sie nicht mehr benötigt werden', en: 'Archive categories when they are no longer needed' },
+    ],
+  },
+  {
+    icon: CalendarDays,
+    color: '#f59e0b',
+    nav: { de: 'Monatsübersicht', en: 'Month Overview' },
+    title: { de: 'Monatsübersicht', en: 'Month Overview' },
+    bullets: [
+      { de: 'Alle Buchungen des Monats gruppiert nach Einnahmen, Fixkosten und variablen Ausgaben', en: 'All bookings of the month grouped by income, fixed costs, and variable expenses' },
+      { de: 'Summen je Abschnitt und Gesamtsaldo auf einen Blick', en: 'Totals per section and overall balance at a glance' },
+      { de: 'Sparquote wird automatisch aus Einnahmen und Ausgaben berechnet', en: 'Savings rate is calculated automatically from income and expenses' },
+    ],
+  },
+  {
+    icon: BarChart3,
+    color: '#8b5cf6',
+    nav: { de: 'Jahresübersicht', en: 'Year Overview' },
+    title: { de: '12-Monate auf einen Blick', en: '12 Months at a Glance' },
+    bullets: [
+      { de: 'Alle Kategorien als Tabelle über das gesamte Jahr', en: 'All categories as a table across the full year' },
+      { de: 'Vergangene Monate = echte Buchungen, Zukunft = Planwerte (kursiv)', en: 'Past months = real bookings, future = planned values (italic)' },
+      { de: 'Einnahmen grün, Ausgaben rot — auf einen Blick erkennbar', en: 'Income in green, expenses in red — recognizable at a glance' },
+    ],
+  },
+  {
+    icon: LineChart,
+    color: '#3b82f6',
+    nav: { de: 'Berichte', en: 'Reports' },
+    title: { de: 'Auswertungen & Charts', en: 'Reports & Charts' },
+    bullets: [
+      { de: 'Ausgaben nach Kategorie (Donut), Einnahmen & Ausgaben Trend (Balken)', en: 'Expenses by category (donut), income & expense trend (bar chart)' },
+      { de: 'Kontostand-Verlauf für ein einzelnes Konto im Zeitraum', en: 'Balance history for a single account over a period' },
+      { de: 'Zeitraum frei wählen: Monat, Jahr oder individuell — CSV-Export', en: 'Flexible period: month, year, or custom range — CSV export' },
     ],
   },
 ]
@@ -611,8 +622,8 @@ function loc(obj) {
               </p>
               <p class="text-xs text-muted-foreground leading-relaxed">
                 {{ locale === 'de'
-                  ? 'Wir zeigen dir kurz, wo was ist — 9 Funktionen, eine pro Slide.'
-                  : 'Let us show you where everything is — 9 features, one slide each.' }}
+                  ? 'Wir zeigen dir kurz, wo was ist — 10 Funktionen, eine pro Slide.'
+                  : 'Let us show you where everything is — 10 features, one slide each.' }}
               </p>
             </div>
 
