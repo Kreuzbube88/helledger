@@ -60,7 +60,9 @@
     "debtToIncome": "Kreditlastquote",
     "emergencyMonths": "Rücklagenreichweite",
     "months": "Monate",
-    "ofIncome": "des Einkommens"
+    "ofIncome": "des Einkommens",
+    "savings": "Sparen",
+    "available": "Diesen Monat noch verfügbar"
   },
   "transactions": {
     "title": "Transaktionen",

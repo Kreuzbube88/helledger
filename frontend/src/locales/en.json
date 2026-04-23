@@ -60,7 +60,9 @@
     "debtToIncome": "Debt Ratio",
     "emergencyMonths": "Reserve Coverage",
     "months": "months",
-    "ofIncome": "of income"
+    "ofIncome": "of income",
+    "savings": "Savings",
+    "available": "Available this month"
   },
   "transactions": {
     "title": "Transactions",

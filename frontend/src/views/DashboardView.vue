@@ -3,12 +3,13 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { Doughnut } from 'vue-chartjs'
-import { TrendingUp, TrendingDown, Plus, ArrowRight, Target } from 'lucide-vue-next'
+import { TrendingUp, TrendingDown, Plus, ArrowRight, Target, PiggyBank } from 'lucide-vue-next'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { useApi } from '@/lib/api'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
+import { Badge } from '@/components/ui/badge'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -36,7 +37,7 @@ const topGoals = ref([])
 const kpis = ref(null)
 
 // ── Animated display values ────────────────────────────────────────
-const display = reactive({ income: 0, expenses: 0, balance: 0 })
+const display = reactive({ income: 0, expenses: 0, balance: 0, savings: 0, available: 0 })
 
 function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3) }
 
@@ -58,6 +59,12 @@ watch(summary, (val) => {
   animateTo('income',   parseFloat(val.income)   || 0)
   animateTo('expenses', parseFloat(val.expenses) || 0)
   animateTo('balance',  parseFloat(val.balance)  || 0)
+}, { deep: true })
+
+watch(kpis, (val) => {
+  if (!val) return
+  animateTo('savings',   val.savings_amount || 0)
+  animateTo('available', val.available      || 0)
 }, { deep: true })
 
 // ── Month label ────────────────────────────────────────────────────
@@ -167,6 +174,16 @@ function fmt(val) {
 }
 const balancePositive = computed(() => display.balance >= 0)
 
+function roleLabel(role) {
+  const fixed = {
+    main: t('accounts.roles.main'),
+    fixed_costs: t('accounts.roles.fixed_costs'),
+    variable: t('accounts.roles.variable'),
+    savings: t('accounts.roles.savings'),
+  }
+  return fixed[role] || role
+}
+
 // Load once a household is active; also re-runs after wizard sets active_household_id
 watch(() => auth.user?.active_household_id, async (id) => {
   if (id) {
@@ -242,8 +259,8 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
     </div>
 
-    <!-- ── Income / Expenses cards ──────────────────────────────── -->
-    <div class="grid grid-cols-2 gap-3">
+    <!-- ── Income / Expenses / Savings cards ─────────────────────── -->
+    <div class="grid grid-cols-3 gap-3">
       <!-- Income -->
       <div
         class="anim-fade-up delay-100 rounded-2xl p-5 border relative overflow-hidden group transition-all duration-300 hover:scale-[1.02] cursor-default"
@@ -279,10 +296,53 @@ watch(() => auth.user?.active_household_id, async (id) => {
         </p>
         <p class="text-2xl font-bold text-rose-400 tabular-nums relative">{{ fmt(display.expenses) }}</p>
       </div>
+
+      <!-- Savings -->
+      <div
+        class="anim-fade-up delay-200 rounded-2xl p-5 border relative overflow-hidden group transition-all duration-300 hover:scale-[1.02] cursor-default"
+        :class="theme.isDark
+          ? 'bg-teal-500/[0.07] border-teal-500/[0.15] hover:border-teal-500/30'
+          : 'bg-teal-50 border-teal-100 hover:border-teal-200'"
+        style="box-shadow: 0 0 0 0 rgba(20,184,166,0); transition: box-shadow 0.3s, transform 0.2s, border-color 0.2s;"
+        @mouseenter="(e) => e.currentTarget.style.boxShadow = '0 0 30px rgba(20,184,166,0.12)'"
+        @mouseleave="(e) => e.currentTarget.style.boxShadow = '0 0 0 0 rgba(20,184,166,0)'"
+      >
+        <div class="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-teal-400/[0.12] blur-2xl group-hover:scale-125 transition-transform duration-500" />
+        <PiggyBank class="h-4 w-4 text-teal-400 mb-3 relative" />
+        <p class="text-[11px] text-muted-foreground mb-1.5 uppercase tracking-wider font-medium relative">
+          {{ t('dashboard.savings') }}
+        </p>
+        <p
+          class="text-2xl font-bold tabular-nums relative"
+          :class="display.savings > 0
+            ? 'bg-gradient-to-r from-teal-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent'
+            : 'text-teal-400'"
+        >
+          {{ fmt(display.savings) }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Available this month bar ──────────────────────────────── -->
+    <div
+      class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
+      :class="theme.isDark
+        ? (display.available >= 0 ? 'bg-emerald-500/[0.07] border-emerald-500/[0.15]' : 'bg-rose-500/[0.07] border-rose-500/[0.15]')
+        : (display.available >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100')"
+    >
+      <p class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {{ t('dashboard.available') }}
+      </p>
+      <p
+        class="text-xl font-bold tabular-nums"
+        :class="display.available >= 0 ? 'text-emerald-400' : 'text-rose-400'"
+      >
+        {{ fmt(display.available) }}
+      </p>
     </div>
 
     <!-- ── KPI tiles ──────────────────────────────────────────────── -->
-    <div v-if="kpis" class="grid grid-cols-2 gap-4">
+    <div v-if="kpis" class="grid grid-cols-3 gap-4">
       <!-- Pot. Savings Rate -->
       <div
         class="anim-fade-up delay-150 rounded-2xl p-4 border"
@@ -317,21 +377,9 @@ watch(() => auth.user?.active_household_id, async (id) => {
         </p>
         <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.ofIncome') }}</p>
       </div>
-      <!-- Emergency Fund -->
-      <div
-        class="anim-fade-up delay-150 rounded-2xl p-4 border"
-        :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
-      >
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.emergencyMonths') }}</p>
-        <p class="text-2xl font-bold tabular-nums"
-           :class="kpis.emergency_months >= 3 ? 'text-emerald-400' : kpis.emergency_months >= 1 ? 'text-amber-400' : 'text-rose-400'">
-          {{ kpis.emergency_months.toFixed(1) }}
-        </p>
-        <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.months') }}</p>
-      </div>
     </div>
 
-    <!-- ── Expenses donut ────────────────────────────────────────── -->
+    <!-- ── Expenses donut + Rücklagenreichweite ──────────────────── -->
     <div
       class="anim-fade-up delay-200 rounded-2xl border p-5"
       :class="theme.isDark
@@ -341,15 +389,37 @@ watch(() => auth.user?.active_household_id, async (id) => {
       <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-5">
         {{ t('reports.chart.expensesByCategory') }}
       </h2>
-      <Doughnut
-        v-if="donutData.length > 0"
-        :data="donutChartData"
-        :options="donutOptions"
-        class="max-h-52"
-      />
-      <p v-else class="text-sm text-muted-foreground text-center py-12">
-        {{ t('dashboard.noData') }}
-      </p>
+      <div class="flex gap-4 items-start">
+        <!-- Doughnut chart -->
+        <div class="flex-1 min-w-0">
+          <Doughnut
+            v-if="donutData.length > 0"
+            :data="donutChartData"
+            :options="donutOptions"
+            class="max-h-52"
+          />
+          <p v-else class="text-sm text-muted-foreground text-center py-12">
+            {{ t('dashboard.noData') }}
+          </p>
+        </div>
+        <!-- Rücklagenreichweite -->
+        <div
+          v-if="kpis"
+          class="w-48 shrink-0 rounded-2xl p-4 border"
+          :class="theme.isDark ? 'bg-card/70 border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
+        >
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            {{ t('dashboard.emergencyMonths') }}
+          </p>
+          <p
+            class="text-2xl font-bold tabular-nums"
+            :class="kpis.emergency_months >= 3 ? 'text-emerald-400' : kpis.emergency_months >= 1 ? 'text-amber-400' : 'text-rose-400'"
+          >
+            {{ kpis.emergency_months.toFixed(1) }}
+          </p>
+          <p class="text-[10px] text-muted-foreground mt-1">{{ t('dashboard.months') }}</p>
+        </div>
+      </div>
     </div>
 
     <!-- ── Monthly reserve ─────────────────────────────────────────── -->
@@ -417,7 +487,12 @@ watch(() => auth.user?.active_household_id, async (id) => {
             `anim-fade-up delay-${Math.min(300 + i * 50, 500)}`
           ]"
         >
-          <span class="text-sm text-muted-foreground">{{ acc.name }}</span>
+          <span class="flex items-center gap-1">
+            <span class="text-sm text-muted-foreground">{{ acc.name }}</span>
+            <Badge v-if="acc.account_role" variant="outline" class="text-xs ml-1">
+              {{ roleLabel(acc.account_role) }}
+            </Badge>
+          </span>
           <span
             class="text-sm font-bold tabular-nums"
             :class="parseFloat(acc.balance) >= 0 ? 'text-emerald-400' : 'text-rose-400'"
