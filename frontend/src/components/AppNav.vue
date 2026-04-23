@@ -101,8 +101,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   <aside
     class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 z-40"
     :class="theme.isDark
-      ? 'bg-[#060a14]/75 backdrop-blur-3xl border-r border-emerald-500/[0.08] sidebar-glow'
-      : 'bg-white/95 backdrop-blur-2xl border-r border-gray-100 shadow-sm'"
+      ? 'bg-[#060a14]/75 backdrop-blur-3xl sidebar-glow'
+      : 'bg-white/95 backdrop-blur-2xl shadow-sm'"
   >
     <!-- Brand -->
     <div class="flex items-center gap-3 px-5 h-16 shrink-0 border-b relative overflow-hidden"
