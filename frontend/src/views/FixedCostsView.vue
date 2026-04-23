@@ -60,16 +60,16 @@ function fmtAmount(amount) {
 // ── Derived lists ─────────────────────────────────────────────────────
 
 const filteredCategories = computed(() => {
-  const typeMap: Record<string, string> = { expense: 'fixed', income: 'income' }
+  const typeMap = { expense: 'fixed', income: 'income' }
   const target = typeMap[form.value.cost_type]
   if (!target) return []
-  return categories.value.filter((c: { category_type: string }) => c.category_type === target)
+  return categories.value.filter(c => c.category_type === target)
 })
 
-const incomeItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'income' && !fc.loan_id))
-const expenseItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'expense' && !fc.loan_id))
-const transferItems = computed(() => fixedCosts.value.filter((fc: { cost_type: string; loan_id: number | null | undefined }) => fc.cost_type === 'transfer' && !fc.loan_id))
-const loanItems = computed(() => fixedCosts.value.filter((fc: { loan_id: number | null | undefined }) => fc.loan_id !== null && fc.loan_id !== undefined))
+const incomeItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'income' && !fc.loan_id))
+const expenseItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'expense' && !fc.loan_id))
+const transferItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'transfer' && !fc.loan_id))
+const loanItems = computed(() => fixedCosts.value.filter(fc => fc.loan_id !== null && fc.loan_id !== undefined))
 
 // ── Load data ─────────────────────────────────────────────────────────
 
@@ -119,7 +119,7 @@ function openCreate() {
   showDialog.value = true
 }
 
-function openEdit(fc: { id: number; name: string; cost_type: string; category_id: number | null; account_id: number | null; to_account_id?: number | null; amount: string | number; interval_months: number; show_split: boolean; start_date: string; end_date: string | null }) {
+function openEdit(fc) {
   editingId.value = fc.id
   form.value = {
     name: fc.name,
@@ -137,7 +137,7 @@ function openEdit(fc: { id: number; name: string; cost_type: string; category_id
 }
 
 async function save() {
-  const body: Record<string, unknown> = {
+  const body = {
     name: form.value.name,
     cost_type: form.value.cost_type,
     amount: parseFloat(form.value.amount),
@@ -315,8 +315,8 @@ async function saveAmount() {
             <TableBody>
               <TableRow v-for="fc in transferItems" :key="fc.id">
                 <TableCell class="font-medium">{{ fc.name }}</TableCell>
-                <TableCell class="text-muted-foreground text-sm">{{ accounts.find((a: { id: number; name: string }) => a.id === fc.account_id)?.name || '—' }}</TableCell>
-                <TableCell class="text-muted-foreground text-sm">{{ accounts.find((a: { id: number; name: string }) => a.id === fc.to_account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find(a => a.id === fc.account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find(a => a.id === fc.to_account_id)?.name || '—' }}</TableCell>
                 <TableCell class="text-right tabular-nums font-medium">{{ fmtAmount(fc.amount) }}</TableCell>
                 <TableCell class="text-right space-x-1 whitespace-nowrap">
                   <Button variant="ghost" size="sm" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
