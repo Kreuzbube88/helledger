@@ -51,6 +51,12 @@ const monthLabel = computed(() =>
 
 const TYPE_BADGE = { income: 'default', expense: 'destructive', transfer: 'secondary' }
 
+const filteredCategories = computed(() => {
+  if (form.value.transaction_type === 'income') return flatCategories.value.filter(c => c.category_type === 'income')
+  if (form.value.transaction_type === 'expense') return flatCategories.value.filter(c => c.category_type === 'variable')
+  return flatCategories.value
+})
+
 function flattenCats(list) {
   const result = []
   function walk(items) {
@@ -299,7 +305,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
         <form @submit.prevent="save" class="space-y-4">
           <div class="space-y-1">
             <Label>{{ t('transactions.type') }}</Label>
-            <Select v-model="form.transaction_type">
+            <Select v-model="form.transaction_type" @update:modelValue="form.category_id = '__none__'">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="income">{{ t('transactions.income') }}</SelectItem>
@@ -356,7 +362,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none__">—</SelectItem>
-                  <SelectItem v-for="cat in flatCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
+                  <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

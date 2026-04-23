@@ -58,6 +58,12 @@ function fmtAmount(amount) {
 
 // ── Derived lists ─────────────────────────────────────────────────────
 
+const filteredCategories = computed(() => {
+  const typeMap = { expense: 'fixed', income: 'income' }
+  const target = typeMap[form.value.cost_type]
+  return categories.value.filter(c => c.category_type === target)
+})
+
 const incomeItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'income' && !fc.loan_id))
 const expenseItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'expense' && !fc.loan_id))
 const loanItems = computed(() => fixedCosts.value.filter(fc => fc.loan_id !== null && fc.loan_id !== undefined))
@@ -359,7 +365,7 @@ async function saveAmount() {
           </div>
           <div class="space-y-1">
             <Label>{{ t('fixedCosts.type') }}</Label>
-            <Select v-model="form.cost_type">
+            <Select v-model="form.cost_type" @update:modelValue="form.category_id = '__none__'">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="income">{{ t('fixedCosts.income') }}</SelectItem>
@@ -373,7 +379,7 @@ async function saveAmount() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">—</SelectItem>
-                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
+                <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
