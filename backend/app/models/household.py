@@ -51,6 +51,7 @@ class Account(Base):
     account_type: Mapped[str] = mapped_column(String(20))
     starting_balance: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     currency: Mapped[str] = mapped_column(String(3), default="EUR")
+    account_role: Mapped[str | None] = mapped_column(String(50), nullable=True)
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

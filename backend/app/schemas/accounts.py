@@ -8,6 +8,7 @@ class AccountCreate(BaseModel):
     account_type: str
     starting_balance: Decimal
     currency: str = "EUR"
+    account_role: str | None = None
 
 
 class AccountUpdate(BaseModel):
@@ -15,6 +16,7 @@ class AccountUpdate(BaseModel):
     account_type: str | None = None
     starting_balance: Decimal | None = None
     currency: str | None = None
+    account_role: str | None = None
 
 
 class AccountResponse(BaseModel):
@@ -24,6 +26,7 @@ class AccountResponse(BaseModel):
     account_type: str
     starting_balance: Decimal
     currency: str
+    account_role: str | None
     archived: bool
     created_at: datetime
     updated_at: datetime
