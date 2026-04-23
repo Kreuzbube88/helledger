@@ -35,7 +35,7 @@ const activeTab = ref('expenses')
 
 const catData = ref(null)
 const trendData = ref(null)
-const balanceData = ref(null)
+const balanceData = ref([])
 const loanList = ref([])
 const selectedLoanId = ref('')
 const loanAmortization = ref([])
@@ -76,10 +76,27 @@ async function loadData() {
   if (trendRes.ok) trendData.value = await trendRes.json()
 
   if (accountId.value && accountId.value !== '__all__') {
+    // single account
     const balRes = await api.get(`/reports/balance-history?from_date=${from}&to_date=${to}&account_id=${accountId.value}`)
-    if (balRes.ok) balanceData.value = await balRes.json()
+    if (balRes.ok) {
+      const data = await balRes.json()
+      balanceData.value = [{ acc: accounts.value.find(a => String(a.id) === accountId.value), data }]
+    } else {
+      balanceData.value = []
+    }
   } else {
-    balanceData.value = null
+    // all accounts
+    if (accounts.value.length > 0) {
+      const results = await Promise.all(
+        accounts.value.map(acc =>
+          api.get(`/reports/balance-history?from_date=${from}&to_date=${to}&account_id=${acc.id}`)
+            .then(r => r.ok ? r.json().then(d => ({ acc, data: d })) : null)
+        )
+      )
+      balanceData.value = results.filter(r => r && r.data && r.data.length > 0)
+    } else {
+      balanceData.value = []
+    }
   }
 }
 
@@ -120,27 +137,31 @@ const trendChartData = computed(() => {
         type: 'line',
         label: t('reports.chart.savings'),
         data: trendData.value.map(d => parseFloat(d.savings || '0')),
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16,185,129,0.1)',
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,0.1)',
         tension: 0.3,
-        pointRadius: 0,
+        pointRadius: 3,
       },
     ],
   }
 })
 
 
-const balanceChartData = computed(() => ({
-  labels: (balanceData.value || []).map((d) => d.date),
-  datasets: [{
-    label: t('reports.chart.balanceHistory'),
-    data: (balanceData.value || []).map((d) => parseFloat(d.balance)),
-    borderColor: '#6366f1',
-    backgroundColor: 'rgba(99,102,241,0.12)',
-    fill: true,
+const balanceChartData = computed(() => {
+  const series = balanceData.value
+  if (!series.length) return { labels: [], datasets: [] }
+  const labels = series[0].data.map(d => d.date)
+  const datasets = series.map((s, i) => ({
+    label: s.acc ? s.acc.name : String(i),
+    data: s.data.map(d => parseFloat(d.balance)),
+    borderColor: COLORS[i % COLORS.length],
+    backgroundColor: COLORS[i % COLORS.length] + '20',
+    fill: false,
     tension: 0.3,
-  }],
-}))
+    pointRadius: 0,
+  }))
+  return { labels, datasets }
+})
 
 const barOptions = {
   responsive: true,
@@ -308,10 +329,8 @@ onMounted(async () => {
               <CardTitle class="text-sm">{{ t('reports.chart.balanceHistory') }}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Line v-if="balanceData?.length" :data="balanceChartData" :options="lineOptions" class="max-h-80" />
-              <p v-else class="text-center text-muted-foreground py-12">
-                {{ accountId ? t('reports.noData') : t('reports.selectAccount') }}
-              </p>
+              <Line v-if="balanceData.length" :data="balanceChartData" :options="lineOptions" class="max-h-80" />
+              <p v-else class="text-center text-muted-foreground py-12">{{ t('reports.noData') }}</p>
             </CardContent>
           </Card>
         </TabsContent>
