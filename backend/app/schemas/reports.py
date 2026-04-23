@@ -12,6 +12,7 @@ class MonthlyTrendItem(BaseModel):
     month: int
     income: str
     expenses: str
+    savings: str
 
 
 class BalanceHistoryItem(BaseModel):

@@ -2,7 +2,7 @@ from datetime import date as date_type, timedelta
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import case, extract, func, or_
+from sqlalchemy import and_, case, extract, false, func, literal, or_
 from sqlalchemy.orm import Session
 
 from app.auth.deps import get_current_user
@@ -82,6 +82,15 @@ async def monthly_trend(
 ):
     hh_id = _require_active_hh(user)
     _validate_dates(from_date, to_date)
+
+    savings_acc_ids = [
+        a.id for a in db.query(Account).filter(
+            Account.household_id == hh_id,
+            Account.account_role == "savings",
+            Account.archived.is_(False),
+        ).all()
+    ]
+
     income_col = func.sum(
         case((Transaction.transaction_type == "income", Transaction.amount), else_=0)
     )
@@ -90,18 +99,31 @@ async def monthly_trend(
             case((Transaction.transaction_type == "expense", Transaction.amount), else_=0)
         )
     )
+    savings_col = func.sum(case(
+        (
+            and_(
+                Transaction.transaction_type == "transfer",
+                Transaction.account_id.in_(savings_acc_ids) if savings_acc_ids else false(),
+                Transaction.amount > 0,
+            ),
+            Transaction.amount,
+        ),
+        else_=literal(0),
+    ))
+
     q = (
         db.query(
             extract("year", Transaction.date).label("year"),
             extract("month", Transaction.date).label("month"),
             income_col.label("income"),
             expense_col.label("expenses"),
+            savings_col.label("savings"),
         )
         .filter(
             Transaction.household_id == hh_id,
             Transaction.date >= from_date,
             Transaction.date <= to_date,
-            Transaction.transaction_type.in_(["income", "expense"]),
+            Transaction.transaction_type.in_(["income", "expense", "transfer"]),
         )
     )
     if account_id is not None:
@@ -118,6 +140,7 @@ async def monthly_trend(
             month=int(r.month),
             income=f"{r.income or Decimal('0'):.2f}",
             expenses=f"{r.expenses or Decimal('0'):.2f}",
+            savings=f"{float(r.savings or 0):.2f}",
         )
         for r in rows
     ]
