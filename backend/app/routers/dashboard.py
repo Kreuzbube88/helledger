@@ -8,7 +8,7 @@ from app.auth.deps import get_current_user
 from app.database import get_db
 from app.models.fixed_cost import FixedCost
 from app.models.household import Category, Account
-from app.models.loan import Loan, LoanExtraPayment
+from app.models.loan import Loan
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -19,7 +19,6 @@ from app.schemas.dashboard import (
     YearCategoryRow,
     YearViewResponse,
 )
-from app.services.loan_calc import calc_stats
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -234,28 +233,13 @@ def get_month_view(
     balance = total_income - total_expense
     savings_rate = (balance / total_income * 100) if total_income > 0 else 0.0
 
-    # debt_to_income: total active loan balances / monthly income * 100
+    # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(
         Loan.household_id == hh_id,
         Loan.status == "active",
     ).all()
-    loan_ids = [l.id for l in active_loans]
-    eps_map: dict[int, list[dict]] = {}
-    if loan_ids:
-        for ep in db.query(LoanExtraPayment).filter(LoanExtraPayment.loan_id.in_(loan_ids)).all():
-            eps_map.setdefault(ep.loan_id, []).append(
-                {"payment_date": ep.payment_date, "amount": float(ep.amount), "effect": ep.effect}
-            )
-    total_debt = 0.0
-    for loan in active_loans:
-        monthly_extra = float(loan.monthly_extra) if loan.monthly_extra else 0.0
-        stats = calc_stats(
-            float(loan.principal), float(loan.interest_rate),
-            float(loan.monthly_payment), loan.term_months,
-            loan.start_date, eps_map.get(loan.id, []), monthly_extra,
-        )
-        total_debt += stats["current_balance"]
-    debt_to_income = (total_debt / total_income * 100) if total_income > 0 else 0.0
+    total_monthly_debt = sum(float(loan.monthly_payment) for loan in active_loans) if active_loans else 0.0
+    debt_to_income = (total_monthly_debt / total_income * 100) if total_income > 0 else 0.0
 
     # emergency_months: liquid account balances / avg monthly expenses (last 3 months)
     liquid_accounts = db.query(Account).filter(

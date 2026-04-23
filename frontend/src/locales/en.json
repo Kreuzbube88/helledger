@@ -56,7 +56,7 @@
     "noData": "No data for this month.",
     "addTransaction": "Add Transaction",
     "savingsRate": "Savings Rate",
-    "debtToIncome": "Debt-to-Income",
+    "debtToIncome": "Debt Ratio",
     "emergencyMonths": "Reserve Coverage",
     "months": "months",
     "ofIncome": "of income"
