@@ -62,7 +62,7 @@ async def expenses_by_category(
         .order_by(func.abs(func.sum(Transaction.amount)).desc())
         .all()
     )
-    return [
+    result = [
         ExpensesByCategoryItem(
             category_id=r.category_id,
             category_name=r.category_name,
@@ -70,6 +70,35 @@ async def expenses_by_category(
         )
         for r in rows
     ]
+
+    savings_acc_ids = [
+        a.id for a in db.query(Account).filter(
+            Account.household_id == hh_id,
+            Account.account_role == "savings",
+            Account.archived.is_(False),
+        ).all()
+    ]
+
+    savings_total = 0.0
+    if savings_acc_ids:
+        raw = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.household_id == hh_id,
+            Transaction.date >= from_date,
+            Transaction.date <= to_date,
+            Transaction.transaction_type == "transfer",
+            Transaction.account_id.in_(savings_acc_ids),
+            Transaction.amount > 0,
+        ).scalar()
+        savings_total = float(raw or 0)
+
+    if savings_total > 0:
+        result.append(ExpensesByCategoryItem(
+            category_id=None,
+            category_name="Sparen",
+            total=f"{savings_total:.2f}",
+        ))
+
+    return result
 
 
 @router.get("/monthly-trend", response_model=list[MonthlyTrendItem])

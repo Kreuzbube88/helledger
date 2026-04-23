@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class ExpensesByCategoryItem(BaseModel):
-    category_id: int
+    category_id: int | None
     category_name: str
     total: str
 
