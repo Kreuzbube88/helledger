@@ -174,7 +174,7 @@ async def create_loan(
     # Auto-create FixedCost for loan monthly payment
     if body.account_id:
         from datetime import date as _date
-        effective_payment = monthly_payment + (body.monthly_extra or Decimal("0"))
+        effective_payment = monthly_payment
         next_fc_date = _add_months(_date(body.start_date.year, body.start_date.month, 1), 1)
         fc = FixedCost(
             household_id=hh_id,
