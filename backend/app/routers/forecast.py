@@ -27,7 +27,7 @@ def _fc_fires_in_month(fc: FixedCost, target_year: int, target_month: int) -> bo
     return months_diff >= 0 and months_diff % fc.interval_months == 0
 
 
-@router.get("/", response_model=ForecastResponse)
+@router.get("", response_model=ForecastResponse)
 def get_forecast(
     months: int = Query(12, ge=1, le=60),
     db: Session = Depends(get_db),
