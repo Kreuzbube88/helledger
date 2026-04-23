@@ -62,8 +62,8 @@ def get_forecast(
 
     result_months: list[ForecastMonth] = []
 
-    for i in range(months):
-        # Compute target year/month
+    for i in range(1, months + 1):
+        # Start from next month — current month's transactions are already in live balances
         total_months = today.month + i
         target_year = today.year + (total_months - 1) // 12
         target_month = (total_months - 1) % 12 + 1
