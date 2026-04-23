@@ -73,40 +73,43 @@ onMounted(load)
       <!-- KPI Bar -->
       <Card>
         <CardContent class="pt-4 pb-4">
-          <div class="grid grid-cols-4 divide-x">
+          <div class="grid grid-cols-2 md:grid-cols-4">
             <!-- Einnahmen -->
-            <div class="text-center px-4 space-y-1">
-              <p class="text-sm text-muted-foreground">{{ t('dashboard.income') }}</p>
-              <p class="text-xl font-bold text-emerald-500">{{ (data.summary?.total_income ?? 0).toFixed(2) }}</p>
+            <div class="text-center px-4 py-2 space-y-1 border-r border-b md:border-b-0">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('dashboard.income') }}</p>
+              <p class="text-xl font-bold text-emerald-500 tabular-nums">{{ (data.summary?.total_income ?? 0).toFixed(2) }}</p>
             </div>
             <!-- Ausgaben -->
-            <div class="text-center px-4 space-y-1">
-              <p class="text-sm text-muted-foreground">{{ t('dashboard.expenses') }}</p>
-              <p class="text-xl font-bold text-rose-500">{{ (data.summary?.total_expense ?? 0).toFixed(2) }}</p>
+            <div class="text-center px-4 py-2 space-y-1 border-b md:border-b-0 md:border-r">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('dashboard.expenses') }}</p>
+              <p class="text-xl font-bold text-rose-500 tabular-nums">{{ (data.summary?.total_expense ?? 0).toFixed(2) }}</p>
             </div>
             <!-- Sparen -->
-            <div class="text-center px-4 space-y-1">
-              <p class="text-sm text-muted-foreground">{{ t('monthView.savings') }}</p>
-              <p class="text-xl font-bold text-violet-500">{{ (data.summary?.savings_amount ?? 0).toFixed(2) }}</p>
+            <div class="text-center px-4 py-2 space-y-1 border-r">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.savings') }}</p>
+              <p class="text-xl font-bold text-violet-500 tabular-nums">{{ (data.summary?.savings_amount ?? 0).toFixed(2) }}</p>
               <p class="text-xs text-muted-foreground">{{ (data.summary?.savings_rate ?? 0).toFixed(1) }}%</p>
             </div>
-            <!-- Verfügbar (3-spaltig) -->
-            <div class="px-4 space-y-1">
-              <p class="text-sm text-muted-foreground text-center">{{ t('monthView.availableTotal') }}</p>
-              <div class="grid grid-cols-3 gap-1 text-center">
+            <!-- Verfügbar -->
+            <div class="px-4 py-2 space-y-1 text-center">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.availableTotal') }}</p>
+              <!-- Desktop: 3-split -->
+              <div class="hidden md:grid grid-cols-3 gap-1 text-center">
                 <div>
                   <p class="text-xs text-muted-foreground">{{ t('monthView.availableFixed') }}</p>
-                  <p class="text-sm font-semibold">{{ fixedCostsBalance.toFixed(2) }}</p>
+                  <p class="text-sm font-semibold tabular-nums">{{ fixedCostsBalance.toFixed(2) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground">{{ t('monthView.availableVariable') }}</p>
-                  <p class="text-sm font-semibold">{{ variableBalance.toFixed(2) }}</p>
+                  <p class="text-sm font-semibold tabular-nums">{{ variableBalance.toFixed(2) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground">{{ t('monthView.gesamt') }}</p>
-                  <p class="text-sm font-bold" :class="totalAvailable >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ totalAvailable.toFixed(2) }}</p>
+                  <p class="text-sm font-bold tabular-nums" :class="totalAvailable >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ totalAvailable.toFixed(2) }}</p>
                 </div>
               </div>
+              <!-- Mobile: nur Gesamt -->
+              <p class="md:hidden text-xl font-bold tabular-nums" :class="totalAvailable >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ totalAvailable.toFixed(2) }}</p>
             </div>
           </div>
         </CardContent>

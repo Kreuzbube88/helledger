@@ -288,8 +288,46 @@ onMounted(() => Promise.all([loadMeta(), load()]))
         </Select>
       </div>
 
-      <!-- Table -->
-      <div class="rounded-lg border bg-card overflow-hidden">
+      <!-- Mobile: Card-Layout -->
+      <div class="md:hidden space-y-2">
+        <div v-if="transactions.length === 0" class="text-center text-muted-foreground py-8">
+          {{ t('transactions.noData') }}
+        </div>
+        <div
+          v-for="tx in transactions"
+          :key="tx.id"
+          class="rounded-xl border bg-card px-4 py-3 flex items-center justify-between gap-3"
+        >
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-medium text-sm truncate">{{ tx.description }}</span>
+              <RefreshCw v-if="tx.is_auto_generated" class="h-3 w-3 text-muted-foreground shrink-0" />
+            </div>
+            <div class="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground flex-wrap">
+              <span class="tabular-nums">{{ tx.date }}</span>
+              <span>·</span>
+              <span>{{ accountName(tx.account_id) }}</span>
+              <template v-if="tx.category_id">
+                <span>·</span>
+                <span>{{ categoryName(tx.category_id) }}</span>
+              </template>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-2 shrink-0">
+            <span
+              class="font-bold text-sm tabular-nums"
+              :class="tx.transaction_type === 'income' ? 'text-emerald-500' : tx.transaction_type === 'transfer' ? 'text-violet-500' : 'text-rose-500'"
+            >{{ fmtAmount(tx) }}</span>
+            <div class="flex gap-1">
+              <Button v-if="tx.transaction_type !== 'transfer'" variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(tx)">{{ t('transactions.edit') }}</Button>
+              <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="remove(tx.id)">{{ t('transactions.delete') }}</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop: Tabelle -->
+      <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
