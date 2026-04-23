@@ -13,7 +13,7 @@ class FixedCostCreate(BaseModel):
     show_split: bool = False
     start_date: date
     end_date: date | None = None
-    next_date: date
+    next_date: date | None = None
 
 
 class FixedCostUpdate(BaseModel):

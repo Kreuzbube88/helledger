@@ -64,9 +64,12 @@ def create_fixed_cost(
 ):
     if not user.active_household_id:
         raise HTTPException(status_code=400, detail="no_active_household")
+    data = body.model_dump()
+    if data.get("next_date") is None:
+        data["next_date"] = data["start_date"]
     fc = FixedCost(
         household_id=user.active_household_id,
-        **body.model_dump(),
+        **data,
     )
     db.add(fc)
     db.commit()
