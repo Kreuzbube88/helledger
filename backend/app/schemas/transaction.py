@@ -65,6 +65,7 @@ class BalanceResponse(BaseModel):
     id: int
     name: str
     account_type: str
+    account_role: str | None
     balance: str
     currency: str
     archived: bool

@@ -57,6 +57,19 @@ const filteredCategories = computed(() => {
   return flatCategories.value
 })
 
+const filteredAccounts = computed(() => {
+  const type = form.value.transaction_type
+  if (type === 'expense') {
+    const r = accounts.value.filter(a => a.account_role === 'variable')
+    return r.length ? r : accounts.value
+  }
+  if (type === 'income') {
+    const r = accounts.value.filter(a => ['variable', 'fixed_costs'].includes(a.account_role))
+    return r.length ? r : accounts.value
+  }
+  return accounts.value
+})
+
 function flattenCats(list) {
   const result = []
   function walk(items) {
@@ -202,7 +215,9 @@ async function save() {
   }
   const res = editingId.value
     ? await api.patch(`/transactions/${editingId.value}`, body)
-    : await api.post('/transactions', body)
+    : form.value.transaction_type === 'transfer'
+      ? await api.post('/transactions/transfer', body)
+      : await api.post('/transactions', body)
   if (res.ok) {
 
     showDialog.value = false
@@ -381,7 +396,7 @@ onMounted(() => Promise.all([loadMeta(), load()]))
               <Select v-model="form.account_id">
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
+                  <SelectItem v-for="acc in filteredAccounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

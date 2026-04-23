@@ -86,6 +86,7 @@ async def get_balances(
         balance = (acc.starting_balance or Decimal("0")) + tx_total
         result.append(BalanceResponse(
             id=acc.id, name=acc.name, account_type=acc.account_type,
+            account_role=acc.account_role,
             balance=f"{balance:.2f}", currency=acc.currency, archived=acc.archived,
         ))
     return result
