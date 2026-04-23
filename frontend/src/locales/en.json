@@ -99,7 +99,17 @@
     "active": "Active", "archived": "Archived",
     "archive": "Archive", "edit": "Edit",
     "save": "Save", "cancel": "Cancel",
-    "types": { "checking": "Checking", "savings": "Savings", "credit_card": "Credit Card" }
+    "types": { "checking": "Checking", "savings": "Savings", "credit_card": "Credit Card" },
+    "role": "Role",
+    "noRole": "No Role",
+    "customRole": "Custom role...",
+    "customRolePlaceholder": "Enter custom label",
+    "roles": {
+      "main": "Main Account",
+      "fixed_costs": "Fixed Costs Account",
+      "variable": "Variable Account",
+      "savings": "Savings Account"
+    }
   },
   "categories": {
     "title": "Categories", "add": "Add Category", "addSub": "Sub-Category",

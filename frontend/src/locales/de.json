@@ -99,7 +99,17 @@
     "active": "Aktiv", "archived": "Archiviert",
     "archive": "Archivieren", "edit": "Bearbeiten",
     "save": "Speichern", "cancel": "Abbrechen",
-    "types": { "checking": "Girokonto", "savings": "Sparkonto", "credit_card": "Kreditkarte" }
+    "types": { "checking": "Girokonto", "savings": "Sparkonto", "credit_card": "Kreditkarte" },
+    "role": "Rolle",
+    "noRole": "Keine Rolle",
+    "customRole": "Eigene Rolle...",
+    "customRolePlaceholder": "Eigene Bezeichnung eingeben",
+    "roles": {
+      "main": "Giro/Hauptkonto",
+      "fixed_costs": "Fixkosten-Konto",
+      "variable": "Variabel-Konto",
+      "savings": "Sparkonto"
+    }
   },
   "categories": {
     "title": "Kategorien", "add": "Kategorie hinzufügen", "addSub": "Sub-Kategorie",

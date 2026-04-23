@@ -19,7 +19,7 @@ const api = useApi()
 const accounts = ref([])
 const showDialog = ref(false)
 const editingId = ref(null)
-const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR' })
+const form = ref({ name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null })
 
 async function load() {
   const res = await api.get('/accounts')
@@ -28,13 +28,13 @@ async function load() {
 
 function openCreate() {
   editingId.value = null
-  form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR' }
+  form.value = { name: '', account_type: 'checking', starting_balance: '0', currency: 'EUR', account_role: null }
   showDialog.value = true
 }
 
 function openEdit(acc) {
   editingId.value = acc.id
-  form.value = { name: acc.name, account_type: acc.account_type, starting_balance: String(acc.starting_balance), currency: acc.currency }
+  form.value = { name: acc.name, account_type: acc.account_type, starting_balance: String(acc.starting_balance), currency: acc.currency, account_role: acc.account_role ?? null }
   showDialog.value = true
 }
 
@@ -44,6 +44,7 @@ async function save() {
     account_type: form.value.account_type,
     starting_balance: parseFloat(form.value.starting_balance),
     currency: form.value.currency,
+    account_role: form.value.account_role || null,
   }
   const res = editingId.value
     ? await api.patch(`/accounts/${editingId.value}`, body)
@@ -55,6 +56,13 @@ async function save() {
   } else {
     toast.error(t('errors.generic'))
   }
+}
+
+const FIXED_ROLES = ['main', 'fixed_costs', 'variable', 'savings']
+function roleLabel(role) {
+  if (!role) return ''
+  if (FIXED_ROLES.includes(role)) return t('accounts.roles.' + role)
+  return role
 }
 
 async function archive(id) {
@@ -89,7 +97,7 @@ onMounted(load)
           </TableHeader>
           <TableBody>
             <TableRow v-for="acc in accounts" :key="acc.id">
-              <TableCell class="font-medium">{{ acc.name }}</TableCell>
+              <TableCell class="font-medium">{{ acc.name }}<Badge v-if="acc.account_role" variant="outline" class="text-xs ml-1.5">{{ roleLabel(acc.account_role) }}</Badge></TableCell>
               <TableCell>{{ t(`accounts.types.${acc.account_type}`) }}</TableCell>
               <TableCell class="text-right tabular-nums"
                 :class="parseFloat(acc.starting_balance) >= 0 ? 'text-emerald-500' : 'text-rose-500'">
@@ -133,6 +141,26 @@ onMounted(load)
                 <SelectItem value="credit_card">{{ t('accounts.types.credit_card') }}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div class="space-y-1">
+            <Label>{{ t('accounts.role') }}</Label>
+            <Select v-model="form.account_role" @update:modelValue="v => { if (v === '__custom__') form.account_role = '' }">
+              <SelectTrigger><SelectValue :placeholder="t('accounts.noRole')" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{{ t('accounts.noRole') }}</SelectItem>
+                <SelectItem value="main">{{ t('accounts.roles.main') }}</SelectItem>
+                <SelectItem value="fixed_costs">{{ t('accounts.roles.fixed_costs') }}</SelectItem>
+                <SelectItem value="variable">{{ t('accounts.roles.variable') }}</SelectItem>
+                <SelectItem value="savings">{{ t('accounts.roles.savings') }}</SelectItem>
+                <SelectItem value="__custom__">{{ t('accounts.customRole') }}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              v-if="form.account_role !== null && form.account_role !== '' && !['main','fixed_costs','variable','savings'].includes(form.account_role)"
+              v-model="form.account_role"
+              :placeholder="t('accounts.customRolePlaceholder')"
+              class="mt-1"
+            />
           </div>
           <div class="space-y-1">
             <Label>{{ t('accounts.balance') }}</Label>
