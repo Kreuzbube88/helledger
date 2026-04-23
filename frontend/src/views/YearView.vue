@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,6 +15,10 @@ async function load() {
   const r = await api.get(`/dashboard/year?year=${year.value}`)
   if (r.ok) data.value = await r.json()
 }
+
+const hasSavings = computed(() =>
+  Object.values(data.value?.savings_by_month || {}).some(v => v > 0)
+)
 
 watch(year, load)
 onMounted(load)
@@ -62,6 +66,21 @@ onMounted(load)
                 ]"
               >
                 {{ val > 0 ? (cat.is_planned[i] ? '~' : '') + val.toFixed(0) : '—' }}
+              </td>
+            </tr>
+            <tr v-if="hasSavings" class="border-t-2 border-border">
+              <td class="sticky left-0 bg-background py-2 pr-4 font-semibold text-emerald-400">
+                {{ t('yearView.savings') }}
+              </td>
+              <td
+                v-for="m in 12"
+                :key="m"
+                class="px-3 py-2 text-right tabular-nums text-emerald-400"
+              >
+                {{ (data.savings_by_month[String(m).padStart(2, '0')] || 0).toFixed(0) }}
+              </td>
+              <td class="px-3 py-2 text-right tabular-nums font-semibold text-emerald-400">
+                {{ Object.values(data.savings_by_month).reduce((s, v) => s + v, 0).toFixed(0) }}
               </td>
             </tr>
           </tbody>

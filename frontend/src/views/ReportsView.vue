@@ -116,6 +116,15 @@ const trendChartData = computed(() => {
         borderWidth: 1,
         borderRadius: 4,
       },
+      {
+        type: 'line' as const,
+        label: t('reports.chart.savings'),
+        data: trendData.value.map(d => parseFloat(d.savings || '0')),
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16,185,129,0.1)',
+        tension: 0.3,
+        pointRadius: 0,
+      },
     ],
   }
 })
