@@ -143,7 +143,7 @@ const householdName = ref(`${auth.user?.name || 'Mein'}s Haushalt`)
 
 // ── Step 2: Accounts ──────────────────────────────────────────────────
 const accounts = ref([
-  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR' },
+  { name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: null },
 ])
 
 const ACCOUNT_TYPES = [
@@ -152,8 +152,16 @@ const ACCOUNT_TYPES = [
   { value: 'credit_card', labelDe: 'Kreditkarte', labelEn: 'Credit Card', icon: CreditCard },
 ]
 
+const ACCOUNT_ROLES = [
+  { value: null,          labelDe: 'Keine Rolle',      labelEn: 'No Role' },
+  { value: 'main',        labelDe: 'Hauptkonto',        labelEn: 'Main Account' },
+  { value: 'fixed_costs', labelDe: 'Fixkosten-Konto',   labelEn: 'Fixed Costs' },
+  { value: 'variable',    labelDe: 'Variabel-Konto',    labelEn: 'Variable' },
+  { value: 'savings',     labelDe: 'Sparkonto',         labelEn: 'Savings' },
+]
+
 function addAccount() {
-  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR' })
+  accounts.value.push({ name: '', account_type: 'checking', starting_balance: '', currency: 'EUR', account_role: null })
 }
 
 function removeAccount(i) {
@@ -282,6 +290,7 @@ async function finish() {
         account_type: acc.account_type,
         starting_balance: parseFloat(acc.starting_balance) || 0,
         currency: acc.currency,
+        account_role: acc.account_role || null,
       })
       if (res.ok) accountCount++
     }
@@ -479,6 +488,21 @@ function loc(obj) {
                   >
                     <component :is="type.icon" class="h-4 w-4" />
                     {{ locale === 'de' ? type.labelDe : type.labelEn }}
+                  </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button
+                    v-for="role in ACCOUNT_ROLES"
+                    :key="String(role.value)"
+                    type="button"
+                    @click="acc.account_role = role.value"
+                    class="flex items-center justify-center py-2 px-2 rounded-xl text-[11px] font-medium transition-all"
+                    :class="acc.account_role === role.value
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                      : 'text-muted-foreground border border-transparent hover:bg-white/5'"
+                  >
+                    {{ locale === 'de' ? role.labelDe : role.labelEn }}
                   </button>
                 </div>
 

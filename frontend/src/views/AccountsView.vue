@@ -95,19 +95,24 @@ onMounted(load)
               <TableHead class="w-28">{{ t('accounts.type') }}</TableHead>
               <TableHead class="text-right w-32">{{ t('accounts.balance') }}</TableHead>
               <TableHead class="w-20">{{ t('accounts.currency') }}</TableHead>
+              <TableHead class="w-36">{{ t('accounts.role') }}</TableHead>
               <TableHead class="w-24">{{ t('accounts.status') }}</TableHead>
               <TableHead class="w-40 text-right">{{ t('common.actions') }}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow v-for="acc in accounts" :key="acc.id">
-              <TableCell class="font-medium">{{ acc.name }}<Badge v-if="acc.account_role" variant="outline" class="text-xs ml-1.5">{{ roleLabel(acc.account_role) }}</Badge></TableCell>
+              <TableCell class="font-medium">{{ acc.name }}</TableCell>
               <TableCell>{{ t(`accounts.types.${acc.account_type}`) }}</TableCell>
               <TableCell class="text-right tabular-nums"
                 :class="parseFloat(acc.starting_balance) >= 0 ? 'text-emerald-500' : 'text-rose-500'">
                 {{ parseFloat(acc.starting_balance).toFixed(2) }}
               </TableCell>
               <TableCell>{{ acc.currency }}</TableCell>
+              <TableCell>
+                <Badge v-if="acc.account_role" variant="outline" class="text-xs">{{ roleLabel(acc.account_role) }}</Badge>
+                <span v-else class="text-muted-foreground text-xs">—</span>
+              </TableCell>
               <TableCell>
                 <Badge :variant="!acc.archived ? 'default' : 'secondary'">
                   {{ acc.archived ? t('accounts.archived') : t('accounts.active') }}
