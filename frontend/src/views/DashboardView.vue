@@ -36,6 +36,7 @@ const reserveOpen = ref(false)
 const topGoals = ref([])
 const kpis = ref(null)
 const isPlanned = ref(false)
+const projectedBalances = ref([])
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, savings: 0 })
@@ -121,21 +122,24 @@ const donutOptions = computed(() => ({
   },
 }))
 
+const effectiveBalances = computed(() =>
+  isPlanned.value ? projectedBalances.value : balances.value
+)
 const fixedCostsBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'fixed_costs' && !b.archived)
+  effectiveBalances.value.filter(b => b.account_role === 'fixed_costs' && !b.archived)
     .reduce((s, a) => s + parseFloat(a.balance), 0)
 )
 const variableBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'variable' && !b.archived)
+  effectiveBalances.value.filter(b => b.account_role === 'variable' && !b.archived)
     .reduce((s, a) => s + parseFloat(a.balance), 0)
 )
-const hasFixedCosts = computed(() => balances.value.some(b => b.account_role === 'fixed_costs' && !b.archived))
-const hasVariable = computed(() => balances.value.some(b => b.account_role === 'variable' && !b.archived))
+const hasFixedCosts = computed(() => effectiveBalances.value.some(b => b.account_role === 'fixed_costs' && !b.archived))
+const hasVariable = computed(() => effectiveBalances.value.some(b => b.account_role === 'variable' && !b.archived))
 const savingsBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'savings' && !b.archived)
+  effectiveBalances.value.filter(b => b.account_role === 'savings' && !b.archived)
     .reduce((s, a) => s + parseFloat(a.balance), 0)
 )
-const hasSavings = computed(() => balances.value.some(b => b.account_role === 'savings' && !b.archived))
+const hasSavings = computed(() => effectiveBalances.value.some(b => b.account_role === 'savings' && !b.archived))
 
 // ── Data loading ───────────────────────────────────────────────────
 async function loadExpiring() {
@@ -174,6 +178,11 @@ async function load() {
     kpis.value = data.summary
     monthSections.value = data.sections || []
     isPlanned.value = data.is_planned ?? false
+    if (data.is_planned) {
+      projectedBalances.value = data.projected_balances || []
+    } else {
+      projectedBalances.value = []
+    }
     if (data.is_planned) {
       summary.value = {
         income: data.summary.total_income,

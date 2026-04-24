@@ -108,15 +108,14 @@ async function load() {
   if (fcRes.ok) fixedCosts.value = await fcRes.json()
   if (catRes.ok) {
     const raw = await catRes.json()
-    // flatten category tree
     const flat = []
-    function walk(list) {
+    function walk(list, depth) {
       for (const c of list) {
-        flat.push(c)
-        if (c.children) walk(c.children)
+        flat.push({ ...c, _isChild: depth > 0 })
+        if (c.children) walk(c.children, depth + 1)
       }
     }
-    walk(raw)
+    walk(raw, 0)
     categories.value = flat
   }
   if (accRes.ok) accounts.value = await accRes.json()
@@ -523,7 +522,12 @@ async function saveAmount() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">—</SelectItem>
-                <SelectItem v-for="cat in filteredCategories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
+                <SelectItem
+                  v-for="cat in filteredCategories"
+                  :key="cat.id"
+                  :value="String(cat.id)"
+                  :class="cat._isChild ? 'pl-6 text-muted-foreground' : ''"
+                >{{ cat._isChild ? '— ' : '' }}{{ cat.name }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
