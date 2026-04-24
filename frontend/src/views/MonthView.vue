@@ -36,7 +36,6 @@ const fixedCostsBalance = computed(() =>
 const variableBalance = computed(() =>
   balances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
 )
-const totalAvailable = computed(() => fixedCostsBalance.value + variableBalance.value)
 
 const totalSavings = computed(() =>
   (data.value?.savings_rows || []).reduce((s, r) => s + r.amount, 0)
