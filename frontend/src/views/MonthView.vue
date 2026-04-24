@@ -42,6 +42,10 @@ const totalSavings = computed(() =>
   (data.value?.savings_rows || []).reduce((s, r) => s + r.amount, 0)
 )
 
+const totalDistribution = computed(() =>
+  (data.value?.distribution_rows || []).reduce((s, r) => s + r.amount, 0)
+)
+
 const monthLabel = computed(() => {
   const months = tm('monthView.monthsFull')
   if (Array.isArray(months) && months[month.value - 1]) {
@@ -90,26 +94,22 @@ onMounted(load)
               <p class="text-xl font-bold text-violet-500 tabular-nums">{{ (data.summary?.savings_amount ?? 0).toFixed(2) }}</p>
               <p class="text-xs text-muted-foreground">{{ (data.summary?.savings_rate ?? 0).toFixed(1) }}%</p>
             </div>
-            <!-- Verfügbar -->
+            <!-- Variabel verfügbar -->
             <div class="px-4 py-2 space-y-1 text-center">
-              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.availableTotal') }}</p>
-              <!-- Desktop: 3-split -->
-              <div class="hidden md:grid grid-cols-3 gap-1 text-center">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.availableVariable') }}</p>
+              <!-- Desktop: Fix + Variable split -->
+              <div class="hidden md:grid grid-cols-2 gap-2 text-center">
                 <div>
                   <p class="text-xs text-muted-foreground">{{ t('monthView.availableFixed') }}</p>
                   <p class="text-sm font-semibold tabular-nums">{{ fixedCostsBalance.toFixed(2) }}</p>
                 </div>
                 <div>
                   <p class="text-xs text-muted-foreground">{{ t('monthView.availableVariable') }}</p>
-                  <p class="text-sm font-semibold tabular-nums">{{ variableBalance.toFixed(2) }}</p>
-                </div>
-                <div>
-                  <p class="text-xs text-muted-foreground">{{ t('monthView.gesamt') }}</p>
-                  <p class="text-sm font-bold tabular-nums" :class="totalAvailable >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ totalAvailable.toFixed(2) }}</p>
+                  <p class="text-sm font-bold tabular-nums" :class="variableBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ variableBalance.toFixed(2) }}</p>
                 </div>
               </div>
-              <!-- Mobile: nur Gesamt -->
-              <p class="md:hidden text-xl font-bold tabular-nums" :class="totalAvailable >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ totalAvailable.toFixed(2) }}</p>
+              <!-- Mobile: variable only -->
+              <p class="md:hidden text-xl font-bold tabular-nums" :class="variableBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'">{{ variableBalance.toFixed(2) }}</p>
             </div>
           </div>
         </CardContent>
@@ -167,6 +167,35 @@ onMounted(load)
               <tr class="font-semibold">
                 <td class="pt-2">{{ $t('monthView.gesamt') }}</td>
                 <td class="text-right pt-2 tabular-nums text-violet-500">{{ totalSavings.toFixed(2) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </CardContent>
+      </Card>
+
+      <!-- Kontoverteilung-Sektion -->
+      <Card v-if="data?.distribution_rows?.length">
+        <CardHeader>
+          <CardTitle>{{ t('monthView.distributionSection') }}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <table class="w-full text-sm table-fixed">
+            <thead>
+              <tr class="border-b text-muted-foreground">
+                <th class="text-left py-1">{{ t('monthView.distributionSection') }}</th>
+                <th class="text-right py-1 w-32">{{ $t('monthView.ist') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in data.distribution_rows" :key="row.date + row.description" class="border-b hover:bg-muted/50">
+                <td class="py-1">{{ row.description }}</td>
+                <td class="text-right tabular-nums text-blue-500">{{ row.amount.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="font-semibold">
+                <td class="pt-2">{{ $t('monthView.gesamt') }}</td>
+                <td class="text-right pt-2 tabular-nums text-blue-500">{{ totalDistribution.toFixed(2) }}</td>
               </tr>
             </tfoot>
           </table>
