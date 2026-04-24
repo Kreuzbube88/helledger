@@ -13,6 +13,7 @@ const year = ref(now.getFullYear())
 const month = ref(now.getMonth() + 1)
 const data = ref(null)
 const balances = ref([])
+const projectedBalances = ref([])
 
 function prevMonth() {
   if (month.value === 1) { month.value = 12; year.value-- }
@@ -25,16 +26,22 @@ function nextMonth() {
 
 async function load() {
   const r = await api.get(`/dashboard/month?year=${year.value}&month=${month.value}`)
-  if (r.ok) data.value = await r.json()
+  if (r.ok) {
+    data.value = await r.json()
+    projectedBalances.value = data.value.projected_balances || []
+  }
   const balRes = await api.get('/accounts/balances')
   if (balRes.ok) balances.value = await balRes.json()
 }
 
+const effectiveBalances = computed(() =>
+  data.value?.is_planned ? projectedBalances.value : balances.value
+)
 const fixedCostsBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'fixed_costs').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
+  effectiveBalances.value.filter(b => b.account_role === 'fixed_costs').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
 )
 const variableBalance = computed(() =>
-  balances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
+  effectiveBalances.value.filter(b => b.account_role === 'variable').reduce((s, b) => s + parseFloat(b.balance || 0), 0)
 )
 
 const totalSavings = computed(() =>
@@ -58,6 +65,9 @@ const sectionLabel = computed(() => ({
   fixed: t('monthView.fixed'),
   variable: t('monthView.variable'),
 }))
+
+const incomeSection = computed(() => data.value?.sections.find(s => s.type === 'income'))
+const otherSections = computed(() => data.value?.sections.filter(s => s.type !== 'income') || [])
 
 watch([year, month], load)
 onMounted(load)
@@ -104,7 +114,7 @@ onMounted(load)
             </div>
             <!-- Variabel verfügbar -->
             <div class="px-4 py-2 space-y-1 text-center">
-              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.availableVariable') }}</p>
+              <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('monthView.availableKpi') }}</p>
               <!-- Desktop: Fix + Variable split -->
               <div class="hidden md:grid grid-cols-2 gap-2 text-center">
                 <div>
@@ -123,10 +133,10 @@ onMounted(load)
         </CardContent>
       </Card>
 
-      <!-- Sektionen: Einnahmen, Fixkosten, Variable -->
-      <Card v-for="section in data.sections" :key="section.type">
+      <!-- Einnahmen-Sektion -->
+      <Card v-if="incomeSection">
         <CardHeader>
-          <CardTitle>{{ sectionLabel[section.type] || section.type }}</CardTitle>
+          <CardTitle>{{ sectionLabel['income'] }}</CardTitle>
         </CardHeader>
         <CardContent>
           <table class="w-full text-sm table-fixed">
@@ -137,22 +147,24 @@ onMounted(load)
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in section.rows" :key="row.category_id" class="border-b hover:bg-muted/50">
-                <td class="py-1">{{ row.name }}</td>
+              <tr v-for="row in incomeSection.rows" :key="row.category_id" class="border-b hover:bg-muted/50">
+                <td class="py-1" :class="row.parent_id ? 'pl-4 text-muted-foreground' : ''">
+                  {{ row.parent_id ? '— ' : '' }}{{ row.name }}
+                </td>
                 <td class="text-right tabular-nums">{{ (typeof row.ist === 'number' ? row.ist : parseFloat(row.ist)).toFixed(2) }}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr class="font-semibold">
                 <td class="pt-2">{{ $t('monthView.gesamt') }}</td>
-                <td class="text-right pt-2 tabular-nums">{{ section.total_ist.toFixed(2) }}</td>
+                <td class="text-right pt-2 tabular-nums">{{ incomeSection.total_ist.toFixed(2) }}</td>
               </tr>
             </tfoot>
           </table>
         </CardContent>
       </Card>
 
-      <!-- Sparüberweisungen-Sektion -->
+      <!-- Sparüberweisungen-Sektion (zwischen income und fixed) -->
       <Card v-if="data?.savings_rows?.length">
         <CardHeader>
           <CardTitle>{{ t('monthView.savingsSection') }}</CardTitle>
@@ -181,7 +193,38 @@ onMounted(load)
         </CardContent>
       </Card>
 
-      <!-- Kontoverteilung-Sektion -->
+      <!-- Fixkosten und Variable Sektionen -->
+      <Card v-for="section in otherSections" :key="section.type">
+        <CardHeader>
+          <CardTitle>{{ sectionLabel[section.type] || section.type }}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <table class="w-full text-sm table-fixed">
+            <thead>
+              <tr class="border-b text-muted-foreground">
+                <th class="text-left py-1">{{ $t('yearView.category') }}</th>
+                <th class="text-right py-1 w-32">{{ $t('monthView.ist') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in section.rows" :key="row.category_id" class="border-b hover:bg-muted/50">
+                <td class="py-1" :class="row.parent_id ? 'pl-4 text-muted-foreground' : ''">
+                  {{ row.parent_id ? '— ' : '' }}{{ row.name }}
+                </td>
+                <td class="text-right tabular-nums">{{ (typeof row.ist === 'number' ? row.ist : parseFloat(row.ist)).toFixed(2) }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="font-semibold">
+                <td class="pt-2">{{ $t('monthView.gesamt') }}</td>
+                <td class="text-right pt-2 tabular-nums">{{ section.total_ist.toFixed(2) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </CardContent>
+      </Card>
+
+      <!-- Kontoverteilung-Sektion (unverändert, bleibt am Ende) -->
       <Card v-if="data?.distribution_rows?.length">
         <CardHeader>
           <CardTitle>{{ t('monthView.distributionSection') }}</CardTitle>

@@ -22,6 +22,10 @@ const hasSavings = computed(() => {
   return actual || planned
 })
 
+const incomeRows = computed(() => data.value?.categories.filter(c => c.type === 'income') || [])
+const fixedRows = computed(() => data.value?.categories.filter(c => c.type === 'fixed') || [])
+const variableRows = computed(() => data.value?.categories.filter(c => c.type === 'variable') || [])
+
 watch(year, load)
 onMounted(load)
 </script>
@@ -54,8 +58,11 @@ onMounted(load)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="cat in data.categories" :key="cat.id" class="border-b hover:bg-muted/50">
-              <td class="py-1 pr-4 font-medium">{{ cat.name }}</td>
+            <!-- Income rows -->
+            <tr v-for="cat in incomeRows" :key="cat.id" class="border-b hover:bg-muted/50">
+              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+                {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
+              </td>
               <td
                 v-for="(val, i) in cat.months"
                 :key="i"
@@ -64,7 +71,7 @@ onMounted(load)
                   cat.is_planned[i]
                     ? 'text-muted-foreground italic'
                     : val > 0
-                      ? (cat.type === 'income' ? 'text-emerald-500' : 'text-rose-500')
+                      ? 'text-emerald-500'
                       : 'text-muted-foreground'
                 ]"
               >
@@ -74,10 +81,10 @@ onMounted(load)
                 {{ cat.months.reduce((s, v) => s + v, 0) > 0 ? cat.months.reduce((s, v) => s + v, 0).toFixed(0) : '—' }}
               </td>
             </tr>
+
+            <!-- Savings row (between income and fixed) -->
             <tr v-if="hasSavings" class="border-t-2 border-border">
-              <td class="py-2 pr-4 font-semibold text-emerald-400">
-                {{ t('yearView.savings') }}
-              </td>
+              <td class="py-2 pr-4 font-semibold text-emerald-400">{{ t('yearView.savings') }}</td>
               <td
                 v-for="m in 12"
                 :key="m"
@@ -97,6 +104,42 @@ onMounted(load)
                   Object.values(data.savings_by_month || {}).reduce((s, v) => s + v, 0) +
                   Object.values(data.savings_planned_by_month || {}).reduce((s, v) => s + v, 0)
                 ).toFixed(0) }}
+              </td>
+            </tr>
+
+            <!-- Fixed rows -->
+            <tr v-for="cat in fixedRows" :key="cat.id" class="border-b hover:bg-muted/50">
+              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+                {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
+              </td>
+              <td
+                v-for="(val, i) in cat.months"
+                :key="i"
+                class="text-right py-1 px-2 tabular-nums"
+                :class="[cat.is_planned[i] ? 'text-muted-foreground italic' : val > 0 ? 'text-rose-500' : 'text-muted-foreground']"
+              >
+                {{ val > 0 ? (cat.is_planned[i] ? '~' : '') + val.toFixed(0) : '—' }}
+              </td>
+              <td class="text-right py-1 px-2 tabular-nums font-semibold">
+                {{ cat.months.reduce((s, v) => s + v, 0) > 0 ? cat.months.reduce((s, v) => s + v, 0).toFixed(0) : '—' }}
+              </td>
+            </tr>
+
+            <!-- Variable rows -->
+            <tr v-for="cat in variableRows" :key="cat.id" class="border-b hover:bg-muted/50">
+              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+                {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
+              </td>
+              <td
+                v-for="(val, i) in cat.months"
+                :key="i"
+                class="text-right py-1 px-2 tabular-nums"
+                :class="[cat.is_planned[i] ? 'text-muted-foreground italic' : val > 0 ? 'text-rose-500' : 'text-muted-foreground']"
+              >
+                {{ val > 0 ? (cat.is_planned[i] ? '~' : '') + val.toFixed(0) : '—' }}
+              </td>
+              <td class="text-right py-1 px-2 tabular-nums font-semibold">
+                {{ cat.months.reduce((s, v) => s + v, 0) > 0 ? cat.months.reduce((s, v) => s + v, 0).toFixed(0) : '—' }}
               </td>
             </tr>
           </tbody>
