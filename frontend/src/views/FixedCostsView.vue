@@ -70,9 +70,30 @@ const filteredCategories = computed(() => {
   return categories.value.filter(c => c.category_type === target)
 })
 
+const sourceAccounts = computed(() => {
+  if (form.value.cost_type === 'distribution') {
+    return accounts.value.filter(a => a.account_role === 'fixed_costs')
+  }
+  if (form.value.cost_type === 'transfer') {
+    return accounts.value.filter(a => ['fixed_costs', 'variable'].includes(a.account_role))
+  }
+  return accounts.value
+})
+
+const targetAccounts = computed(() => {
+  if (form.value.cost_type === 'distribution') {
+    return accounts.value.filter(a => a.account_role === 'variable')
+  }
+  if (form.value.cost_type === 'transfer') {
+    return accounts.value.filter(a => a.account_role === 'savings')
+  }
+  return accounts.value
+})
+
 const incomeItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'income' && !fc.loan_id))
 const expenseItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'expense' && !fc.loan_id))
 const transferItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'transfer' && !fc.loan_id))
+const distributionItems = computed(() => fixedCosts.value.filter(fc => fc.cost_type === 'distribution' && !fc.loan_id))
 const loanItems = computed(() => fixedCosts.value.filter(fc => fc.loan_id !== null && fc.loan_id !== undefined))
 
 // ── Load data ─────────────────────────────────────────────────────────
@@ -132,6 +153,11 @@ function openCreate() {
     if (fromId) form.value.account_id = String(fromId)
     const toId = accountByRole('savings')
     if (toId) form.value.to_account_id = String(toId)
+  } else if (costType === 'distribution') {
+    const fromId = accountByRole('fixed_costs')
+    if (fromId) form.value.account_id = String(fromId)
+    const toId = accountByRole('variable')
+    if (toId) form.value.to_account_id = String(toId)
   }
   showDialog.value = true
 }
@@ -166,6 +192,11 @@ watch(() => form.value.cost_type, (newType) => {
     if (fromId) form.value.account_id = String(fromId)
     const toId = accountByRole('savings')
     if (toId) form.value.to_account_id = String(toId)
+  } else if (newType === 'distribution') {
+    const fromId = accountByRole('fixed_costs')
+    if (fromId) form.value.account_id = String(fromId)
+    const toId = accountByRole('variable')
+    if (toId) form.value.to_account_id = String(toId)
   }
 })
 
@@ -181,7 +212,7 @@ async function save() {
     category_id: form.value.category_id && form.value.category_id !== '__none__' ? parseInt(form.value.category_id) : null,
     account_id: form.value.account_id && form.value.account_id !== '__none__' ? parseInt(form.value.account_id) : null,
   }
-  if (form.value.cost_type === 'transfer' && form.value.to_account_id) {
+  if (['transfer', 'distribution'].includes(form.value.cost_type) && form.value.to_account_id) {
     body.to_account_id = parseInt(form.value.to_account_id)
   }
   const res = editingId.value
