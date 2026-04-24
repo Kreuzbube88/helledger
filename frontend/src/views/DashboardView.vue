@@ -501,7 +501,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── Account balances ──────────────────────────────────────── -->
-    <div v-if="balances.length > 0" class="anim-fade-up delay-300">
+    <div v-if="effectiveBalances.length > 0" class="anim-fade-up delay-300">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
           {{ t('dashboard.accounts') }}
@@ -516,7 +516,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div
-          v-for="(acc, i) in balances"
+          v-for="(acc, i) in effectiveBalances"
           :key="acc.id"
           class="rounded-2xl border px-4 py-3.5 flex items-center justify-between transition-all duration-200 hover:scale-[1.01] cursor-default"
           :class="[

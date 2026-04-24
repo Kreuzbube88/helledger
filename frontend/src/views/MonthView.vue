@@ -178,7 +178,7 @@ onMounted(load)
               </tr>
             </thead>
             <tbody>
-              <tr v-for="row in data.savings_rows" :key="row.date + row.description" class="border-b hover:bg-muted/50">
+              <tr v-for="(row, idx) in data.savings_rows" :key="idx" class="border-b hover:bg-muted/50">
                 <td class="py-1">{{ row.description }}</td>
                 <td class="text-right tabular-nums text-violet-500">{{ row.amount.toFixed(2) }}</td>
               </tr>
