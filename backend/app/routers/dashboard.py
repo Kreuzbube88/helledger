@@ -1,5 +1,6 @@
 import calendar as _calendar
 from datetime import date as date_type
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import func, or_
@@ -18,6 +19,7 @@ from app.schemas.dashboard import (
     MonthSection,
     MonthSummary,
     MonthViewResponse,
+    ProjectedBalance,
     SavingsRow,
     YearCategoryRow,
     YearViewResponse,
@@ -56,6 +58,86 @@ def _fc_planned_amount(active_fcs: list[FixedCost], cat_id: int, year: int, mont
     return total
 
 
+def _sort_cats(cats: list) -> list:
+    result = []
+    for type_val in ("income", "fixed", "variable"):
+        type_cats = [c for c in cats if c.category_type == type_val]
+        parents = [c for c in type_cats if c.parent_id is None]
+        children_map: dict[int, list] = {}
+        for child in type_cats:
+            if child.parent_id is not None:
+                children_map.setdefault(child.parent_id, []).append(child)
+        for parent in sorted(parents, key=lambda c: c.name):
+            result.append(parent)
+            for child in sorted(children_map.get(parent.id, []), key=lambda c: c.name):
+                result.append(child)
+        orphans = [c for c in type_cats if c.parent_id is not None and c.parent_id not in {p.id for p in parents}]
+        result.extend(sorted(orphans, key=lambda c: c.name))
+    return result
+
+
+def _compute_projected_balances(
+    db: Session,
+    hh_id: int,
+    target_year: int,
+    target_month: int,
+) -> list[ProjectedBalance]:
+    today = date_type.today()
+    accounts = db.query(Account).filter(
+        Account.household_id == hh_id,
+        Account.archived.is_(False),
+    ).all()
+
+    balances: dict[int, float] = {}
+    for acc in accounts:
+        tx_sum = db.query(func.sum(Transaction.amount)).filter(
+            Transaction.account_id == acc.id,
+        ).scalar() or Decimal("0")
+        balances[acc.id] = float((acc.starting_balance or Decimal("0")) + tx_sum)
+
+    month_end = date_type(target_year, target_month, _calendar.monthrange(target_year, target_month)[1])
+    active_fcs = db.query(FixedCost).filter(
+        FixedCost.household_id == hh_id,
+        FixedCost.is_active.is_(True),
+        FixedCost.start_date <= month_end,
+        or_(FixedCost.end_date.is_(None), FixedCost.end_date >= today),
+    ).all()
+
+    i = 1
+    while True:
+        total_months = today.month + i
+        yr = today.year + (total_months - 1) // 12
+        mo = (total_months - 1) % 12 + 1
+        for fc in active_fcs:
+            if not (_fc_active_in_month(fc, yr, mo) and _fc_bills_in_month(fc, yr, mo)):
+                continue
+            amount = float(fc.amount)
+            if fc.cost_type == "income":
+                if fc.account_id in balances:
+                    balances[fc.account_id] += amount
+            elif fc.cost_type == "expense":
+                if fc.account_id in balances:
+                    balances[fc.account_id] -= amount
+            elif fc.cost_type in ("transfer", "distribution"):
+                if fc.account_id in balances:
+                    balances[fc.account_id] -= amount
+                if fc.to_account_id in balances:
+                    balances[fc.to_account_id] += amount
+        if yr == target_year and mo == target_month:
+            break
+        i += 1
+
+    return [
+        ProjectedBalance(
+            account_id=acc.id,
+            account_role=acc.account_role,
+            name=acc.name,
+            balance=balances.get(acc.id, 0.0),
+        )
+        for acc in accounts
+    ]
+
+
 @router.get("/year", response_model=YearViewResponse)
 def get_year_view(
     year: int = Query(...),
@@ -78,6 +160,7 @@ def get_year_view(
         )
         .all()
     )
+    cats = _sort_cats(cats)
 
     month_col = func.strftime("%m", Transaction.date)
     year_col = func.strftime("%Y", Transaction.date)
@@ -172,6 +255,7 @@ def get_year_view(
             color=cat.color,
             months=months_vals,
             is_planned=is_planned_flags,
+            parent_id=cat.parent_id,
         ))
 
     savings_acc_ids_y = [
@@ -250,6 +334,7 @@ def get_month_view(
         Category.household_id == hh_id,
         Category.archived.is_(False),
     ).all()
+    cats = _sort_cats(cats)
 
     if is_future_month:
         month_start = date_type(year, month, 1)
@@ -267,7 +352,7 @@ def get_month_view(
             rows = []
             for cat in section_cats:
                 ist = _fc_planned_amount(active_fcs, cat.id, year, month)
-                rows.append(MonthCategoryRow(category_id=cat.id, name=cat.name, ist=ist))
+                rows.append(MonthCategoryRow(category_id=cat.id, name=cat.name, ist=ist, parent_id=cat.parent_id))
             sections.append(MonthSection(
                 type=section_type,
                 rows=rows,
@@ -328,8 +413,10 @@ def get_month_view(
             and fc.to_account_id in variable_acc_ids
             and _fc_bills_in_month(fc, year, month)
         ]
+        proj_balances = _compute_projected_balances(db, hh_id, year, month)
 
     else:
+        proj_balances = []
         tx_rows = (
             db.query(Transaction.category_id, func.sum(func.abs(Transaction.amount)))
             .filter(
@@ -352,6 +439,7 @@ def get_month_view(
                     category_id=cat.id,
                     name=cat.name,
                     ist=ist,
+                    parent_id=cat.parent_id,
                 ))
             sections.append(MonthSection(
                 type=section_type,
@@ -520,4 +608,5 @@ def get_month_view(
         savings_rows=savings_rows,
         distribution_rows=distribution_rows,
         is_planned=is_future_month,
+        projected_balances=proj_balances,
     )
