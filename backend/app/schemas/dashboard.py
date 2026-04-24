@@ -8,6 +8,7 @@ class YearCategoryRow(BaseModel):
     color: str | None
     months: list[float]
     is_planned: list[bool]
+    parent_id: int | None = None
 
 
 class YearViewResponse(BaseModel):
@@ -25,6 +26,7 @@ class MonthCategoryRow(BaseModel):
     category_id: int
     name: str
     ist: float
+    parent_id: int | None = None
 
 
 class MonthSection(BaseModel):
@@ -55,6 +57,13 @@ class DistributionRow(BaseModel):
     date: str
 
 
+class ProjectedBalance(BaseModel):
+    account_id: int
+    account_role: str | None
+    name: str
+    balance: float
+
+
 class MonthViewResponse(BaseModel):
     year: int
     month: int
@@ -63,3 +72,4 @@ class MonthViewResponse(BaseModel):
     savings_rows: list[SavingsRow] = []
     distribution_rows: list[DistributionRow] = []
     is_planned: bool = False
+    projected_balances: list[ProjectedBalance] = []
