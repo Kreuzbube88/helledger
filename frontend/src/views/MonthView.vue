@@ -72,6 +72,15 @@ onMounted(load)
       <Button variant="ghost" size="icon" @click="nextMonth">&#8250;</Button>
     </div>
 
+    <!-- Prognose-Banner -->
+    <div
+      v-if="data?.is_planned"
+      class="rounded-xl border border-blue-400/40 bg-blue-50 dark:bg-blue-500/10 px-4 py-3 flex items-center gap-3"
+    >
+      <span class="text-blue-500 shrink-0">📅</span>
+      <p class="text-sm text-blue-800 dark:text-blue-300">{{ t('monthView.plannedBanner') }}</p>
+    </div>
+
     <template v-if="data">
       <!-- KPI Bar -->
       <Card>
