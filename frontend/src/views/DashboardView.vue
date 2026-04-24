@@ -35,6 +35,7 @@ const monthlyReserve = ref(null)
 const reserveOpen = ref(false)
 const topGoals = ref([])
 const kpis = ref(null)
+const isPlanned = ref(false)
 
 // ── Animated display values ────────────────────────────────────────
 const display = reactive({ income: 0, expenses: 0, savings: 0 })
@@ -172,6 +173,14 @@ async function load() {
     const data = await kpiRes.json()
     kpis.value = data.summary
     monthSections.value = data.sections || []
+    isPlanned.value = data.is_planned ?? false
+    if (data.is_planned) {
+      summary.value = {
+        income: data.summary.total_income,
+        expenses: data.summary.total_expense,
+        balance: 0,
+      }
+    }
   }
   loaded.value   = true
 }
@@ -231,6 +240,15 @@ watch(() => auth.user?.active_household_id, async (id) => {
       >
         {{ t('fixedCosts.goToLoans') }}
       </button>
+    </div>
+
+    <!-- Prognose-Banner -->
+    <div
+      v-if="isPlanned"
+      class="rounded-xl border border-blue-400/40 bg-blue-50 dark:bg-blue-500/10 px-4 py-3 flex items-center gap-3"
+    >
+      <span class="text-blue-500 shrink-0">📅</span>
+      <p class="text-sm text-blue-800 dark:text-blue-300">{{ t('monthView.plannedBanner') }}</p>
     </div>
 
     <!-- ── Hero header ─────────────────────────────────────────── -->
