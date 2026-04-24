@@ -248,7 +248,8 @@
     "availableVariable": "Variables Konto",
     "availableTotal": "Gesamt verfügbar",
     "months": ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],
-    "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"]
+    "monthsFull": ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
+    "plannedBanner": "Prognose – Werte basieren auf Fixkosten. Noch keine Buchungen für diesen Monat."
   },
   "onboarding": {
     "welcome": "Willkommen bei HELLEDGER",

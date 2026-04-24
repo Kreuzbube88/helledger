@@ -248,7 +248,8 @@
     "availableVariable": "Variable Account",
     "availableTotal": "Total Available",
     "months": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-    "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    "monthsFull": ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    "plannedBanner": "Forecast – values are based on fixed costs. No bookings yet for this month."
   },
   "onboarding": {
     "welcome": "Welcome to HELLEDGER",
