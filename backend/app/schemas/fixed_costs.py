@@ -6,7 +6,7 @@ from pydantic import BaseModel, field_validator, model_validator
 class FixedCostCreate(BaseModel):
     name: str
     amount: Decimal
-    cost_type: str  # "expense" | "income" | "transfer"
+    cost_type: str  # "expense" | "income" | "transfer" | "distribution"
     category_id: int | None = None
     account_id: int | None = None
     to_account_id: int | None = None

@@ -48,6 +48,7 @@ class SavingsRow(BaseModel):
     date: str
 
 
+# Separate from SavingsRow: different UI section, fields may diverge
 class DistributionRow(BaseModel):
     description: str
     amount: float
