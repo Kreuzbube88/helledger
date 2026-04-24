@@ -48,9 +48,16 @@ class SavingsRow(BaseModel):
     date: str
 
 
+class DistributionRow(BaseModel):
+    description: str
+    amount: float
+    date: str
+
+
 class MonthViewResponse(BaseModel):
     year: int
     month: int
     sections: list[MonthSection]
     summary: MonthSummary
     savings_rows: list[SavingsRow] = []
+    distribution_rows: list[DistributionRow] = []

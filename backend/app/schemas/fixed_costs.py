@@ -25,9 +25,9 @@ class FixedCostCreate(BaseModel):
 
     @model_validator(mode='after')
     def validate_transfer(self) -> 'FixedCostCreate':
-        if self.cost_type == 'transfer':
+        if self.cost_type in ('transfer', 'distribution'):
             if not self.to_account_id:
-                raise ValueError('to_account_id required for transfer type')
+                raise ValueError('to_account_id required for transfer and distribution types')
             self.interval_months = 1
         return self
 
