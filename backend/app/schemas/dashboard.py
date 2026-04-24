@@ -62,3 +62,4 @@ class MonthViewResponse(BaseModel):
     summary: MonthSummary
     savings_rows: list[SavingsRow] = []
     distribution_rows: list[DistributionRow] = []
+    is_planned: bool = False
