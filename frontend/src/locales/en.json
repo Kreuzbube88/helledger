@@ -328,7 +328,7 @@
     "expense": "Expense",
     "transfer": "Savings Transfer",
     "distribution": "Account Distribution",
-    "toAccount": "Target Account (Savings)",
+    "toAccount": "Target Account",
     "fromAccount": "Source Account",
     "goToLoans": "→ Loans"
   },

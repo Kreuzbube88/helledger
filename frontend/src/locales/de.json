@@ -328,7 +328,7 @@
     "expense": "Ausgabe",
     "transfer": "Umbuchung (Sparen)",
     "distribution": "Kontoverteilung",
-    "toAccount": "Zielkonto (Sparkonto)",
+    "toAccount": "Zielkonto",
     "fromAccount": "Quellkonto",
     "goToLoans": "→ Kredite"
   },

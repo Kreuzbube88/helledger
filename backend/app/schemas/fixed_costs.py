@@ -52,6 +52,12 @@ class FixedCostUpdate(BaseModel):
             raise ValueError("interval_months must be >= 1")
         return v
 
+    @model_validator(mode='after')
+    def validate_transfer(self) -> 'FixedCostUpdate':
+        if self.cost_type in ('transfer', 'distribution') and self.to_account_id is None:
+            raise ValueError('to_account_id required for transfer and distribution types')
+        return self
+
 
 class FixedCostAmountChange(BaseModel):
     new_amount: Decimal
