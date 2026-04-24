@@ -12,6 +12,7 @@ from app.models.loan import Loan
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
+    DistributionRow,
     MonthCategoryRow,
     MonthSection,
     MonthSummary,
@@ -340,6 +341,33 @@ def get_month_view(
             for t in s_txs
         ]
 
+    # distribution rows: positive transfers INTO variable accounts
+    variable_acc_ids = [
+        a.id for a in db.query(Account).filter(
+            Account.household_id == hh_id,
+            Account.account_role == "variable",
+            Account.archived.is_(False),
+        ).all()
+    ]
+    distribution_rows = []
+    if variable_acc_ids:
+        d_txs = db.query(Transaction).filter(
+            Transaction.household_id == hh_id,
+            Transaction.account_id.in_(variable_acc_ids),
+            Transaction.transaction_type == "transfer",
+            Transaction.amount > 0,
+            func.strftime("%Y", Transaction.date) == year_str,
+            func.strftime("%m", Transaction.date) == month_str,
+        ).all()
+        distribution_rows = [
+            DistributionRow(
+                description=t.description or "Kontoverteilung",
+                amount=float(t.amount),
+                date=str(t.date),
+            )
+            for t in d_txs
+        ]
+
     # Kreditlastquote: monthly payments / income
     active_loans = db.query(Loan).filter(
         Loan.household_id == hh_id,
@@ -406,4 +434,5 @@ def get_month_view(
             emergency_months=emergency_months,
         ),
         savings_rows=savings_rows,
+        distribution_rows=distribution_rows,
     )
