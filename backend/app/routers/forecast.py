@@ -92,6 +92,13 @@ def get_forecast(
                     if fc.to_account_id in savings_acc_ids:
                         month_savings += amount
                     balances[fc.to_account_id] = balances.get(fc.to_account_id, 0.0) + amount
+            elif fc.cost_type == "distribution":
+                # debit from fixed_costs account, credit to variable account
+                # does NOT count as savings or expenses — purely balance redistribution
+                if fc.account_id is not None and fc.account_id in balances:
+                    balances[fc.account_id] = balances.get(fc.account_id, 0.0) - amount
+                if fc.to_account_id is not None and fc.to_account_id in balances:
+                    balances[fc.to_account_id] = balances.get(fc.to_account_id, 0.0) + amount
 
         savings_total = sum(balances.get(acc_id, 0.0) for acc_id in savings_acc_ids)
 
