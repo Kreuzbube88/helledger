@@ -395,6 +395,41 @@ async function saveAmount() {
         </div>
       </div>
 
+      <!-- ── Account Distributions ─────────────────────────────────── -->
+      <div v-if="distributionItems.length > 0" class="mb-8">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {{ t('fixedCosts.sections.distribution') }}
+        </h2>
+        <div class="rounded-lg border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{{ t('accounts.name') }}</TableHead>
+                <TableHead>{{ t('fixedCosts.fromAccount') }}</TableHead>
+                <TableHead>{{ t('fixedCosts.toAccount') }}</TableHead>
+                <TableHead class="text-right">{{ t('transactions.amount') }}</TableHead>
+                <TableHead class="text-right w-52">{{ t('common.actions') }}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="fc in distributionItems" :key="fc.id">
+                <TableCell class="font-medium">{{ fc.name }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find(a => a.id === fc.account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-muted-foreground text-sm">{{ accounts.find(a => a.id === fc.to_account_id)?.name || '—' }}</TableCell>
+                <TableCell class="text-right tabular-nums font-medium">{{ fmtAmount(fc.amount) }}</TableCell>
+                <TableCell class="text-right space-x-1 whitespace-nowrap">
+                  <Button variant="ghost" size="sm" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="deactivate(fc)">
+                    {{ t('categories.archive') }}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       <!-- ── Loan installments (read-only) ─────────────────────────── -->
       <div v-if="loanItems.length > 0" class="mb-8">
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
@@ -478,10 +513,11 @@ async function saveAmount() {
                 <SelectItem value="income">{{ t('fixedCosts.income') }}</SelectItem>
                 <SelectItem value="expense">{{ t('fixedCosts.expense') }}</SelectItem>
                 <SelectItem value="transfer">{{ t('fixedCosts.transfer') }}</SelectItem>
+                <SelectItem value="distribution">{{ t('fixedCosts.distribution') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div v-if="form.cost_type !== 'transfer'" class="space-y-1">
+          <div v-if="!['transfer', 'distribution'].includes(form.cost_type)" class="space-y-1">
             <Label>{{ t('transactions.category') }}</Label>
             <Select v-model="form.category_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -492,21 +528,21 @@ async function saveAmount() {
             </Select>
           </div>
           <div class="space-y-1">
-            <Label>{{ form.cost_type === 'transfer' ? t('fixedCosts.fromAccount') : t('transactions.account') }}</Label>
+            <Label>{{ ['transfer', 'distribution'].includes(form.cost_type) ? t('fixedCosts.fromAccount') : t('transactions.account') }}</Label>
             <Select v-model="form.account_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">—</SelectItem>
-                <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
+                <SelectItem v-for="acc in sourceAccounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div v-if="form.cost_type === 'transfer'" class="space-y-1">
+          <div v-if="['transfer', 'distribution'].includes(form.cost_type)" class="space-y-1">
             <Label>{{ t('fixedCosts.toAccount') }}</Label>
             <Select v-model="form.to_account_id">
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem v-for="acc in accounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
+                <SelectItem v-for="acc in targetAccounts" :key="acc.id" :value="String(acc.id)">{{ acc.name }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -514,7 +550,7 @@ async function saveAmount() {
             <Label>{{ t('transactions.amount') }}</Label>
             <Input v-model="form.amount" type="number" step="0.01" min="0" required />
           </div>
-          <div v-if="form.cost_type !== 'transfer'" class="space-y-1">
+          <div v-if="!['transfer', 'distribution'].includes(form.cost_type)" class="space-y-1">
             <Label>{{ t('fixedCosts.intervalLabel') }}</Label>
             <Select v-model="form.interval_months">
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -526,7 +562,7 @@ async function saveAmount() {
               </SelectContent>
             </Select>
           </div>
-          <div v-if="form.cost_type !== 'transfer' && parseInt(form.interval_months) > 1" class="flex items-center gap-2">
+          <div v-if="!['transfer', 'distribution'].includes(form.cost_type) && parseInt(form.interval_months) > 1" class="flex items-center gap-2">
             <input id="showSplit" type="checkbox" v-model="form.show_split" class="h-4 w-4 rounded border-input accent-primary cursor-pointer" />
             <label for="showSplit" class="text-sm cursor-pointer select-none">{{ t('fixedCosts.showSplit') }}</label>
           </div>
