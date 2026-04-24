@@ -96,7 +96,7 @@ def trigger_due(
     ).all()
     count = 0
     for fc in due:
-        if fc.cost_type == 'transfer':
+        if fc.cost_type in ('transfer', 'distribution'):
             debit = Transaction(
                 household_id=hh_id,
                 account_id=fc.account_id,
