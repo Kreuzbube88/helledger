@@ -243,6 +243,7 @@
     "gesamt": "Total",
     "savings": "Savings",
     "savingsSection": "Savings Transfers",
+    "distributionSection": "Account Distribution",
     "availableFixed": "Fixed Costs Account",
     "availableVariable": "Variable Account",
     "availableTotal": "Total Available",
@@ -308,7 +309,8 @@
       "income": "Regular income",
       "expense": "Regular expenses",
       "loans": "Loan installments",
-      "transfer": "Savings Transfers"
+      "transfer": "Savings Transfers",
+      "distribution": "Account Distribution"
     },
     "intervalLabel": "Interval",
     "intervals": { "1": "Monthly", "3": "Quarterly", "6": "Semi-annual", "12": "Annual" },
@@ -325,6 +327,7 @@
     "income": "Income",
     "expense": "Expense",
     "transfer": "Savings Transfer",
+    "distribution": "Account Distribution",
     "toAccount": "Target Account (Savings)",
     "fromAccount": "Source Account",
     "goToLoans": "→ Loans"

@@ -243,6 +243,7 @@
     "gesamt": "Gesamt",
     "savings": "Sparen",
     "savingsSection": "Sparüberweisungen",
+    "distributionSection": "Kontoverteilung",
     "availableFixed": "Fixkosten-Konto",
     "availableVariable": "Variables Konto",
     "availableTotal": "Gesamt verfügbar",
@@ -308,7 +309,8 @@
       "income": "Regelm. Einnahmen",
       "expense": "Regelm. Ausgaben",
       "loans": "Kreditraten",
-      "transfer": "Sparumbuchungen"
+      "transfer": "Sparumbuchungen",
+      "distribution": "Kontoverteilung"
     },
     "intervalLabel": "Intervall",
     "intervals": { "1": "Monatlich", "3": "Vierteljährlich", "6": "Halbjährlich", "12": "Jährlich" },
@@ -325,6 +327,7 @@
     "income": "Einnahme",
     "expense": "Ausgabe",
     "transfer": "Umbuchung (Sparen)",
+    "distribution": "Kontoverteilung",
     "toAccount": "Zielkonto (Sparkonto)",
     "fromAccount": "Quellkonto",
     "goToLoans": "→ Kredite"
