@@ -26,7 +26,7 @@ from app.schemas.dashboard import (
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
-def _fc_active_in_month(fc, year: int, month: int) -> bool:
+def _fc_active_in_month(fc: FixedCost, year: int, month: int) -> bool:
     first = date_type(year, month, 1)
     last_day = _calendar.monthrange(year, month)[1]
     last = date_type(year, month, last_day)
@@ -37,12 +37,12 @@ def _fc_active_in_month(fc, year: int, month: int) -> bool:
     return True
 
 
-def _fc_bills_in_month(fc, year: int, month: int) -> bool:
+def _fc_bills_in_month(fc: FixedCost, year: int, month: int) -> bool:
     months_diff = (year - fc.start_date.year) * 12 + (month - fc.start_date.month)
     return months_diff >= 0 and months_diff % fc.interval_months == 0
 
 
-def _fc_planned_amount(active_fcs: list, cat_id: int, year: int, month: int) -> float:
+def _fc_planned_amount(active_fcs: list[FixedCost], cat_id: int, year: int, month: int) -> float:
     total = 0.0
     for fc in active_fcs:
         if fc.category_id != cat_id:
