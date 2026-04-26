@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { useSwipe } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +15,16 @@ const month = ref(now.getMonth() + 1)
 const data = ref(null)
 const balances = ref([])
 const projectedBalances = ref([])
+
+const swipeContainer = ref(null)
+
+useSwipe(swipeContainer, {
+  onSwipeEnd(e, direction) {
+    if (direction === 'left')  nextMonth()
+    else if (direction === 'right') prevMonth()
+  },
+  threshold: 50,
+})
 
 function prevMonth() {
   if (month.value === 1) { month.value = 12; year.value-- }
@@ -74,7 +85,7 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="container mx-auto py-6 space-y-4">
+  <div ref="swipeContainer" class="container mx-auto py-6 space-y-4">
     <!-- Navigation -->
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="prevMonth">&#8249;</Button>
