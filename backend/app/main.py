@@ -76,7 +76,7 @@ async def _backup_loop() -> None:
 
 app = FastAPI(
     title="HELLEDGER",
-    version="1.1.1",
+    version="1.2.0",
     lifespan=lifespan,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
