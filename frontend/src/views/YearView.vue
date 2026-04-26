@@ -47,7 +47,7 @@ onMounted(load)
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b">
-              <th class="text-left py-2 pr-4">{{ $t('yearView.category') }}</th>
+              <th class="text-left py-2 pr-4 sticky left-0 z-20 bg-card">{{ $t('yearView.category') }}</th>
               <th
                 v-for="(m, i) in $tm('monthView.months')"
                 :key="m"
@@ -59,8 +59,8 @@ onMounted(load)
           </thead>
           <tbody>
             <!-- Income rows -->
-            <tr v-for="cat in incomeRows" :key="cat.id" class="border-b hover:bg-muted/50">
-              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+            <tr v-for="cat in incomeRows" :key="cat.id" class="border-b hover:bg-muted/50 group">
+              <td class="py-1 pr-4 font-medium sticky left-0 z-10 bg-card group-hover:bg-muted/50 transition-colors" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
                 {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
               </td>
               <td
@@ -83,8 +83,8 @@ onMounted(load)
             </tr>
 
             <!-- Savings row (between income and fixed) -->
-            <tr v-if="hasSavings" class="border-t-2 border-border">
-              <td class="py-2 pr-4 font-semibold text-emerald-400">{{ t('yearView.savings') }}</td>
+            <tr v-if="hasSavings" class="border-t-2 border-border group">
+              <td class="py-2 pr-4 font-semibold text-emerald-400 sticky left-0 z-10 bg-card">{{ t('yearView.savings') }}</td>
               <td
                 v-for="m in 12"
                 :key="m"
@@ -108,8 +108,8 @@ onMounted(load)
             </tr>
 
             <!-- Fixed rows -->
-            <tr v-for="cat in fixedRows" :key="cat.id" class="border-b hover:bg-muted/50">
-              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+            <tr v-for="cat in fixedRows" :key="cat.id" class="border-b hover:bg-muted/50 group">
+              <td class="py-1 pr-4 font-medium sticky left-0 z-10 bg-card group-hover:bg-muted/50 transition-colors" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
                 {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
               </td>
               <td
@@ -126,8 +126,8 @@ onMounted(load)
             </tr>
 
             <!-- Variable rows -->
-            <tr v-for="cat in variableRows" :key="cat.id" class="border-b hover:bg-muted/50">
-              <td class="py-1 pr-4 font-medium" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
+            <tr v-for="cat in variableRows" :key="cat.id" class="border-b hover:bg-muted/50 group">
+              <td class="py-1 pr-4 font-medium sticky left-0 z-10 bg-card group-hover:bg-muted/50 transition-colors" :class="cat.parent_id ? 'pl-4 text-muted-foreground' : ''">
                 {{ cat.parent_id ? '— ' : '' }}{{ cat.name }}
               </td>
               <td
