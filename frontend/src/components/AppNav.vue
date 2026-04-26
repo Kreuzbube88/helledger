@@ -49,8 +49,9 @@ const allNavItems = computed(() => {
   return items
 })
 
-const bottomPrimary = computed(() => allNavItems.value.slice(0, 4))
-const bottomMore    = computed(() => allNavItems.value.slice(4))
+const PRIMARY_KEYS  = ['dashboard', 'transactions', 'accounts', 'month']
+const bottomPrimary = computed(() => allNavItems.value.filter(i => PRIMARY_KEYS.includes(i.key)))
+const bottomMore    = computed(() => allNavItems.value.filter(i => !PRIMARY_KEYS.includes(i.key)))
 
 const userInitial = computed(() =>
   auth.user?.name?.charAt(0)?.toUpperCase() || '?'

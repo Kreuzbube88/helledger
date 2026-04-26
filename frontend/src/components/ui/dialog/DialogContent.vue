@@ -45,7 +45,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       :class="
         cn(
           'fixed z-50 grid w-full gap-4 border bg-background shadow-lg duration-200',
-          'bottom-0 left-0 right-0 p-6 rounded-t-2xl max-h-[90dvh] overflow-y-auto',
+          'inset-0 p-6 rounded-none h-dvh overflow-y-auto',
           'sm:bottom-auto sm:left-1/2 sm:right-auto sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-lg sm:rounded-lg sm:overflow-visible sm:max-h-none',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
