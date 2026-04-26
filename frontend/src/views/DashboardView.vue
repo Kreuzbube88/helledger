@@ -103,7 +103,7 @@ const donutOptions = computed(() => ({
   cutout: '74%',
   plugins: {
     legend: {
-      position: 'right',
+      position: 'bottom',
       labels: {
         boxWidth: 8, borderRadius: 4, padding: 10,
         font: { size: 11, family: 'Inter Variable, Inter, sans-serif' },
@@ -290,7 +290,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── Income / Expenses / Savings cards ─────────────────────── -->
-    <div class="grid grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <!-- Income -->
       <div
         class="anim-fade-up delay-100 rounded-2xl p-5 border relative overflow-hidden group transition-all duration-300 hover:scale-[1.02] cursor-default"
@@ -354,7 +354,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── Available by account ──────────────────────────────────── -->
-    <div v-if="hasFixedCosts || hasVariable || hasSavings" :class="['grid gap-3', (hasFixedCosts?1:0)+(hasVariable?1:0)+(hasSavings?1:0) === 3 ? 'grid-cols-3' : 'grid-cols-2']">
+    <div v-if="hasFixedCosts || hasVariable || hasSavings" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div
         v-if="hasFixedCosts"
         class="anim-fade-up delay-250 rounded-2xl border px-5 py-3.5 flex items-center justify-between"
@@ -400,10 +400,10 @@ watch(() => auth.user?.active_household_id, async (id) => {
     </div>
 
     <!-- ── KPI tiles ──────────────────────────────────────────────── -->
-    <div v-if="kpis" class="grid grid-cols-3 gap-4">
+    <div v-if="kpis" class="grid grid-cols-3 gap-2 sm:gap-4">
       <!-- Sparquote -->
       <div
-        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        class="anim-fade-up delay-150 rounded-2xl p-3 sm:p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
       >
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.savingsRate') }}</p>
@@ -414,7 +414,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
       <!-- Kreditlastquote -->
       <div
-        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        class="anim-fade-up delay-150 rounded-2xl p-3 sm:p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
       >
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.debtToIncome') }}</p>
@@ -426,7 +426,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
       </div>
       <!-- Rücklagenreichweite -->
       <div
-        class="anim-fade-up delay-150 rounded-2xl p-4 border"
+        class="anim-fade-up delay-150 rounded-2xl p-3 sm:p-4 border"
         :class="theme.isDark ? 'bg-card/70 backdrop-blur-lg border-white/[0.06]' : 'bg-white border-gray-100 shadow-sm'"
       >
         <p class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">{{ t('dashboard.emergencyMonths') }}</p>
@@ -453,7 +453,7 @@ watch(() => auth.user?.active_household_id, async (id) => {
           v-if="donutData.length > 0"
           :data="donutChartData"
           :options="donutOptions"
-          class="max-h-52"
+          class="max-h-64 sm:max-h-52"
         />
         <p v-else class="text-sm text-muted-foreground text-center py-12">
           {{ t('dashboard.noData') }}
