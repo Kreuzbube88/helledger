@@ -280,7 +280,30 @@ async function saveAmount() {
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t('fixedCosts.sections.income') }}
         </h2>
-        <div class="rounded-lg border bg-card overflow-hidden">
+        <!-- Mobile: income cards -->
+        <div class="md:hidden space-y-2 mb-2">
+          <div v-if="incomeItems.length === 0" class="text-center text-muted-foreground py-4 text-sm">
+            {{ t('fixedCosts.noData') }}
+          </div>
+          <div v-for="fc in incomeItems" :key="fc.id" class="rounded-xl border bg-card px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate">{{ fc.name }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ categoryName(fc.category_id) }}</p>
+                <Badge variant="outline" class="text-[10px] mt-1">{{ intervalLabel(fc.interval_months) }}</Badge>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-bold tabular-nums text-emerald-500">{{ fmtAmount(fc.amount) }}</p>
+                <div class="flex gap-1 mt-2 justify-end">
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="deactivate(fc)">{{ t('categories.archive') }}</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -322,7 +345,30 @@ async function saveAmount() {
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t('fixedCosts.sections.expense') }}
         </h2>
-        <div class="rounded-lg border bg-card overflow-hidden">
+        <!-- Mobile: expense cards -->
+        <div class="md:hidden space-y-2 mb-2">
+          <div v-if="expenseItems.length === 0" class="text-center text-muted-foreground py-4 text-sm">
+            {{ t('fixedCosts.noData') }}
+          </div>
+          <div v-for="fc in expenseItems" :key="fc.id" class="rounded-xl border bg-card px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate">{{ fc.name }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ categoryName(fc.category_id) }}</p>
+                <Badge variant="outline" class="text-[10px] mt-1">{{ intervalLabel(fc.interval_months) }}</Badge>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-bold tabular-nums text-rose-500">{{ fmtAmount(fc.amount) }}</p>
+                <div class="flex gap-1 mt-2 justify-end">
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="deactivate(fc)">{{ t('categories.archive') }}</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -364,7 +410,29 @@ async function saveAmount() {
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t('fixedCosts.sections.transfer') }}
         </h2>
-        <div class="rounded-lg border bg-card overflow-hidden">
+        <!-- Mobile: transfer cards -->
+        <div class="md:hidden space-y-2 mb-2">
+          <div v-for="fc in transferItems" :key="fc.id" class="rounded-xl border bg-card px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate">{{ fc.name }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5">
+                  {{ accounts.find(a => a.id === fc.account_id)?.name || '—' }}
+                  → {{ accounts.find(a => a.id === fc.to_account_id)?.name || '—' }}
+                </p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-bold tabular-nums">{{ fmtAmount(fc.amount) }}</p>
+                <div class="flex gap-1 mt-2 justify-end">
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="deactivate(fc)">{{ t('categories.archive') }}</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -399,7 +467,29 @@ async function saveAmount() {
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t('fixedCosts.sections.distribution') }}
         </h2>
-        <div class="rounded-lg border bg-card overflow-hidden">
+        <!-- Mobile: distribution cards -->
+        <div class="md:hidden space-y-2 mb-2">
+          <div v-for="fc in distributionItems" :key="fc.id" class="rounded-xl border bg-card px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate">{{ fc.name }}</p>
+                <p class="text-xs text-muted-foreground mt-0.5">
+                  {{ accounts.find(a => a.id === fc.account_id)?.name || '—' }}
+                  → {{ accounts.find(a => a.id === fc.to_account_id)?.name || '—' }}
+                </p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-bold tabular-nums">{{ fmtAmount(fc.amount) }}</p>
+                <div class="flex gap-1 mt-2 justify-end">
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openChangeAmount(fc)">{{ t('fixedCosts.changeAmount') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(fc)">{{ t('categories.edit') }}</Button>
+                  <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="deactivate(fc)">{{ t('categories.archive') }}</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -434,7 +524,22 @@ async function saveAmount() {
         <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           {{ t('fixedCosts.sections.loans') }}
         </h2>
-        <div class="rounded-lg border bg-card overflow-hidden">
+        <!-- Mobile: loan cards -->
+        <div class="md:hidden space-y-2 mb-2">
+          <div v-for="fc in loanItems" :key="fc.id" class="rounded-xl border bg-card px-4 py-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-medium text-sm truncate">{{ fc.name }}</p>
+                <Badge variant="outline" class="text-[10px] mt-1">{{ intervalLabel(fc.interval_months) }}</Badge>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-sm font-bold tabular-nums">{{ fmtAmount(fc.amount) }}</p>
+                <span class="text-xs text-muted-foreground">{{ t('fixedCosts.managedByLoan') }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -472,22 +577,24 @@ async function saveAmount() {
               {{ reserve.total_monthly.toFixed(2).replace('.', ',') }} €
             </span>
           </div>
-          <Table>
-            <TableBody>
-              <TableRow v-for="item in reserve.items" :key="item.id">
-                <TableCell class="font-medium">{{ item.name }}</TableCell>
-                <TableCell class="text-muted-foreground text-sm">
-                  {{ fmtAmount(item.full_amount) }} / {{ t('fixedCosts.intervals.' + item.interval_months) }}
-                </TableCell>
-                <TableCell class="text-right tabular-nums">
-                  = {{ item.monthly_share.toFixed(2).replace('.', ',') }} € / Mon.
-                </TableCell>
-                <TableCell class="text-right text-muted-foreground text-sm">
-                  {{ t('fixedCosts.validFrom') }}: {{ item.next_billing }}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <div class="overflow-x-auto">
+            <Table>
+              <TableBody>
+                <TableRow v-for="item in reserve.items" :key="item.id">
+                  <TableCell class="font-medium">{{ item.name }}</TableCell>
+                  <TableCell class="text-muted-foreground text-sm">
+                    {{ fmtAmount(item.full_amount) }} / {{ t('fixedCosts.intervals.' + item.interval_months) }}
+                  </TableCell>
+                  <TableCell class="text-right tabular-nums">
+                    = {{ item.monthly_share.toFixed(2).replace('.', ',') }} € / Mon.
+                  </TableCell>
+                  <TableCell class="text-right text-muted-foreground text-sm">
+                    {{ t('fixedCosts.validFrom') }}: {{ item.next_billing }}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 
