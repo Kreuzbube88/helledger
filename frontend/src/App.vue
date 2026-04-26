@@ -41,7 +41,7 @@ function onWizardDone() { wizardActive.value = false; auth.fetchUser() }
   <AppNav v-if="showNav" />
   <div
     class="min-h-dvh transition-all duration-300"
-    :class="showNav ? 'md:pl-64 pb-20 md:pb-0' : ''"
+    :class="showNav ? 'md:pl-64 mobile-content-padding' : ''"
   >
     <RouterView />
   </div>

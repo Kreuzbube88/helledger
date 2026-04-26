@@ -77,6 +77,27 @@
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 .safe-top    { padding-top:    env(safe-area-inset-top); }
 
+/* Mobile content bottom padding: nav height (5rem) + device safe area */
+.mobile-content-padding {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .mobile-content-padding {
+    padding-bottom: 0;
+  }
+}
+
+/* Pull-to-refresh spinner */
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+.ptr-spinner {
+  width: 24px; height: 24px;
+  border: 2px solid rgba(16,185,129,0.3);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: ptr-spin 0.8s linear infinite;
+}
 
 /* ── Aurora sweep ─────────────────────────────────────────────────── */
 .aurora-sweep {
