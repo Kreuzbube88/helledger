@@ -94,7 +94,50 @@ onMounted(load)
         <Button @click="openCreate">{{ t('accounts.add') }}</Button>
       </div>
 
-      <div class="rounded-lg border bg-card overflow-hidden">
+      <!-- Mobile: card list -->
+      <div class="md:hidden space-y-2">
+        <div v-if="accounts.length === 0" class="text-center text-muted-foreground py-8 text-sm">
+          {{ t('common.noData') }}
+        </div>
+        <div
+          v-for="acc in accounts"
+          :key="acc.id"
+          class="rounded-xl border bg-card px-4 py-3"
+        >
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-medium text-sm truncate">{{ acc.name }}</p>
+              <p class="text-xs text-muted-foreground mt-0.5">
+                {{ t(`accounts.types.${acc.account_type}`) }}
+                <template v-if="acc.account_role"> · {{ roleLabel(acc.account_role) }}</template>
+              </p>
+              <Badge v-if="!acc.archived" variant="default" class="text-[10px] mt-1">{{ t('accounts.active') }}</Badge>
+              <Badge v-else variant="secondary" class="text-[10px] mt-1">{{ t('accounts.archived') }}</Badge>
+            </div>
+            <div class="text-right shrink-0">
+              <p
+                class="text-sm font-bold tabular-nums"
+                :class="parseFloat(acc.starting_balance) >= 0 ? 'text-emerald-500' : 'text-rose-500'"
+              >
+                {{ parseFloat(acc.starting_balance).toFixed(2) }} {{ acc.currency }}
+              </p>
+              <div class="flex gap-2 mt-2 justify-end">
+                <button
+                  class="text-xs text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded-lg border text-[11px]"
+                  @click="openEdit(acc)"
+                >{{ t('accounts.edit') }}</button>
+                <button
+                  class="text-xs text-destructive hover:text-destructive/80 transition-colors py-1 px-2 rounded-lg border border-destructive/30 text-[11px]"
+                  @click="archive(acc.id)"
+                >{{ t('accounts.archive') }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop: table -->
+      <div class="hidden md:block rounded-lg border bg-card overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
