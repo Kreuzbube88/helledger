@@ -10,6 +10,7 @@ import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/theme'
 import { useAuthStore } from '@/stores/auth'
 import { Badge } from '@/components/ui/badge'
+import { usePullToRefresh } from '@/composables/usePullToRefresh'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -215,6 +216,8 @@ function roleLabel(role) {
   return fixed[role] || role
 }
 
+const { isPulling } = usePullToRefresh(load)
+
 // Load once a household is active; also re-runs after wizard sets active_household_id
 watch(() => auth.user?.active_household_id, async (id) => {
   if (id) {
@@ -226,6 +229,11 @@ watch(() => auth.user?.active_household_id, async (id) => {
 
 <template>
   <main class="max-w-screen-lg mx-auto px-4 py-6 space-y-5">
+    <Transition name="fade">
+      <div v-if="isPulling" class="flex justify-center py-3 md:hidden">
+        <div class="ptr-spinner" />
+      </div>
+    </Transition>
 
     <!-- ── Expiring fixed costs banner ────────────────────────── -->
     <div

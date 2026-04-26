@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
+import { usePullToRefresh } from '@/composables/usePullToRefresh'
 import { toast } from 'vue-sonner'
 import { RefreshCw } from 'lucide-vue-next'
 import { useApi } from '@/lib/api'
@@ -240,12 +241,20 @@ function fmtAmount(tx) {
   return (val >= 0 ? '+' : '') + val.toFixed(2).replace('.', ',') + ' €'
 }
 
+const { isPulling } = usePullToRefresh(load)
+
 onMounted(() => Promise.all([loadMeta(), load()]))
 </script>
 
 <template>
   <div class="min-h-dvh bg-background">
     <main class="max-w-5xl mx-auto px-4 py-6">
+      <Transition name="fade">
+        <div v-if="isPulling" class="flex justify-center py-3 md:hidden">
+          <div class="ptr-spinner" />
+        </div>
+      </Transition>
+
       <!-- Header -->
       <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div class="flex items-center gap-2">

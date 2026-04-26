@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useSwipe } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useApi } from '@/lib/api'
+import { usePullToRefresh } from '@/composables/usePullToRefresh'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -80,12 +81,20 @@ const sectionLabel = computed(() => ({
 const incomeSection = computed(() => data.value?.sections.find(s => s.type === 'income'))
 const otherSections = computed(() => data.value?.sections.filter(s => s.type !== 'income') || [])
 
+const { isPulling } = usePullToRefresh(load)
+
 watch([year, month], load)
 onMounted(load)
 </script>
 
 <template>
   <div ref="swipeContainer" class="container mx-auto py-6 space-y-4">
+    <Transition name="fade">
+      <div v-if="isPulling" class="flex justify-center py-3 md:hidden">
+        <div class="ptr-spinner" />
+      </div>
+    </Transition>
+
     <!-- Navigation -->
     <div class="flex items-center gap-4">
       <Button variant="ghost" size="icon" @click="prevMonth">&#8249;</Button>

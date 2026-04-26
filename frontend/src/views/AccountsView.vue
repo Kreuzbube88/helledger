@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirm } from '@/composables/useConfirm'
+import { usePullToRefresh } from '@/composables/usePullToRefresh'
 import { toast } from 'vue-sonner'
 import { useApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -83,12 +84,20 @@ async function archive(id) {
   else toast.error(t('errors.generic'))
 }
 
+const { isPulling } = usePullToRefresh(load)
+
 onMounted(load)
 </script>
 
 <template>
   <div class="min-h-dvh bg-background">
     <main class="max-w-5xl mx-auto px-4 py-6">
+      <Transition name="fade">
+        <div v-if="isPulling" class="flex justify-center py-3 md:hidden">
+          <div class="ptr-spinner" />
+        </div>
+      </Transition>
+
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold">{{ t('accounts.title') }}</h1>
         <Button @click="openCreate">{{ t('accounts.add') }}</Button>
