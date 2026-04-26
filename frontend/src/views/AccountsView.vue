@@ -122,14 +122,8 @@ onMounted(load)
                 {{ parseFloat(acc.starting_balance).toFixed(2) }} {{ acc.currency }}
               </p>
               <div class="flex gap-2 mt-2 justify-end">
-                <button
-                  class="text-xs text-muted-foreground hover:text-foreground transition-colors py-1 px-2 rounded-lg border text-[11px]"
-                  @click="openEdit(acc)"
-                >{{ t('accounts.edit') }}</button>
-                <button
-                  class="text-xs text-destructive hover:text-destructive/80 transition-colors py-1 px-2 rounded-lg border border-destructive/30 text-[11px]"
-                  @click="archive(acc.id)"
-                >{{ t('accounts.archive') }}</button>
+                <Button variant="ghost" size="sm" class="h-7 px-2 text-xs" @click="openEdit(acc)">{{ t('accounts.edit') }}</Button>
+                <Button variant="ghost" size="sm" class="h-7 px-2 text-xs text-destructive hover:text-destructive" @click="archive(acc.id)">{{ t('accounts.archive') }}</Button>
               </div>
             </div>
           </div>
