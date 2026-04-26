@@ -50,7 +50,9 @@ const allNavItems = computed(() => {
 })
 
 const PRIMARY_KEYS  = ['dashboard', 'transactions', 'accounts', 'month']
-const bottomPrimary = computed(() => allNavItems.value.filter(i => PRIMARY_KEYS.includes(i.key)))
+const bottomPrimary = computed(() =>
+  PRIMARY_KEYS.map(k => allNavItems.value.find(i => i.key === k)).filter(Boolean)
+)
 const bottomMore    = computed(() => allNavItems.value.filter(i => !PRIMARY_KEYS.includes(i.key)))
 
 const userInitial = computed(() =>
