@@ -190,7 +190,7 @@ const hBarOptions = {
   scales: { x: { beginAtZero: true } },
 }
 
-const donutOptions = { responsive: true, plugins: { legend: { position: 'right' } } }
+const donutOptions = { responsive: true, plugins: { legend: { position: 'bottom' } } }
 const lineOptions = { responsive: true, plugins: { legend: { display: false } } }
 
 function downloadCsv(data, filename) {
@@ -246,7 +246,7 @@ onMounted(async () => {
 
       <!-- Filter bar -->
       <Card>
-        <CardContent class="p-4 flex flex-wrap items-center gap-3">
+        <CardContent class="p-4 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
           <!-- Mode tabs -->
           <div class="flex rounded-md border overflow-hidden">
             <button
@@ -300,12 +300,14 @@ onMounted(async () => {
 
       <!-- Charts -->
       <Tabs v-model="activeTab">
-        <TabsList>
-          <TabsTrigger value="expenses">{{ t('reports.chart.expensesByCategory') }}</TabsTrigger>
-          <TabsTrigger value="trend">{{ t('reports.chart.monthlyTrend') }}</TabsTrigger>
-          <TabsTrigger value="balance">{{ t('reports.chart.balanceHistory') }}</TabsTrigger>
-          <TabsTrigger value="loans">{{ t('loans.title') }}</TabsTrigger>
-        </TabsList>
+        <div class="overflow-x-auto pb-1">
+          <TabsList class="flex-nowrap whitespace-nowrap">
+            <TabsTrigger value="expenses">{{ t('reports.chart.expensesByCategory') }}</TabsTrigger>
+            <TabsTrigger value="trend">{{ t('reports.chart.monthlyTrend') }}</TabsTrigger>
+            <TabsTrigger value="balance">{{ t('reports.chart.balanceHistory') }}</TabsTrigger>
+            <TabsTrigger value="loans">{{ t('loans.title') }}</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="expenses">
           <Card>
@@ -316,7 +318,7 @@ onMounted(async () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <Doughnut v-if="catData?.length" :data="donutChartData" :options="donutOptions" class="max-h-80" />
+              <Doughnut v-if="catData?.length" :data="donutChartData" :options="donutOptions" class="max-h-72 sm:max-h-80" />
               <p v-else class="text-center text-muted-foreground py-12">{{ t('reports.noData') }}</p>
             </CardContent>
           </Card>
